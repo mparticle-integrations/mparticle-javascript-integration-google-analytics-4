@@ -1,0 +1,14 @@
+{
+  "name": "",
+  "version": "",
+  "scripts": {
+    "testKarma": "node test/boilerplate/test-karma.js",
+    "watch": "watchify ./node_modules/@mparticle/web-kit-wrapper/index.js -v -o build/$KIT-Kit.js"
+  },
+  "devDependencies": {
+    "@mparticle/web-kit-wrapper": "1.0.0-rc3",
+    "mocha": "^5.2.0",
+    "should": "^7.1.0",
+    "watchify": "^3.9.0"
+  }
+}
