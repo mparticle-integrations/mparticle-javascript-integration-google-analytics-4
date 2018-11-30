@@ -20,6 +20,9 @@ For more userIdentity types, see http://docs.mparticle.com/developers/sdk/javasc
 */
 
 var identityHandler = {
+    onUserIdentified: function(mParticleUser) {
+
+    },
     onIdentifyCompleted: function(mParticleUser, identityApiRequest) {
 
     },
@@ -30,9 +33,6 @@ var identityHandler = {
 
     },
     onModifyCompleted: function(mParticleUser, identityApiRequest) {
-
-    },
-    onUserIdentified: function(mParticleUser, identityApiRequest) {
 
     },
 
