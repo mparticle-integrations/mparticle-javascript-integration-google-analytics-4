@@ -7,7 +7,7 @@ Call mParticleUser.getMPID() to get mParticle ID
 For any additional methods, see http://docs.mparticle.com/developers/sdk/javascript/apidocs/classes/mParticle.Identity.getCurrentUser().html
 */
 
-var identityHandler = {
+var userAttributeHandler = {
     onRemoveUserAttribute: function(key, mParticleUser) {
 
     },
@@ -19,4 +19,4 @@ var identityHandler = {
     }
 };
 
-module.exports = identityHandler;
+module.exports = userAttributeHandler;

@@ -1,5 +1,5 @@
 var commerceHandler = {
-    logEvent: function(event) {
+    logCommerceEvent: function(event) {
         /*
         Sample ecommerce event schema:
         {

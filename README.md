@@ -12,9 +12,9 @@ Detailed instructions on how to implement your own integration with the mParticl
 
 1. Fork this repo and `cd` into it locally on your computer.
 2. Run `npm install` to install dependencies.
-3. Run `KIT=YOURKITNAME npm run watch` to watch files in the `integration-builder/` folder, and automatically build your kit to `build/YOURKITNAME-Kit.js`. Your kit will continuously build as your save your edits.
-4. Following examples such as [Optimizely](http://https://github.com/mparticle-integrations/mparticle-javascript-integration-optimizely), edit files in `integration-builder/`.
-5. As you map mParticle's methods to your own in `integration-builder/`, stub your SDK methods and create tests in `test/tests.js`.
+3. Run `KIT=YOURKITNAME npm run watch` to watch files in the `src/` folder, and automatically build your kit to `build/YOURKITNAME-Kit.js`. Your kit will continuously build as your save your edits.
+4. Following examples such as [Optimizely](http://https://github.com/mparticle-integrations/mparticle-javascript-integration-optimizely), edit files in `src/`.
+5. As you map mParticle's methods to your own in `src/`, stub your SDK methods and create tests in `test/tests.js`.
 6. Submit a pull request to this repo. A developer from mParticle will review it and once complete, we will help provide you with a repo for your integration.
 
 ## Support

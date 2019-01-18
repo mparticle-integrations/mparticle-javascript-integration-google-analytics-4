@@ -1,7 +1,18 @@
 /* eslint-disable no-undef*/
 describe('XYZ Forwarder', function () {
     // -------------------DO NOT EDIT ANYTHING BELOW THIS LINE-----------------------
-    var ReportingService = function () {
+    var MessageTypes = {
+            SessionStart: 1,
+            SessionEnd: 2,
+            PageView: 3,
+            PageEvent: 4,
+            CrashReport: 5,
+            OptOut: 6,
+            AppStateTransition: 10,
+            Profile: 14,
+            Commerce: 16
+        },
+        ReportingService = function () {
             var self = this;
 
             this.id = null;
@@ -17,63 +28,75 @@ describe('XYZ Forwarder', function () {
                 this.event = null;
             };
         },
-        reportService = new ReportingService(),
+        reportService = new ReportingService();
 
 // -------------------DO NOT EDIT ANYTHING ABOVE THIS LINE-----------------------
 // -------------------START EDITING BELOW:-----------------------
-        MockXYZForwarder = function() {
-            var self = this;
+// -------------------mParticle stubs - Add any additional stubbing to our methods as needed-----------------------
+    mParticle.Identity = {
+        getCurrentUser: function() {
+            return {
+                getMPID: function() {
+                    return '123';
+                }
 
-            // create properties for each type of event you want tracked, see below for examples
-            this.trackCustomEventCalled = false;
-            this.logPurchaseEventCalled = false;
-            this.initializeCalled = false;
-
-            this.trackCustomName = null;
-            this.logPurchaseName = null;
-            this.apiKey = null;
-            this.appId = null;
-            this.userId = null;
-            this.userAttributes = {};
-            this.userIdField = null;
-
-            this.eventProperties = [];
-            this.purchaseEventProperties = [];
-
-            // stub your different methods to ensure they are being called properly
-            this.initialize = function(appId, apiKey) {
-                self.initializeCalled = true;
-                self.apiKey = apiKey;
-                self.appId = appId;
             };
+        }
+    };
+// -------------------START EDITING BELOW:-----------------------
+    var MockXYZForwarder = function() {
+        var self = this;
 
-            this.stubbedTrackingMethod = function(name, eventProperties){
-                self.trackCustomEventCalled = true;
-                self.trackCustomName = name;
-                self.eventProperties.push(eventProperties);
-                // Return true to indicate event should be reported
-                return true;
-            };
+        // create properties for each type of event you want tracked, see below for examples
+        this.trackCustomEventCalled = false;
+        this.logPurchaseEventCalled = false;
+        this.initializeCalled = false;
 
-            this.stubbedUserAttributeSettingMethod = function(userAttributes) {
-                self.userId = id;
-                userAttributes = userAttributes || {};
-                if (Object.keys(userAttributes).length) {
-                    for (var key in userAttributes) {
-                        if (userAttributes[key] === null) {
-                            delete self.userAttributes[key];
-                        }
-                        else {
-                            self.userAttributes[key] = userAttributes[key];
-                        }
+        this.trackCustomName = null;
+        this.logPurchaseName = null;
+        this.apiKey = null;
+        this.appId = null;
+        this.userId = null;
+        this.userAttributes = {};
+        this.userIdField = null;
+
+        this.eventProperties = [];
+        this.purchaseEventProperties = [];
+
+        // stub your different methods to ensure they are being called properly
+        this.initialize = function(appId, apiKey) {
+            self.initializeCalled = true;
+            self.apiKey = apiKey;
+            self.appId = appId;
+        };
+
+        this.stubbedTrackingMethod = function(name, eventProperties){
+            self.trackCustomEventCalled = true;
+            self.trackCustomName = name;
+            self.eventProperties.push(eventProperties);
+            // Return true to indicate event should be reported
+            return true;
+        };
+
+        this.stubbedUserAttributeSettingMethod = function(userAttributes) {
+            self.userId = id;
+            userAttributes = userAttributes || {};
+            if (Object.keys(userAttributes).length) {
+                for (var key in userAttributes) {
+                    if (userAttributes[key] === null) {
+                        delete self.userAttributes[key];
+                    }
+                    else {
+                        self.userAttributes[key] = userAttributes[key];
                     }
                 }
-            };
-
-            this.stubbedUserIdSettingMethod = function(id) {
-                self.userId = id;
-            };
+            }
         };
+
+        this.stubbedUserLoginMethod = function(id) {
+            self.userId = id;
+        };
+    };
 
     before(function () {
         mParticle.init('test');
@@ -187,6 +210,33 @@ describe('XYZ Forwarder', function () {
         // window.MockXYZForwarder.eventProperties[0].TotalAmount.should.equal(400);
         // window.MockXYZForwarder.eventProperties[0].CouponCode.should.equal('coupon-code');
         // window.MockXYZForwarder.eventProperties[0].Quantity.should.equal(1);
+
+        done();
+    });
+
+    it('should set customer id user identity on user identity change', function(done) {
+        // var fakeUserStub = {
+        //     getUserIdentities: function() {
+        //         return {
+        //             userIdentities: {
+        //                 customerid: '123'
+        //             }
+        //         };
+        //     },
+        //     getMPID: function() {
+        //         return 'testMPID';
+        //     },
+        //     setUserAttribute: function() {
+        //
+        //     },
+        //     removeUserAttribute: function() {
+        //
+        //     }
+        // };
+        //
+        // mParticle.forwarder.onUserIdentified(fakeUserStub);
+        //
+        // window.MockXYZForwarder.userId.should.equal('123');
 
         done();
     });
