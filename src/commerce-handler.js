@@ -1,6 +1,9 @@
-var commerceHandler = {
-    logCommerceEvent: function(event) {
-        /*
+function CommerceHandler(common) {
+    this.common = common || {};
+}
+
+CommerceHandler.prototype.logCommerceEvent = function(event) {
+    /*
         Sample ecommerce event schema:
         {
             CurrencyCode: 'USD',
@@ -58,7 +61,6 @@ var commerceHandler = {
             21: ProductRemoveFromWishlist,
             22: ProductImpression
         */
-    }
 };
 
 module.exports = commerceHandler;
