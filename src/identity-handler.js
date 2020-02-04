@@ -49,4 +49,4 @@ IdentityHandler.prototype.onSetUserIdentity = function(
     type
 ) {};
 
-module.exports = identityHandler;
+module.exports = IdentityHandler;

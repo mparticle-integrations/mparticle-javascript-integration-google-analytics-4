@@ -25,4 +25,4 @@ UserAttributeHandler.prototype.onConsentStateUpdated = function(
     mParticleUser
 ) {};
 
-module.exports = userAttributeHandler;
+module.exports = UserAttributeHandler;

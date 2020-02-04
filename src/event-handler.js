@@ -32,4 +32,4 @@ EventHandler.prototype.logPageView = function(event) {
         */
 };
 
-module.exports = eventHandler;
+module.exports = EventHandler;

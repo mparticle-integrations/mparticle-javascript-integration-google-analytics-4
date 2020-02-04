@@ -63,4 +63,4 @@ CommerceHandler.prototype.logCommerceEvent = function(event) {
         */
 };
 
-module.exports = commerceHandler;
+module.exports = CommerceHandler;
