@@ -1,7 +1,7 @@
 /* eslint-disable no-undef*/
 describe('XYZ Forwarder', function () {
     // -------------------DO NOT EDIT ANYTHING BELOW THIS LINE-----------------------
-    var MessageTypes = {
+    var MessageType = {
             SessionStart: 1,
             SessionEnd: 2,
             PageView: 3,
@@ -11,6 +11,46 @@ describe('XYZ Forwarder', function () {
             AppStateTransition: 10,
             Profile: 14,
             Commerce: 16
+        },
+        EventType = {
+            Unknown: 0,
+            Navigation: 1,
+            Location: 2,
+            Search: 3,
+            Transaction: 4,
+            UserContent: 5,
+            UserPreference: 6,
+            Social: 7,
+            Other: 8,
+            Media: 9,
+            getName: function() {
+                return 'blahblah';
+            }
+        },
+        ProductActionType = {
+            Unknown: 0,
+            AddToCart: 1,
+            RemoveFromCart: 2,
+            Checkout: 3,
+            CheckoutOption: 4,
+            Click: 5,
+            ViewDetail: 6,
+            Purchase: 7,
+            Refund: 8,
+            AddToWishlist: 9,
+            RemoveFromWishlist: 10
+        },
+        IdentityType = {
+            Other: 0,
+            CustomerId: 1,
+            Facebook: 2,
+            Twitter: 3,
+            Google: 4,
+            Microsoft: 5,
+            Yahoo: 6,
+            Email: 7,
+            Alias: 8,
+            FacebookCustomAudienceId: 9,
         },
         ReportingService = function () {
             var self = this;
@@ -99,14 +139,7 @@ describe('XYZ Forwarder', function () {
     };
 
     before(function () {
-        mParticle.init('test');
-        mParticle.EventType = EventType;
-        mParticle.ProductActionType = ProductActionType;
-        mParticle.PromotionType = PromotionActionType;
-        mParticle.IdentityType = IdentityType;
-        mParticle.CommerceEventType = CommerceEventType;
-        mParticle.eCommerce = {};
-        mParticle.eCommerce.expandCommerceEvent = expandCommerceEvent;
+
     });
 
     beforeEach(function() {
@@ -144,7 +177,7 @@ describe('XYZ Forwarder', function () {
         //         category: 'category'
         //     }
         // });
-        //
+        
         // window.MockXYZForwarder.eventProperties[0].label.should.equal('label');
         // window.MockXYZForwarder.eventProperties[0].value.should.equal(200);
 
