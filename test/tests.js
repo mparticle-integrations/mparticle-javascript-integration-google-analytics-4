@@ -957,43 +957,62 @@ describe('Google Analytics 4 Event', function () {
             it('should log an add_shipping_info commerce event', function (done) {
                 done();
             });
+        });
 
-            // beforeEach(function() {
-            //     window.dataLayer = [];
-            //     window.mockGA4EventForwarder = new mockGA4EventForwarder();
-            //     // Include any specific settings that is required for initializing your SDK here
-            //     var sdkSettings = {
-            //         clientKey: '123456',
-            //         appId: 'abcde',
-            //         userIdField: 'customerId',
-            //     };
-            //     // You may require userAttributes or userIdentities to be passed into initialization
-            //     var userAttributes = {
-            //         color: 'green',
-            //     };
-            //     var userIdentities = [
-            //         {
-            //             Identity: 'customerId',
-            //             Type: IdentityType.CustomerId,
-            //         },
-            //         {
-            //             Identity: 'email',
-            //             Type: IdentityType.Email,
-            //         },
-            //         {
-            //             Identity: 'facebook',
-            //             Type: IdentityType.Facebook,
-            //         },
-            //     ];
-            //     mParticle.forwarder.init(
-            //         sdkSettings,
-            //         reportService.cb,
-            //         true,
-            //         null,
-            //         userAttributes,
-            //         userIdentities
-            //     );
-            // });
+        describe('event mapping', function () {
+            it('should log a page event', function (done) {
+                mParticle.forwarder.process({
+                    EventDataType: MessageType.PageEvent,
+                    EventName: 'test name',
+                    EventAttributes: {
+                        attr1: 'test1',
+                        attr2: 'test2',
+                    },
+                    CustomFlags: {},
+                });
+
+                // TODO: Update MAPPEDNAME, add any mapped event attrs above, and below to the `result`
+                // var result = [
+                //     'event',
+                //     MAPPEDNAME,
+                //     {
+                //         mapped_foo1: 'bar1',
+                //         mapped_foo2: 'bar2',
+                //     },
+                // ];
+
+                // window.dataLayer[0][2].should.match(result);
+
+                done();
+            });
+
+            it('should log page view', function (done) {
+                mParticle.forwarder.process({
+                    EventDataType: MessageType.PageEvent,
+                    EventName: 'test name',
+                    EventAttributes: {
+                        attr1: 'test1',
+                        attr2: 'test2',
+                    },
+                    CustomFlags: {
+                        'Google.Title': 'Foo Page Title',
+                        'Google.Location': '/foo',
+                    },
+                });
+
+                // TODO: Update MAPPEDNAME and any mapped event attributes/parameters
+                // var result = [
+                //     'event',
+                //     MAPPEDNAME,
+                //     {
+                //         page_title: 'Foo Page Title',
+                //         page_location: '/foo',
+                //     },
+                // ];
+                // window.dataLayer[0][2].should.match(result);
+
+                done();
+            });
         });
     });
 });
