@@ -27,6 +27,21 @@ describe('Google Analytics 4 Event', function() {
                 return 'blahblah';
             },
         },
+        CommerceEventType = {
+            ProductAddToCart: 10,
+            ProductRemoveFromCart: 11,
+            ProductCheckout: 12,
+            ProductCheckoutOption: 13,
+            ProductClick: 14,
+            ProductViewDetail: 15,
+            ProductPurchase: 16,
+            ProductRefund: 17,
+            PromotionView: 18,
+            PromotionClick: 19,
+            ProductAddToWishlist: 20,
+            ProductRemoveFromWishlist: 21,
+            ProductImpression: 22,
+        },
         ProductActionType = {
             Unknown: 0,
             AddToCart: 1,
@@ -208,6 +223,253 @@ describe('Google Analytics 4 Event', function() {
             window.dataLayer[0].should.match(result);
 
             done();
+        });
+
+        describe('ecommerce mapping', function() {
+            var result;
+            beforeEach(function() {
+                result = [
+                    'event',
+                    'event_type_to_be_updated',
+                    {
+                        currency: 'USD',
+                        items: [
+                            {
+                                attributes: {
+                                    eventMetric1: 'metric2',
+                                    journeyType: 'testjourneytype1',
+                                },
+                                coupon_code: 'coupon',
+                                item_brand: 'brand',
+                                item_category: 'category',
+                                item_id: 'iphoneSKU',
+                                item_name: 'iphone',
+                                item_variant: 'variant',
+                                position: 1,
+                                price: 999,
+                                quantity: 1,
+                                total_amount: 999,
+                            },
+                            {
+                                attributes: {
+                                    eventMetric1: 'metric1',
+                                    journeyType: 'testjourneytype2',
+                                },
+                                coupon_code: 'coupon',
+                                item_brand: 'brand',
+                                item_category: 'category',
+                                item_id: 'iphoneSKU',
+                                item_name: 'iphone',
+                                item_variant: 'variant',
+                                position: 1,
+                                price: 999,
+                                quantity: 1,
+                                total_amount: 999,
+                            },
+                        ],
+                    },
+                ];
+            });
+            it('should log an add to cart commerce event', function(done) {
+                mParticle.forwarder.process({
+                    CurrencyCode: 'USD',
+                    EventName: 'Test Purchase Event',
+                    EventDataType: MessageType.Commerce,
+                    EventCategory: CommerceEventType.ProductAddToCart,
+                    ProductAction: {
+                        ProductActionType: ProductActionType.AddToCart,
+                        ProductList: [
+                            {
+                                Attributes: {
+                                    eventMetric1: 'metric2',
+                                    journeyType: 'testjourneytype1',
+                                },
+                                Brand: 'brand',
+                                Category: 'category',
+                                CouponCode: 'coupon',
+                                Name: 'iphone',
+                                Position: 1,
+                                Price: 999,
+                                Quantity: 1,
+                                Sku: 'iphoneSKU',
+                                TotalAmount: 999,
+                                Variant: 'variant',
+                            },
+                            {
+                                Attributes: {
+                                    eventMetric1: 'metric1',
+                                    journeyType: 'testjourneytype2',
+                                },
+                                Brand: 'brand',
+                                Category: 'category',
+                                CouponCode: 'coupon',
+                                Name: 'iphone',
+                                Position: 1,
+                                Price: 999,
+                                Quantity: 1,
+                                Sku: 'iphoneSKU',
+                                TotalAmount: 999,
+                                Variant: 'variant',
+                            },
+                        ],
+                        TotalAmount: 450,
+                        TaxAmount: 40,
+                        ShippingAmount: 10,
+                    },
+                });
+
+                result[1] = 'add_to_cart';
+
+                window.dataLayer[0].should.match(result);
+
+                done();
+            });
+
+            it('should log a remove from cart commerce event', function(done) {
+                mParticle.forwarder.process({
+                    CurrencyCode: 'USD',
+                    EventName: 'Test Purchase Event',
+                    EventDataType: MessageType.Commerce,
+                    EventCategory: CommerceEventType.ProductRemoveFromCart,
+                    ProductAction: {
+                        ProductActionType: ProductActionType.RemoveFromCart,
+                        ProductList: [
+                            {
+                                Attributes: {
+                                    eventMetric1: 'metric2',
+                                    journeyType: 'testjourneytype1',
+                                },
+                                Brand: 'brand',
+                                Category: 'category',
+                                CouponCode: 'coupon',
+                                Name: 'iphone',
+                                Position: 1,
+                                Price: 999,
+                                Quantity: 1,
+                                Sku: 'iphoneSKU',
+                                TotalAmount: 999,
+                                Variant: 'variant',
+                            },
+                            {
+                                Attributes: {
+                                    eventMetric1: 'metric1',
+                                    journeyType: 'testjourneytype2',
+                                },
+                                Brand: 'brand',
+                                Category: 'category',
+                                CouponCode: 'coupon',
+                                Name: 'iphone',
+                                Position: 1,
+                                Price: 999,
+                                Quantity: 1,
+                                Sku: 'iphoneSKU',
+                                TotalAmount: 999,
+                                Variant: 'variant',
+                            },
+                        ],
+                        TotalAmount: 450,
+                        TaxAmount: 40,
+                        ShippingAmount: 10,
+                    },
+                });
+
+                result[1] = 'remove_from_cart';
+                window.dataLayer[0].should.match(result);
+
+                done();
+            });
+
+            it('should log a checkout commerce event', function(done) {
+                mParticle.forwarder.process({
+                    CurrencyCode: 'USD',
+                    EventName: 'Test Purchase Event',
+                    EventDataType: MessageType.Commerce,
+                    EventCategory: CommerceEventType.ProductCheckout,
+                    ProductAction: {
+                        ProductActionType: ProductActionType.ProductCheckout,
+                        ProductList: [
+                            {
+                                Attributes: {
+                                    eventMetric1: 'metric2',
+                                    journeyType: 'testjourneytype1',
+                                },
+                                Brand: 'brand',
+                                Category: 'category',
+                                CouponCode: 'coupon',
+                                Name: 'iphone',
+                                Position: 1,
+                                Price: 999,
+                                Quantity: 1,
+                                Sku: 'iphoneSKU',
+                                TotalAmount: 999,
+                                Variant: 'variant',
+                            },
+                            {
+                                Attributes: {
+                                    eventMetric1: 'metric1',
+                                    journeyType: 'testjourneytype2',
+                                },
+                                Brand: 'brand',
+                                Category: 'category',
+                                CouponCode: 'coupon',
+                                Name: 'iphone',
+                                Position: 1,
+                                Price: 999,
+                                Quantity: 1,
+                                Sku: 'iphoneSKU',
+                                TotalAmount: 999,
+                                Variant: 'variant',
+                            },
+                        ],
+                        TotalAmount: 450,
+                        TaxAmount: 40,
+                        ShippingAmount: 10,
+                        CouponCode: 'couponCode',
+                    },
+                });
+
+                result[1] = 'begin_checkout';
+                window.dataLayer[0].should.match(result);
+
+                done();
+            });
+
+            // beforeEach(function() {
+            //     window.dataLayer = [];
+            //     window.mockGA4EventForwarder = new mockGA4EventForwarder();
+            //     // Include any specific settings that is required for initializing your SDK here
+            //     var sdkSettings = {
+            //         clientKey: '123456',
+            //         appId: 'abcde',
+            //         userIdField: 'customerId',
+            //     };
+            //     // You may require userAttributes or userIdentities to be passed into initialization
+            //     var userAttributes = {
+            //         color: 'green',
+            //     };
+            //     var userIdentities = [
+            //         {
+            //             Identity: 'customerId',
+            //             Type: IdentityType.CustomerId,
+            //         },
+            //         {
+            //             Identity: 'email',
+            //             Type: IdentityType.Email,
+            //         },
+            //         {
+            //             Identity: 'facebook',
+            //             Type: IdentityType.Facebook,
+            //         },
+            //     ];
+            //     mParticle.forwarder.init(
+            //         sdkSettings,
+            //         reportService.cb,
+            //         true,
+            //         null,
+            //         userAttributes,
+            //         userIdentities
+            //     );
+            // });
         });
     });
 });
