@@ -1,5 +1,5 @@
 /* eslint-disable no-undef*/
-describe('XYZ Forwarder', function () {
+describe('Google Analytics 4 Event', function() {
     // -------------------DO NOT EDIT ANYTHING BELOW THIS LINE-----------------------
     var MessageType = {
             SessionStart: 1,
@@ -10,7 +10,7 @@ describe('XYZ Forwarder', function () {
             OptOut: 6,
             AppStateTransition: 10,
             Profile: 14,
-            Commerce: 16
+            Commerce: 16,
         },
         EventType = {
             Unknown: 0,
@@ -25,7 +25,7 @@ describe('XYZ Forwarder', function () {
             Media: 9,
             getName: function() {
                 return 'blahblah';
-            }
+            },
         },
         ProductActionType = {
             Unknown: 0,
@@ -38,7 +38,7 @@ describe('XYZ Forwarder', function () {
             Purchase: 7,
             Refund: 8,
             AddToWishlist: 9,
-            RemoveFromWishlist: 10
+            RemoveFromWishlist: 10,
         },
         IdentityType = {
             Other: 0,
@@ -52,39 +52,38 @@ describe('XYZ Forwarder', function () {
             Alias: 8,
             FacebookCustomAudienceId: 9,
         },
-        ReportingService = function () {
+        ReportingService = function() {
             var self = this;
 
             this.id = null;
             this.event = null;
 
-            this.cb = function (forwarder, event) {
+            this.cb = function(forwarder, event) {
                 self.id = forwarder.id;
                 self.event = event;
             };
 
-            this.reset = function () {
+            this.reset = function() {
                 this.id = null;
                 this.event = null;
             };
         },
         reportService = new ReportingService();
 
-// -------------------DO NOT EDIT ANYTHING ABOVE THIS LINE-----------------------
-// -------------------START EDITING BELOW:-----------------------
-// -------------------mParticle stubs - Add any additional stubbing to our methods as needed-----------------------
+    // -------------------DO NOT EDIT ANYTHING ABOVE THIS LINE-----------------------
+    // -------------------START EDITING BELOW:-----------------------
+    // -------------------mParticle stubs - Add any additional stubbing to our methods as needed-----------------------
     mParticle.Identity = {
         getCurrentUser: function() {
             return {
                 getMPID: function() {
                     return '123';
-                }
-
+                },
             };
-        }
+        },
     };
-// -------------------START EDITING BELOW:-----------------------
-    var MockXYZForwarder = function() {
+    // -------------------START EDITING BELOW:-----------------------
+    var mockGA4EventForwarder = function() {
         var self = this;
 
         // create properties for each type of event you want tracked, see below for examples
@@ -110,7 +109,7 @@ describe('XYZ Forwarder', function () {
             self.appId = appId;
         };
 
-        this.stubbedTrackingMethod = function(name, eventProperties){
+        this.stubbedTrackingMethod = function(name, eventProperties) {
             self.trackCustomEventCalled = true;
             self.trackCustomName = name;
             self.eventProperties.push(eventProperties);
@@ -125,8 +124,7 @@ describe('XYZ Forwarder', function () {
                 for (var key in userAttributes) {
                     if (userAttributes[key] === null) {
                         delete self.userAttributes[key];
-                    }
-                    else {
+                    } else {
                         self.userAttributes[key] = userAttributes[key];
                     }
                 }
@@ -138,33 +136,42 @@ describe('XYZ Forwarder', function () {
         };
     };
 
-    before(function () {
-
-    });
+    before(function() {});
 
     beforeEach(function() {
-        window.MockXYZForwarder = new MockXYZForwarder();
+        window.mockGA4EventForwarder = new mockGA4EventForwarder();
         // Include any specific settings that is required for initializing your SDK here
         var sdkSettings = {
             clientKey: '123456',
             appId: 'abcde',
-            userIdField: 'customerId'
+            userIdField: 'customerId',
         };
         // You may require userAttributes or userIdentities to be passed into initialization
         var userAttributes = {
-            color: 'green'
+            color: 'green',
         };
-        var userIdentities = [{
-            Identity: 'customerId',
-            Type: IdentityType.CustomerId
-        }, {
-            Identity: 'email',
-            Type: IdentityType.Email
-        }, {
-            Identity: 'facebook',
-            Type: IdentityType.Facebook
-        }];
-        mParticle.forwarder.init(sdkSettings, reportService.cb, true, null, userAttributes, userIdentities);
+        var userIdentities = [
+            {
+                Identity: 'customerId',
+                Type: IdentityType.CustomerId,
+            },
+            {
+                Identity: 'email',
+                Type: IdentityType.Email,
+            },
+            {
+                Identity: 'facebook',
+                Type: IdentityType.Facebook,
+            },
+        ];
+        mParticle.forwarder.init(
+            sdkSettings,
+            reportService.cb,
+            true,
+            null,
+            userAttributes,
+            userIdentities
+        );
     });
 
     it('should log event', function(done) {
@@ -177,7 +184,7 @@ describe('XYZ Forwarder', function () {
         //         category: 'category'
         //     }
         // });
-        
+
         // window.MockXYZForwarder.eventProperties[0].label.should.equal('label');
         // window.MockXYZForwarder.eventProperties[0].value.should.equal(200);
 
