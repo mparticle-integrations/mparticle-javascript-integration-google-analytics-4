@@ -158,6 +158,7 @@ describe('Google Analytics 4 Event', function() {
     });
     describe('forwarder mapping', function() {
         beforeEach(function() {
+            window.dataLayer = [];
             window.mockGA4EventForwarder = new mockGA4EventForwarder();
             // Include any specific settings that is required for initializing your SDK here
             var sdkSettings = {
@@ -191,6 +192,22 @@ describe('Google Analytics 4 Event', function() {
                 userAttributes,
                 userIdentities
             );
+        });
+
+        it('should set user attribute', function(done) {
+            mParticle.forwarder.setUserAttribute('foo', 'bar');
+            var result = ['set', 'user_properties', { foo: 'bar' }];
+            window.dataLayer[0].should.match(result);
+
+            done();
+        });
+
+        it('should remove user attribute', function(done) {
+            mParticle.forwarder.removeUserAttribute('bar');
+            var result = ['set', 'user_properties', { bar: null }];
+            window.dataLayer[0].should.match(result);
+
+            done();
         });
     });
 });
