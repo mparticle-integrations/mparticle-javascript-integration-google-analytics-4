@@ -136,148 +136,61 @@ describe('Google Analytics 4 Event', function() {
         };
     };
 
-    before(function() {});
+    describe('initialization', function() {
+        it('should initialize gtag and the dataLayer', function(done) {
+            (window.gtag === undefined).should.equal(true);
+            (window.dataLayer === undefined).should.equal(true);
+            window.mockGA4EventForwarder = new mockGA4EventForwarder();
+            // Include any specific settings that is required for initializing your SDK here
+            var sdkSettings = {
+                clientKey: '123456',
+                appId: 'abcde',
+                userIdField: 'customerId',
+            };
 
-    beforeEach(function() {
-        window.mockGA4EventForwarder = new mockGA4EventForwarder();
-        // Include any specific settings that is required for initializing your SDK here
-        var sdkSettings = {
-            clientKey: '123456',
-            appId: 'abcde',
-            userIdField: 'customerId',
-        };
-        // You may require userAttributes or userIdentities to be passed into initialization
-        var userAttributes = {
-            color: 'green',
-        };
-        var userIdentities = [
-            {
-                Identity: 'customerId',
-                Type: IdentityType.CustomerId,
-            },
-            {
-                Identity: 'email',
-                Type: IdentityType.Email,
-            },
-            {
-                Identity: 'facebook',
-                Type: IdentityType.Facebook,
-            },
-        ];
-        mParticle.forwarder.init(
-            sdkSettings,
-            reportService.cb,
-            true,
-            null,
-            userAttributes,
-            userIdentities
-        );
+            mParticle.forwarder.init(sdkSettings, reportService.cb, true);
+
+            Should(window.gtag).be.ok();
+            Should(window.dataLayer === undefined).should.be.ok();
+
+            done();
+        });
     });
-
-    it('should log event', function(done) {
-        // mParticle.forwarder.process({
-        //     EventDataType: MessageType.PageEvent,
-        //     EventName: 'Test Event',
-        //     EventAttributes: {
-        //         label: 'label',
-        //         value: 200,
-        //         category: 'category'
-        //     }
-        // });
-
-        // window.MockXYZForwarder.eventProperties[0].label.should.equal('label');
-        // window.MockXYZForwarder.eventProperties[0].value.should.equal(200);
-
-        done();
-    });
-
-    it('should log page view', function(done) {
-        // mParticle.forwarder.process({
-        //     EventDataType: MessageType.PageView,
-        //     EventName: 'test name',
-        //     EventAttributes: {
-        //         attr1: 'test1',
-        //         attr2: 'test2'
-        //     }
-        // });
-        //
-        // window.MockXYZForwarder.trackCustomEventCalled.should.equal(true);
-        // window.MockXYZForwarder.trackCustomName.should.equal('test name');
-        // window.MockXYZForwarder.eventProperties[0].attr1.should.equal('test1');
-        // window.MockXYZForwarder.eventProperties[0].attr2.should.equal('test2');
-
-        done();
-    });
-
-    it('should log a product purchase commerce event', function(done) {
-        // mParticle.forwarder.process({
-        //     EventName: 'Test Purchase Event',
-        //     EventDataType: MessageType.Commerce,
-        //     EventCategory: EventType.ProductPurchase,
-        //     ProductAction: {
-        //         ProductActionType: ProductActionType.Purchase,
-        //         ProductList: [
-        //             {
-        //                 Sku: '12345',
-        //                 Name: 'iPhone 6',
-        //                 Category: 'Phones',
-        //                 Brand: 'iPhone',
-        //                 Variant: '6',
-        //                 Price: 400,
-        //                 TotalAmount: 400,
-        //                 CouponCode: 'coupon-code',
-        //                 Quantity: 1
-        //             }
-        //         ],
-        //         TransactionId: 123,
-        //         Affiliation: 'my-affiliation',
-        //         TotalAmount: 450,
-        //         TaxAmount: 40,
-        //         ShippingAmount: 10,
-        //         CouponCode: null
-        //     }
-        // });
-        //
-        // window.MockXYZForwarder.trackCustomEventCalled.should.equal(true);
-        // window.MockXYZForwarder.trackCustomName.should.equal('Purchase');
-        //
-        // window.MockXYZForwarder.eventProperties[0].Sku.should.equal('12345');
-        // window.MockXYZForwarder.eventProperties[0].Name.should.equal('iPhone 6');
-        // window.MockXYZForwarder.eventProperties[0].Category.should.equal('Phones');
-        // window.MockXYZForwarder.eventProperties[0].Brand.should.equal('iPhone');
-        // window.MockXYZForwarder.eventProperties[0].Variant.should.equal('6');
-        // window.MockXYZForwarder.eventProperties[0].Price.should.equal(400);
-        // window.MockXYZForwarder.eventProperties[0].TotalAmount.should.equal(400);
-        // window.MockXYZForwarder.eventProperties[0].CouponCode.should.equal('coupon-code');
-        // window.MockXYZForwarder.eventProperties[0].Quantity.should.equal(1);
-
-        done();
-    });
-
-    it('should set customer id user identity on user identity change', function(done) {
-        // var fakeUserStub = {
-        //     getUserIdentities: function() {
-        //         return {
-        //             userIdentities: {
-        //                 customerid: '123'
-        //             }
-        //         };
-        //     },
-        //     getMPID: function() {
-        //         return 'testMPID';
-        //     },
-        //     setUserAttribute: function() {
-        //
-        //     },
-        //     removeUserAttribute: function() {
-        //
-        //     }
-        // };
-        //
-        // mParticle.forwarder.onUserIdentified(fakeUserStub);
-        //
-        // window.MockXYZForwarder.userId.should.equal('123');
-
-        done();
+    describe('forwarder mapping', function() {
+        beforeEach(function() {
+            window.mockGA4EventForwarder = new mockGA4EventForwarder();
+            // Include any specific settings that is required for initializing your SDK here
+            var sdkSettings = {
+                clientKey: '123456',
+                appId: 'abcde',
+                userIdField: 'customerId',
+            };
+            // You may require userAttributes or userIdentities to be passed into initialization
+            var userAttributes = {
+                color: 'green',
+            };
+            var userIdentities = [
+                {
+                    Identity: 'customerId',
+                    Type: IdentityType.CustomerId,
+                },
+                {
+                    Identity: 'email',
+                    Type: IdentityType.Email,
+                },
+                {
+                    Identity: 'facebook',
+                    Type: IdentityType.Facebook,
+                },
+            ];
+            mParticle.forwarder.init(
+                sdkSettings,
+                reportService.cb,
+                true,
+                null,
+                userAttributes,
+                userIdentities
+            );
+        });
     });
 });
