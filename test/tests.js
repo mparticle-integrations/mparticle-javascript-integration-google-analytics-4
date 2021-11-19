@@ -138,8 +138,8 @@ describe('Google Analytics 4 Event', function() {
 
     describe('initialization', function() {
         it('should initialize gtag and the dataLayer', function(done) {
-            (window.gtag === undefined).should.equal(true);
-            (window.dataLayer === undefined).should.equal(true);
+             (typeof window.gtag === 'undefined').should.be.true();
+             (typeof window.dataLayer === 'undefined').should.be.true();
             window.mockGA4EventForwarder = new mockGA4EventForwarder();
             // Include any specific settings that is required for initializing your SDK here
             var sdkSettings = {
@@ -150,8 +150,8 @@ describe('Google Analytics 4 Event', function() {
 
             mParticle.forwarder.init(sdkSettings, reportService.cb, true);
 
-            Should(window.gtag).be.ok();
-            Should(window.dataLayer === undefined).should.be.ok();
+            window.gtag.should.be.ok();
+            window.dataLayer.should.be.ok();
 
             done();
         });
