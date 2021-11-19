@@ -1,5 +1,5 @@
 window.MockHttpServer = require('./mockhttprequest.js');
-window.Should = require('should');
+window.should = require('should');
 require('@mparticle/web-sdk');
 mParticle.addForwarder = function (forwarder) {
     mParticle.forwarder = new forwarder.constructor();

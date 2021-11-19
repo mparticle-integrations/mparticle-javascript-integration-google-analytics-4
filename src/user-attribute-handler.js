@@ -1,28 +1,27 @@
-/*
-The 'mParticleUser' is an object with methods on it to get user Identities and set/get user attributes
-Partners can determine what userIds are available to use in their SDK
-Call mParticleUser.getUserIdentities() to return an object of userIdentities --> { userIdentities: {customerid: '1234', email: 'email@gmail.com'} }
-For more identity types, see http://docs.mparticle.com/developers/sdk/javascript/identity#allowed-identity-types
-Call mParticleUser.getMPID() to get mParticle ID
-For any additional methods, see http://docs.mparticle.com/developers/sdk/javascript/apidocs/classes/mParticle.Identity.getCurrentUser().html
-*/
-
 function UserAttributeHandler(common) {
     this.common = common || {};
 }
-UserAttributeHandler.prototype.onRemoveUserAttribute = function(
-    key,
-    mParticleUser
-) {};
-UserAttributeHandler.prototype.onSetUserAttribute = function(
-    key,
-    value,
-    mParticleUser
-) {};
-UserAttributeHandler.prototype.onConsentStateUpdated = function(
-    oldState,
-    newState,
-    mParticleUser
-) {};
+
+// `mParticleUser` was removed from the function signatures onRemoveUserAttribute, onSetUserAttribute, and onConsentStateUpload because they were not being used
+// In the future if mParticleUser is ever required for an implementation of any of the below APIs, see https://github.com/mparticle-integrations/mparticle-javascript-integration-example/blob/master/src/user-attribute-handler.js
+// for previous function signatures
+
+UserAttributeHandler.prototype.onRemoveUserAttribute = function(key) {
+    var userAttributes = {};
+    userAttributes[key] = null;
+    gtag('set', 'user_properties', userAttributes);
+};
+
+UserAttributeHandler.prototype.onSetUserAttribute = function(key, value) {
+    var userAttributes = {};
+    userAttributes[key] = value;
+    gtag('set', 'user_properties', userAttributes);
+};
+
+// TODO: Commenting this out for now because Integrations PM still determining if this is in scope or not
+// UserAttributeHandler.prototype.onConsentStateUpdated = function() // oldState,
+// newState,
+// mParticleUser
+// {};
 
 module.exports = UserAttributeHandler;
