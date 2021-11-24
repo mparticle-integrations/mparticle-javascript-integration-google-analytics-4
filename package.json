@@ -1,6 +1,10 @@
 {
   "name": "@mparticle/web-google-analytics-4-kit",
   "version": "1.0.3",
+  "author": "mParticle Developers <developers@mparticle.com> (https://www.mparticle.com)",
+  "description": "mParticle integration sdk for Google Adwords",
+  "main": "dist/GoogleAnalytics4EventForwarder-Kit.common.js",
+  "browser": "dist/GoogleAnalytics4EventForwarder-Kit.common.js",
   "scripts": {
     "test": "node test/boilerplate/test-karma.js",
     "build": "ENVIRONMENT=production rollup --config rollup.config.js",
@@ -24,13 +28,15 @@
     "rollup-plugin-commonjs": "^10.0.0",
     "rollup-plugin-node-resolve": "^5.0.3",
     "shelljs": "0.8.3",
-    "eslint-config-prettier": "6.3.0",
-    "eslint-plugin-prettier": "3.1.1",
+    "eslint": "^7.25.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-prettier": "3.4.1",
     "should": "13.2.3",
     "prettier": "^2.4.1",
     "watchify": "^3.11.0"
   },
   "dependencies": {
     "@mparticle/web-sdk": "^2.12.2"
-  }
+  },
+  "license": "Apache-2.0"
 }
