@@ -206,7 +206,6 @@ function parseProduct(_product) {
                 product.item_variant = _product.Variant;
                 break;
             default:
-                console.log('ok');
                 product[toUnderscore(key)] = _product[key];
         }
     }
@@ -232,7 +231,6 @@ function parsePromotion(_promotion) {
                 promotion.creative_slot = _promotion.Position;
                 break;
             default:
-                console.log('ok');
                 promotion[toUnderscore(key)] = _promotion[key];
         }
     }

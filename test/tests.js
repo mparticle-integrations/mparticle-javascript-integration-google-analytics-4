@@ -156,8 +156,8 @@ describe('Google Analytics 4 Event', function () {
         };
     };
 
-    describe('initialization', function () {
-        it('should initialize gtag and the dataLayer', function (done) {
+    describe('initialization', function() {
+        it('should initialize gtag and the dataLayer', function(done) {
             (typeof window.gtag === 'undefined').should.be.true();
             (typeof window.dataLayer === 'undefined').should.be.true();
             window.mockGA4EventForwarder = new mockGA4EventForwarder();
@@ -166,6 +166,10 @@ describe('Google Analytics 4 Event', function () {
                 clientKey: '123456',
                 appId: 'abcde',
                 userIdField: 'customerId',
+                eventNameMapping:
+                    '[{&quot;jsmap&quot;:&quot;555917218&quot;,&quot;map&quot;:&quot;7799651440019974593&quot;,&quot;maptype&quot;:&quot;EventClass.Id&quot;,&quot;value&quot;:&quot;tutorial_begin&quot;}]',
+                attributeMapping:
+                    '[{&quot;jsmap&quot;:null,&quot;map&quot;:&quot;appName&quot;,&quot;maptype&quot;:&quot;EventAttributeClass.Name&quot;,&quot;value&quot;:&quot;virtual_currency_name&quot;},{&quot;jsmap&quot;:null,&quot;map&quot;:&quot;type&quot;,&quot;maptype&quot;:&quot;EventAttributeClass.Name&quot;,&quot;value&quot;:&quot;virtual_currency_name&quot;}]',
             };
 
             mParticle.forwarder.init(sdkSettings, reportService.cb, true);
@@ -176,8 +180,8 @@ describe('Google Analytics 4 Event', function () {
             done();
         });
     });
-    describe('forwarder mapping', function () {
-        beforeEach(function () {
+    describe('forwarder mapping', function() {
+        beforeEach(function() {
             window.dataLayer = [];
             window.mockGA4EventForwarder = new mockGA4EventForwarder();
             // Include any specific settings that is required for initializing your SDK here
@@ -185,11 +189,16 @@ describe('Google Analytics 4 Event', function () {
                 clientKey: '123456',
                 appId: 'abcde',
                 userIdField: 'customerId',
+                eventNameMapping:
+                    '[{&quot;jsmap&quot;:&quot;555917218&quot;,&quot;map&quot;:&quot;7799651440019974593&quot;,&quot;maptype&quot;:&quot;EventClass.Id&quot;,&quot;value&quot;:&quot;tutorial_begin&quot;}]',
+                attributeMapping:
+                    '[{&quot;jsmap&quot;:null,&quot;map&quot;:&quot;appName&quot;,&quot;maptype&quot;:&quot;EventAttributeClass.Name&quot;,&quot;value&quot;:&quot;virtual_currency_name&quot;},{&quot;jsmap&quot;:null,&quot;map&quot;:&quot;type&quot;,&quot;maptype&quot;:&quot;EventAttributeClass.Name&quot;,&quot;value&quot;:&quot;virtual_currency_name&quot;}]',
             };
             // You may require userAttributes or userIdentities to be passed into initialization
             var userAttributes = {
                 color: 'green',
             };
+
             var userIdentities = [
                 {
                     Identity: 'customerId',
@@ -214,7 +223,7 @@ describe('Google Analytics 4 Event', function () {
             );
         });
 
-        it('should set user attribute', function (done) {
+        it('should set user attribute', function(done) {
             mParticle.forwarder.setUserAttribute('foo', 'bar');
             var result = ['set', 'user_properties', { foo: 'bar' }];
             window.dataLayer[0].should.match(result);
@@ -222,7 +231,7 @@ describe('Google Analytics 4 Event', function () {
             done();
         });
 
-        it('should remove user attribute', function (done) {
+        it('should remove user attribute', function(done) {
             mParticle.forwarder.removeUserAttribute('bar');
             var result = ['set', 'user_properties', { bar: null }];
             window.dataLayer[0].should.match(result);
@@ -230,9 +239,9 @@ describe('Google Analytics 4 Event', function () {
             done();
         });
 
-        describe('ecommerce mapping', function () {
+        describe('ecommerce mapping', function() {
             var result;
-            beforeEach(function () {
+            beforeEach(function() {
                 result = [
                     'event',
                     'event_type_to_be_updated',
@@ -276,7 +285,7 @@ describe('Google Analytics 4 Event', function () {
                 ];
             });
 
-            it('should log an add_to_cart commerce event', function (done) {
+            it('should log an add_to_cart commerce event', function(done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
@@ -331,7 +340,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should log a remove_from_cart commerce event', function (done) {
+            it('should log a remove_from_cart commerce event', function(done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
@@ -385,7 +394,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should log a begin_checkout commerce event', function (done) {
+            it('should log a begin_checkout commerce event', function(done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
@@ -440,7 +449,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should process a purchase commerce event', function (done) {
+            it('should process a purchase commerce event', function(done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
@@ -495,7 +504,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should process a refund commerce event', function (done) {
+            it('should process a refund commerce event', function(done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
@@ -552,7 +561,7 @@ describe('Google Analytics 4 Event', function () {
 
             // TODO: Should we do remove_from_wishlist?
             // .     We support it but it looks like GA4 doesn't?
-            it('should log an add_to_wishlist commerce event', function (done) {
+            it('should log an add_to_wishlist commerce event', function(done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
@@ -609,11 +618,11 @@ describe('Google Analytics 4 Event', function () {
             });
 
             // TODO: We don't have an analog for this. How do we map?
-            it('should log a view_cart commerce event', function (done) {
+            it('should log a view_cart commerce event', function(done) {
                 done();
             });
 
-            it('should log a view_item commerce event', function (done) {
+            it('should log a view_item commerce event', function(done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
@@ -669,7 +678,7 @@ describe('Google Analytics 4 Event', function () {
             });
 
             // TODO: Is this a ProductImpression?
-            it('should log a view_item_list commerce event', function (done) {
+            it('should log a view_item_list commerce event', function(done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
@@ -771,7 +780,7 @@ describe('Google Analytics 4 Event', function () {
 
             // TODO: We should have test cases express the mapping for easier
             //       readability. I.e. 'should map select_item to ProductAction.Click
-            it('should log a select_item commerce event', function (done) {
+            it('should log a select_item commerce event', function(done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
@@ -826,7 +835,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should log a view_promotion commerce event', function (done) {
+            it('should log a view_promotion commerce event', function(done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Promotion Action Event',
@@ -886,7 +895,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should log a select_promotion commerce event', function (done) {
+            it('should log a select_promotion commerce event', function(done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
@@ -948,45 +957,92 @@ describe('Google Analytics 4 Event', function () {
 
             // TODO: This seems to conflict with our existing implementation
             //       Need to sync with Rob/Product for direction
-            it('should log an add_payment_info commerce event', function (done) {
+            it('should log an add_payment_info commerce event', function(done) {
                 done();
             });
 
             // TODO: This seems to conflict with our existing implementation
             //       Need to sync with Rob/Product for direction
-            it('should log an add_shipping_info commerce event', function (done) {
+            it('should log an add_shipping_info commerce event', function(done) {
                 done();
             });
         });
 
-        describe('event mapping', function () {
-            it('should log a page event', function (done) {
+        describe('event mapping', function() {
+            it('should log the event name of the page event if the event name is not mapped to a recommended GA4 event name', function(done) {
                 mParticle.forwarder.process({
                     EventDataType: MessageType.PageEvent,
-                    EventName: 'test name',
-                    EventAttributes: {
-                        attr1: 'test1',
-                        attr2: 'test2',
-                    },
-                    CustomFlags: {},
+                    EventCategory: EventType.Navigation,
+                    EventName: 'Unmapped Event Name',
                 });
 
-                // TODO: Update MAPPEDNAME, add any mapped event attrs above, and below to the `result`
-                // var result = [
-                //     'event',
-                //     MAPPEDNAME,
-                //     {
-                //         mapped_foo1: 'bar1',
-                //         mapped_foo2: 'bar2',
-                //     },
-                // ];
+                var result = ['event', 'Unmapped Event Name'];
 
-                // window.dataLayer[0][2].should.match(result);
+                window.dataLayer[0].should.match(result);
 
                 done();
             });
 
-            it('should log page view', function (done) {
+            it('should log the mapped event name if the event is mapped', function(done) {
+                mParticle.forwarder.process({
+                    EventDataType: MessageType.PageEvent,
+                    EventCategory: EventType.Navigation,
+                    EventName: 'User Interaction Click',
+                    CustomFlags: {},
+                });
+
+                var result = ['event', 'tutorial_begin'];
+
+                window.dataLayer[0].should.match(result);
+
+                done();
+            });
+
+            it('should log the attributes of an event if the attributes are not mapped to recommended GA4 parameters', function(done) {
+                mParticle.forwarder.process({
+                    EventDataType: MessageType.PageEvent,
+                    EventCategory: EventType.Navigation,
+                    EventName: 'Unmapped Event Name',
+                    EventAttributes: {
+                        attr1: 'test1',
+                        attr2: 'test2',
+                    },
+                });
+
+                var result = [
+                    'event',
+                    'Unmapped Event Name',
+                    { attr1: 'test1', attr2: 'test2' },
+                ];
+
+                window.dataLayer[0].should.match(result);
+
+                done();
+            });
+
+            it('should log the attributes of an event if the attributes are not mapped to recommended GA4 parameters', function(done) {
+                mParticle.forwarder.process({
+                    EventDataType: MessageType.PageEvent,
+                    EventCategory: EventType.Navigation,
+                    EventName: 'Mapping Attribute Test',
+                    EventAttributes: {
+                        appName: 'test1',
+                        type: 'test2',
+                    },
+                });
+
+                var result = [
+                    'event',
+                    'Mapping Attribute Test',
+                    { virtual_currency_name: 'test1' },
+                ];
+
+                window.dataLayer[0].should.match(result);
+
+                done();
+            });
+
+            it('should log page view', function(done) {
                 mParticle.forwarder.process({
                     EventDataType: MessageType.PageEvent,
                     EventName: 'test name',

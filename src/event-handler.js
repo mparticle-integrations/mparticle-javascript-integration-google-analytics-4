@@ -2,13 +2,26 @@ function EventHandler(common) {
     this.common = common || {};
 }
 EventHandler.prototype.logEvent = function(event) {
-    var parameters = this.common.createParameters(event.EventAttributes);
+    var parameters = this.common.createParameters(
+        event.EventAttributes,
+        this.common.mappedParameters
+    );
 
-    // TODO: map event name to recommended event types - https://developers.google.com/analytics/devguides/collection/ga4/reference/events
-    // if the name is not mapped, it will return event.EventName
-    var mappedName = this.common.mapEventName(event.EventName);
-
-    gtag('event', mappedName, parameters);
+    var mappingMatches = getEventMappingValue(
+        event,
+        this.common.mappedEventNames
+    );
+    if (
+        mappingMatches &&
+        mappingMatches.matches &&
+        mappingMatches.matches.length > 0
+    ) {
+        mappingMatches.matches.forEach(function(match) {
+            gtag('event', match.value, parameters);
+        });
+    } else {
+        gtag('event', event.EventName, parameters);
+    }
 };
 
 EventHandler.prototype.logError = function(event) {
@@ -37,5 +50,47 @@ EventHandler.prototype.logPageView = function(event) {
     });
     return true;
 };
+
+function getEventMappingValue(event, eventMapping) {
+    var jsHash = calculateJSHash(
+        event.EventDataType,
+        event.EventCategory,
+        event.EventName
+    );
+    return findValueInMapping(jsHash, eventMapping);
+}
+
+function calculateJSHash(eventDataType, eventCategory, name) {
+    var preHash = '' + eventDataType + ('' + eventCategory) + '' + (name || '');
+
+    return mParticle.generateHash(preHash);
+}
+
+function findValueInMapping(jsHash, mapping) {
+    if (mapping) {
+        var filteredArray = mapping.filter(function(mappingEntry) {
+            if (
+                mappingEntry.jsmap &&
+                mappingEntry.maptype &&
+                mappingEntry.value
+            ) {
+                return mappingEntry.jsmap === jsHash.toString();
+            }
+
+            return {
+                result: false,
+            };
+        });
+
+        if (filteredArray && filteredArray.length > 0) {
+            return {
+                result: true,
+                matches: filteredArray,
+            };
+        }
+    }
+
+    return null;
+}
 
 module.exports = EventHandler;

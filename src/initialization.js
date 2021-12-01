@@ -16,18 +16,27 @@ var initialization = {
         processEvent,
         eventQueue,
         isInitialized,
-        common,
-        appVersion,
-        appName,
-        customFlags,
-        clientId
+        common
     ) {
         var measurementId = forwarderSettings.measurementId;
         window.dataLayer = window.dataLayer || [];
 
+        var parsedParameters = JSON.parse(
+            forwarderSettings.attributeMapping.replace(/&quot;/g, '"')
+        );
+
+        parsedParameters.forEach(function(parameter) {
+            common.mappedParameters[parameter.map] = parameter.value;
+        });
+
+        common.mappedEventNames = JSON.parse(
+            forwarderSettings.eventNameMapping.replace(/&quot;/g, '"')
+        );
+
         window.gtag = function() {
             window.dataLayer.push(arguments);
         };
+
         if (!testMode) {
             var clientScript = document.createElement('script');
             clientScript.type = 'text/javascript';

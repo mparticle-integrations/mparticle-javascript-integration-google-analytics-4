@@ -1,19 +1,25 @@
 function Common() {}
 
-Common.prototype.createParameters = function(eventAttributes) {
+Common.prototype.createParameters = function(eventAttributes, map) {
     var parameters = {};
-    // loop over event attributes and if the eventAttribute is part of a mapped event attribute
-    // if so, set the mapped event attribute, if not, set the original event attribute name
 
     for (var key in eventAttributes) {
-        console.log(key);
-        // if event attribute is mapped
-        // parameters[mappedAttribute] = eventAttributes[key[]]
-        // else {
-        // set key to parameter as it is a custo parameter
-        //     parameters[key] = eventAttributes[key]
-        // }
-        //
+        if (map[key]) {
+            // It is possible for the customer to choose the same recommended attribute to be multiple attributes to be associated with the same recommended attribute
+            // TODO: are there different user attributes, event attributes, and product attribute options?
+            if (parameters[map[key]]) {
+                console.warn(
+                    'The key of ' +
+                        map[key] +
+                        'has already been mapped. It is not possible to map multiple keys to the same recommended parameter.  Skipping ' +
+                        key
+                );
+            } else {
+                parameters[map[key]] = eventAttributes[key];
+            }
+        } else {
+            parameters[key] = eventAttributes[key];
+        }
     }
 
     console.log(parameters);
@@ -22,14 +28,8 @@ Common.prototype.createParameters = function(eventAttributes) {
     return parameters;
 };
 
-Common.prototype.mapEventName = function(eventName) {
-    console.log(eventName);
-    // if (EventNameMap[eventName]) {
-    //     return EventNameMap[eventName];
-    // } else {
-    //     return eventName;
-    // }
-};
+Common.prototype.mappedEventNames = {};
+Common.prototype.mappedParameters = {};
 
 Common.prototype.mergeObjects = function() {
     var resObj = {};
