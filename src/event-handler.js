@@ -1,7 +1,11 @@
 function EventHandler(common) {
     this.common = common || {};
 }
+
 EventHandler.prototype.logEvent = function(event) {
+    // GA4 allows users to use recommended parameter and event names. Before
+    // sending an event to GA4, check to see if the event name or parameters
+    // are mapped.
     var parameters = this.common.createParameters(
         event.EventAttributes,
         this.common.mappedParameters
@@ -11,11 +15,7 @@ EventHandler.prototype.logEvent = function(event) {
         event,
         this.common.mappedEventNames
     );
-    if (
-        mappingMatches &&
-        mappingMatches.matches &&
-        mappingMatches.matches.length > 0
-    ) {
+    if (mappingMatches && mappingMatches.result === true) {
         mappingMatches.matches.forEach(function(match) {
             gtag('event', match.value, parameters);
         });
@@ -24,12 +24,11 @@ EventHandler.prototype.logEvent = function(event) {
     }
 };
 
-EventHandler.prototype.logError = function(event) {
-    console.log(event);
+EventHandler.prototype.logError = function() {
+    console.warn('Google Analytics 4 does not support error events.');
 };
-EventHandler.prototype.logPageView = function(event) {
-    console.log(event);
 
+EventHandler.prototype.logPageView = function(event) {
     var TITLE = 'Google.Title';
     var LOCATION = 'Google.Location';
     var pageTitle, pageLocation;
@@ -48,6 +47,7 @@ EventHandler.prototype.logPageView = function(event) {
         page_title: pageTitle,
         page_location: pageLocation,
     });
+
     return true;
 };
 
