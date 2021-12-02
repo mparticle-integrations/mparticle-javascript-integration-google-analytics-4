@@ -973,15 +973,15 @@ describe('Google Analytics 4 Event', function () {
                     EventCategory: EventType.Navigation,
                     EventName: 'Unmapped Event Name',
                     EventAttributes: {
-                        attr1: 'test1',
-                        attr2: 'test2',
+                        unmappedEventKey1: 'test1',
+                        unmappedEventKey2: 'test2',
                     },
                 });
 
                 var result = [
                     'event',
                     'Unmapped Event Name',
-                    { attr1: 'test1', attr2: 'test2' },
+                    { unmappedEventKey1: 'test1', unmappedEventKey2: 'test2' },
                 ];
 
                 window.dataLayer[0].should.match(result);
@@ -998,7 +998,7 @@ describe('Google Analytics 4 Event', function () {
                         mappedEventKey1: 'test1',
                         mappedEventKey2: 'test2',
                         mappedEventKey3: 'test3',
-                        type: 'test4',
+                        unmappedEventKey1: 'test4',
                     },
                 });
 
@@ -1008,12 +1008,14 @@ describe('Google Analytics 4 Event', function () {
                     {
                         virtual_currency_name: 'test1',
                         value: 'test2',
-                        // type: 'test4',
+                        // unmappedEventKey1: 'test4',
                     },
-
                 ];
                 window.dataLayer[0].should.match(result);
-                window.dataLayer[0][2].should.have.property('type', 'test4');
+                window.dataLayer[0][2].should.have.property(
+                    'unmappedEventKey1',
+                    'test4'
+                );
 
                 done();
             });
@@ -1023,8 +1025,8 @@ describe('Google Analytics 4 Event', function () {
                     EventDataType: MessageType.PageEvent,
                     EventName: 'test name',
                     EventAttributes: {
-                        attr1: 'test1',
-                        attr2: 'test2',
+                        unmappedEventKey1: 'test1',
+                        unmappedEventKey2: 'test2',
                     },
                     CustomFlags: {
                         'Google.Title': 'Foo Page Title',
