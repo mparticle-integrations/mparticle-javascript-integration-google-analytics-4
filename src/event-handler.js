@@ -2,7 +2,7 @@ function EventHandler(common) {
     this.common = common || {};
 }
 
-EventHandler.prototype.logEvent = function(event) {
+EventHandler.prototype.logEvent = function (event) {
     // GA4 allows users to use recommended parameter and event names. Before
     // sending an event to GA4, check to see if the event name or parameters
     // are mapped.
@@ -11,12 +11,12 @@ EventHandler.prototype.logEvent = function(event) {
         this.common.mappedParameters
     );
 
-    var mappingMatches = getEventMappingValue(
+    var mappingMatches = getEventMappingMatches(
         event,
         this.common.mappedEventNames
     );
-    if (mappingMatches && mappingMatches.result === true) {
-        mappingMatches.matches.forEach(function(match) {
+    if (mappingMatches) {
+        mappingMatches.matches.forEach(function (match) {
             gtag('event', match.value, parameters);
         });
     } else {
@@ -24,11 +24,11 @@ EventHandler.prototype.logEvent = function(event) {
     }
 };
 
-EventHandler.prototype.logError = function() {
+EventHandler.prototype.logError = function () {
     console.warn('Google Analytics 4 does not support error events.');
 };
 
-EventHandler.prototype.logPageView = function(event) {
+EventHandler.prototype.logPageView = function (event) {
     var TITLE = 'Google.Title';
     var LOCATION = 'Google.Location';
     var pageTitle, pageLocation;
@@ -51,24 +51,15 @@ EventHandler.prototype.logPageView = function(event) {
     return true;
 };
 
-function getEventMappingValue(event, eventMapping) {
+function getEventMappingMatches(event, eventMapping) {
+    var mappingObject = null;
     var jsHash = calculateJSHash(
         event.EventDataType,
         event.EventCategory,
         event.EventName
     );
-    return findValueInMapping(jsHash, eventMapping);
-}
-
-function calculateJSHash(eventDataType, eventCategory, name) {
-    var preHash = '' + eventDataType + ('' + eventCategory) + '' + (name || '');
-
-    return mParticle.generateHash(preHash);
-}
-
-function findValueInMapping(jsHash, mapping) {
-    if (mapping) {
-        var filteredArray = mapping.filter(function(mappingEntry) {
+    if (eventMapping) {
+        var filteredArray = eventMapping.filter(function (mappingEntry) {
             if (
                 mappingEntry.jsmap &&
                 mappingEntry.maptype &&
@@ -76,21 +67,22 @@ function findValueInMapping(jsHash, mapping) {
             ) {
                 return mappingEntry.jsmap === jsHash.toString();
             }
-
-            return {
-                result: false,
-            };
         });
 
         if (filteredArray && filteredArray.length > 0) {
-            return {
-                result: true,
+            mappingObject = {
                 matches: filteredArray,
             };
         }
     }
 
-    return null;
+    return mappingObject;
+}
+
+function calculateJSHash(eventDataType, eventCategory, name) {
+    var preHash = '' + eventDataType + ('' + eventCategory) + '' + (name || '');
+
+    return mParticle.generateHash(preHash);
 }
 
 module.exports = EventHandler;
