@@ -156,23 +156,28 @@ describe('Google Analytics 4 Event', function () {
         };
     };
 
+    var kitSettings = {
+        clientKey: '123456',
+        appId: 'abcde',
+        userIdField: 'customerId',
+        // The event 'Mapped Event Name' of event type Unknown is mapped to 'earn_virtual_currency'
+        eventNameMapping:
+            '[{&quot;jsmap&quot;:&quot;-2106354334&quot;,&quot;map&quot;:&quot;1740494660027578603&quot;,&quot;maptype&quot;:&quot;EventClass.Id&quot;,&quot;value&quot;:&quot;earn_virtual_currency&quot;}]',
+        // The attributeMapping below has the following mapping:
+        // mappedEventKey1 --> virtual_currency_name
+        // mappedEventKey2 --> value
+        // mappedEventKey2 --> virtual_currency_name
+        attributeMapping:
+            '[{&quot;jsmap&quot;:null,&quot;map&quot;:&quot;mappedEventKey1&quot;,&quot;maptype&quot;:&quot;EventAttributeClass.Name&quot;,&quot;value&quot;:&quot;virtual_currency_name&quot;},{&quot;jsmap&quot;:null,&quot;map&quot;:&quot;mappedEventKey2&quot;,&quot;maptype&quot;:&quot;EventAttributeClass.Name&quot;,&quot;value&quot;:&quot;value&quot;},{&quot;jsmap&quot;:null,&quot;map&quot;:&quot;mappedEventKey3&quot;,&quot;maptype&quot;:&quot;EventAttributeClass.Name&quot;,&quot;value&quot;:&quot;virtual_currency_name&quot;}]',
+    };
+
     describe('initialization', function () {
         it('should initialize gtag and the dataLayer', function (done) {
             (typeof window.gtag === 'undefined').should.be.true();
             (typeof window.dataLayer === 'undefined').should.be.true();
             window.mockGA4EventForwarder = new mockGA4EventForwarder();
             // Include any specific settings that is required for initializing your SDK here
-            var sdkSettings = {
-                clientKey: '123456',
-                appId: 'abcde',
-                userIdField: 'customerId',
-                eventNameMapping:
-                    '[{&quot;jsmap&quot;:&quot;555917218&quot;,&quot;map&quot;:&quot;7799651440019974593&quot;,&quot;maptype&quot;:&quot;EventClass.Id&quot;,&quot;value&quot;:&quot;tutorial_begin&quot;}]',
-                attributeMapping:
-                    '[{&quot;jsmap&quot;:null,&quot;map&quot;:&quot;appName&quot;,&quot;maptype&quot;:&quot;EventAttributeClass.Name&quot;,&quot;value&quot;:&quot;virtual_currency_name&quot;},{&quot;jsmap&quot;:null,&quot;map&quot;:&quot;type&quot;,&quot;maptype&quot;:&quot;EventAttributeClass.Name&quot;,&quot;value&quot;:&quot;virtual_currency_name&quot;}]',
-            };
-
-            mParticle.forwarder.init(sdkSettings, reportService.cb, true);
+            mParticle.forwarder.init(kitSettings, reportService.cb, true);
 
             window.gtag.should.be.ok();
             window.dataLayer.should.be.ok();
@@ -184,43 +189,7 @@ describe('Google Analytics 4 Event', function () {
         beforeEach(function () {
             window.dataLayer = [];
             window.mockGA4EventForwarder = new mockGA4EventForwarder();
-            // Include any specific settings that is required for initializing your SDK here
-            var sdkSettings = {
-                clientKey: '123456',
-                appId: 'abcde',
-                userIdField: 'customerId',
-                eventNameMapping:
-                    '[{&quot;jsmap&quot;:&quot;555917218&quot;,&quot;map&quot;:&quot;7799651440019974593&quot;,&quot;maptype&quot;:&quot;EventClass.Id&quot;,&quot;value&quot;:&quot;tutorial_begin&quot;}]',
-                attributeMapping:
-                    '[{&quot;jsmap&quot;:null,&quot;map&quot;:&quot;appName&quot;,&quot;maptype&quot;:&quot;EventAttributeClass.Name&quot;,&quot;value&quot;:&quot;virtual_currency_name&quot;},{&quot;jsmap&quot;:null,&quot;map&quot;:&quot;type&quot;,&quot;maptype&quot;:&quot;EventAttributeClass.Name&quot;,&quot;value&quot;:&quot;virtual_currency_name&quot;}]',
-            };
-            // You may require userAttributes or userIdentities to be passed into initialization
-            var userAttributes = {
-                color: 'green',
-            };
-
-            var userIdentities = [
-                {
-                    Identity: 'customerId',
-                    Type: IdentityType.CustomerId,
-                },
-                {
-                    Identity: 'email',
-                    Type: IdentityType.Email,
-                },
-                {
-                    Identity: 'facebook',
-                    Type: IdentityType.Facebook,
-                },
-            ];
-            mParticle.forwarder.init(
-                sdkSettings,
-                reportService.cb,
-                true,
-                null,
-                userAttributes,
-                userIdentities
-            );
+            mParticle.forwarder.init(kitSettings, reportService.cb, true, null);
         });
 
         it('should set user attribute', function (done) {
@@ -986,12 +955,12 @@ describe('Google Analytics 4 Event', function () {
             it('should log the mapped event name if the event is mapped', function (done) {
                 mParticle.forwarder.process({
                     EventDataType: MessageType.PageEvent,
-                    EventCategory: EventType.Navigation,
-                    EventName: 'User Interaction Click',
+                    EventCategory: EventType.Unknown,
+                    EventName: 'Mapped Event Name',
                     CustomFlags: {},
                 });
 
-                var result = ['event', 'tutorial_begin'];
+                var result = ['event', 'earn_virtual_currency'];
 
                 window.dataLayer[0].should.match(result);
 
@@ -1020,24 +989,31 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should log the attributes of an event if the attributes are not mapped to recommended GA4 parameters', function (done) {
+            it('should log the attributes of an event if the attributes are mapped to recommended GA4 parameters', function (done) {
                 mParticle.forwarder.process({
                     EventDataType: MessageType.PageEvent,
                     EventCategory: EventType.Navigation,
                     EventName: 'Mapping Attribute Test',
                     EventAttributes: {
-                        appName: 'test1',
-                        type: 'test2',
+                        mappedEventKey1: 'test1',
+                        mappedEventKey2: 'test2',
+                        mappedEventKey3: 'test3',
+                        type: 'test4',
                     },
                 });
 
                 var result = [
                     'event',
                     'Mapping Attribute Test',
-                    { virtual_currency_name: 'test1' },
-                ];
+                    {
+                        virtual_currency_name: 'test1',
+                        value: 'test2',
+                        // type: 'test4',
+                    },
 
+                ];
                 window.dataLayer[0].should.match(result);
+                window.dataLayer[0][2].should.have.property('type', 'test4');
 
                 done();
             });
