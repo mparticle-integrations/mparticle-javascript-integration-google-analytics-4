@@ -190,12 +190,15 @@ describe('Google Analytics 4 Event', function () {
             window.dataLayer = [];
             window.mockGA4EventForwarder = new mockGA4EventForwarder();
             mParticle.forwarder.init(kitSettings, reportService.cb, true, null);
+            window.gtag = function () {
+                window.dataLayer.push(Array.prototype.slice.call(arguments));
+            };
         });
 
         it('should set user attribute', function (done) {
             mParticle.forwarder.setUserAttribute('foo', 'bar');
             var result = ['set', 'user_properties', { foo: 'bar' }];
-            window.dataLayer[0].should.match(result);
+            window.dataLayer[0].should.eql(result);
 
             done();
         });
@@ -203,7 +206,7 @@ describe('Google Analytics 4 Event', function () {
         it('should remove user attribute', function (done) {
             mParticle.forwarder.removeUserAttribute('bar');
             var result = ['set', 'user_properties', { bar: null }];
-            window.dataLayer[0].should.match(result);
+            window.dataLayer[0].should.eql(result);
 
             done();
         });
@@ -299,12 +302,12 @@ describe('Google Analytics 4 Event', function () {
                         TotalAmount: 450,
                         TaxAmount: 40,
                         ShippingAmount: 10,
+                        CouponCode: 'coupon',
                     },
                 });
 
                 result[1] = 'add_to_cart';
-
-                window.dataLayer[0].should.match(result);
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -354,11 +357,12 @@ describe('Google Analytics 4 Event', function () {
                         TotalAmount: 450,
                         TaxAmount: 40,
                         ShippingAmount: 10,
+                        CouponCode: 'couponCode',
                     },
                 });
 
                 result[1] = 'remove_from_cart';
-                window.dataLayer[0].should.match(result);
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -413,7 +417,8 @@ describe('Google Analytics 4 Event', function () {
                 });
 
                 result[1] = 'begin_checkout';
-                window.dataLayer[0].should.match(result);
+                result[2].coupon = 'couponCode';
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -460,6 +465,8 @@ describe('Google Analytics 4 Event', function () {
                                 Variant: 'variant',
                             },
                         ],
+                        Affiliation: 'foo-affiliation-id',
+                        TransactionId: 'foo-transaction-id',
                         TotalAmount: 450,
                         TaxAmount: 40,
                         ShippingAmount: 10,
@@ -468,7 +475,13 @@ describe('Google Analytics 4 Event', function () {
                 });
 
                 result[1] = 'purchase';
-                window.dataLayer[0].should.match(result);
+                result[2].coupon = 'couponCode';
+                result[2].transaction_id = 'foo-transaction-id';
+                result[2].affiliation = 'foo-affiliation-id';
+                result[2].shipping = 10;
+                result[2].tax = 40;
+                result[2].value = 450;
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -515,6 +528,8 @@ describe('Google Analytics 4 Event', function () {
                                 Variant: 'variant',
                             },
                         ],
+                        Affiliation: 'foo-affiliation-id',
+                        TransactionId: 'foo-transaction-id',
                         TotalAmount: 450,
                         TaxAmount: 40,
                         ShippingAmount: 10,
@@ -523,7 +538,13 @@ describe('Google Analytics 4 Event', function () {
                 });
 
                 result[1] = 'refund';
-                window.dataLayer[0].should.match(result);
+                result[2].coupon = 'couponCode';
+                result[2].transaction_id = 'foo-transaction-id';
+                result[2].affiliation = 'foo-affiliation-id';
+                result[2].shipping = 10;
+                result[2].tax = 40;
+                result[2].value = 450;
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -581,7 +602,7 @@ describe('Google Analytics 4 Event', function () {
 
                 result[1] = 'add_to_wishlist';
                 result[2].value = 450;
-                window.dataLayer[0].should.match(result);
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -633,7 +654,6 @@ describe('Google Analytics 4 Event', function () {
                                 Variant: 'variant',
                             },
                         ],
-                        TotalAmount: 450,
                         TaxAmount: 40,
                         ShippingAmount: 10,
                         CouponCode: 'couponCode',
@@ -641,7 +661,7 @@ describe('Google Analytics 4 Event', function () {
                 });
 
                 result[1] = 'view_item';
-                window.dataLayer[0].should.match(result);
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -742,7 +762,7 @@ describe('Google Analytics 4 Event', function () {
                     },
                 ];
 
-                window.dataLayer[0].should.match(result);
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -799,7 +819,7 @@ describe('Google Analytics 4 Event', function () {
                 });
 
                 result[1] = 'select_item';
-                window.dataLayer[0].should.match(result);
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -842,6 +862,7 @@ describe('Google Analytics 4 Event', function () {
                     'event',
                     'view_promotion',
                     {
+                        currency: 'USD',
                         items: [
                             {
                                 promotion_id: 'P_12345',
@@ -859,7 +880,7 @@ describe('Google Analytics 4 Event', function () {
                     },
                 ];
 
-                window.dataLayer[0].should.match(result);
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -902,6 +923,7 @@ describe('Google Analytics 4 Event', function () {
                     'event',
                     'select_promotion',
                     {
+                        currency: 'USD',
                         items: [
                             {
                                 promotion_id: 'P_12345',
@@ -919,7 +941,7 @@ describe('Google Analytics 4 Event', function () {
                     },
                 ];
 
-                window.dataLayer[0].should.match(result);
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -945,9 +967,10 @@ describe('Google Analytics 4 Event', function () {
                     EventName: 'Unmapped Event Name',
                 });
 
-                var result = ['event', 'Unmapped Event Name'];
-
-                window.dataLayer[0].should.match(result);
+                var result = ['event', 'Unmapped Event Name', {}];
+                console.log(result);
+                console.log(dataLayer[0]);
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -960,9 +983,9 @@ describe('Google Analytics 4 Event', function () {
                     CustomFlags: {},
                 });
 
-                var result = ['event', 'earn_virtual_currency'];
+                var result = ['event', 'earn_virtual_currency', {}];
 
-                window.dataLayer[0].should.match(result);
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -984,7 +1007,7 @@ describe('Google Analytics 4 Event', function () {
                     { unmappedEventKey1: 'test1', unmappedEventKey2: 'test2' },
                 ];
 
-                window.dataLayer[0].should.match(result);
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -1008,14 +1031,10 @@ describe('Google Analytics 4 Event', function () {
                     {
                         virtual_currency_name: 'test1',
                         value: 'test2',
-                        // unmappedEventKey1: 'test4',
+                        unmappedEventKey1: 'test4',
                     },
                 ];
-                window.dataLayer[0].should.match(result);
-                window.dataLayer[0][2].should.have.property(
-                    'unmappedEventKey1',
-                    'test4'
-                );
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -1043,7 +1062,7 @@ describe('Google Analytics 4 Event', function () {
                 //         page_location: '/foo',
                 //     },
                 // ];
-                // window.dataLayer[0][2].should.match(result);
+                // window.dataLayer[0][2].should.eql(result);
 
                 done();
             });
