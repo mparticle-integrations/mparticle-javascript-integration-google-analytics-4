@@ -20,36 +20,25 @@ var PromotionActionTypes = {
     PromotionView: 18,
 };
 
+// Custom Flags
+var GA4_COMMERCE_EVENT_TYPE = 'GA4.CommerceEventType',
+    GA4_SHIPPING_TIER = 'GA4.ShippingTier',
+    GA4_Payment_Type = 'GA4.PaymentType';
+
+var ADD_SHIPPING_INFO = 'add_shipping_info',
+    ADD_PAYMENT_INFO = 'add_payment_info';
 CommerceHandler.prototype.buildAddOrRemoveCartItem = function (event) {
     return {
-        // TODO: What should the value of an add to cart be? Sum of the dollar amounts of items?
-        // value: event.ProductAction.
         items: buildProductsList(event.ProductAction.ProductList),
     };
 };
 
 CommerceHandler.prototype.buildCheckout = function (event) {
     return {
-        // TODO: What should the value of an add to cart be? Sum of the dollar amounts of items?
-        // value: event.ProductAction.
         items: buildProductsList(event.ProductAction.ProductList),
         coupon: event.ProductAction ? event.ProductAction.CouponCode : null,
     };
 };
-
-// TODO: For legacy GA, they only had 1 checkout option, but now they have 2 checkout options.
-// 1. add_shipping_info
-// 2. add_Payment_info
-// We will likely have to provide a custom flag
-
-// CommerceHandler.prototype.buildCheckoutOption = function(event) {
-//     return {
-//         // TODO: FIGURE OUT HOW CHECKOUT OPTION NOW MAPS FROM MPARTICLE GIVEN GA4 HAS 2 DIFFERENT CHECKOUT OPTIONS - https://support.google.com/analytics/answer/10119380?hl=en
-//         // add_shipping_info & add_payment_info
-//         items: buildProductsList(event.ProductAction.ProductList),
-//         coupon: event.ProductAction ? event.ProductAction.CouponCode : null,
-//     };
-// };
 
 CommerceHandler.prototype.buildImpression = function (impression) {
     return {
@@ -70,6 +59,7 @@ CommerceHandler.prototype.buildProductViewDetail = function (event) {
         items: buildProductsList(event.ProductAction.ProductList),
     };
 };
+
 CommerceHandler.prototype.buildPromotion = function (event) {
     // TODO: GA4 Promo object assumes single promo with array of products but
     //       our SDK provides an array of promos with no products
@@ -107,6 +97,34 @@ CommerceHandler.prototype.buildAddToWishlist = function (event) {
     };
 };
 
+function buildAddShippingInfo(event) {
+    return {
+        coupon:
+            event.ProductAction && event.ProductAction.CouponCode
+                ? event.ProductAction.CouponCode
+                : null,
+        shipping_tier:
+            event.CustomFlags && event.CustomFlags[GA4_SHIPPING_TIER]
+                ? event.CustomFlags[GA4_SHIPPING_TIER]
+                : null,
+        items: buildProductsList(event.ProductAction.ProductList),
+    };
+}
+
+function buildAddPaymentInfo(event) {
+    return {
+        coupon:
+            event.ProductAction && event.ProductAction.CouponCode
+                ? event.ProductAction.CouponCode
+                : null,
+        payment_type:
+            event.CustomFlags && event.CustomFlags[GA4_Payment_Type]
+                ? event.CustomFlags[GA4_Payment_Type]
+                : null,
+        items: buildProductsList(event.ProductAction.ProductList),
+    };
+}
+
 CommerceHandler.prototype.logCommerceEvent = function (event) {
     var self = this;
     var ga4CommerceEventParameters;
@@ -118,7 +136,7 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
 
                 gtag(
                     'event',
-                    mapGA4EcommerceEventName(event.EventCategory),
+                    mapGA4EcommerceEventName(event),
                     ga4ImpressionEvent
                 );
             });
@@ -127,6 +145,8 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
             return false;
         }
         return true;
+    } else if (event.EventCategory === ProductActionTypes.CheckoutOption) {
+        return logCheckoutOptionEvent(event);
     } else {
         // TODO: Move this out into a pure builder function that isn't aware of "self"
         switch (event.EventCategory) {
@@ -137,9 +157,6 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
                 break;
             case ProductActionTypes.Checkout:
                 ga4CommerceEventParameters = self.buildCheckout(event);
-                break;
-            case ProductActionTypes.CheckoutOption:
-                ga4CommerceEventParameters = self.buildCheckoutOption(event);
                 break;
             case ProductActionTypes.Click:
                 ga4CommerceEventParameters = self.buildProductClick(event);
@@ -169,7 +186,7 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
 
         gtag(
             'event',
-            mapGA4EcommerceEventName(event.EventCategory),
+            mapGA4EcommerceEventName(event),
             ga4CommerceEventParameters
         );
     }
@@ -257,8 +274,8 @@ function buildPromoList(promotions) {
     return promotionsList;
 }
 
-function mapGA4EcommerceEventName(mpEventType) {
-    switch (mpEventType) {
+function mapGA4EcommerceEventName(event) {
+    switch (event.EventCategory) {
         case ProductActionTypes.AddToCart:
             return 'add_to_cart';
         case ProductActionTypes.AddToWishlist:
@@ -270,7 +287,7 @@ function mapGA4EcommerceEventName(mpEventType) {
         case ProductActionTypes.Checkout:
             return 'begin_checkout';
         case ProductActionTypes.CheckoutOption:
-            return 'add_shipping_info';
+            return returnShippingOrPaymentEvent(event.CustomFlags);
         case ProductActionTypes.Click:
             return 'select_item';
         case ProductActionTypes.Impression:
@@ -287,6 +304,65 @@ function mapGA4EcommerceEventName(mpEventType) {
             console.log('Product Action Type not supported');
             return null;
     }
+}
+
+function returnShippingOrPaymentEvent(customFlags) {
+    switch (customFlags[GA4_COMMERCE_EVENT_TYPE]) {
+        case ADD_SHIPPING_INFO:
+            return ADD_SHIPPING_INFO;
+        case ADD_PAYMENT_INFO:
+            return ADD_PAYMENT_INFO;
+        default:
+            console.log(
+                'The GA4.CommerceEventType value you passed in is not supported.'
+            );
+            return null;
+    }
+}
+
+// Google previously had a CheckoutOption event, and now this has been split into 2 GA4 events - add_shipping_info and add_payment_info
+// Since MP still uses CheckoutOption, we must map this to the 2 events using custom flags
+function logCheckoutOptionEvent(event) {
+    try {
+        var customFlags = event.CustomFlags,
+            GA4CommerceEventType = customFlags[GA4_COMMERCE_EVENT_TYPE],
+            ga4CommerceEventParameters;
+
+        if (!customFlags) {
+            console.error(
+                'The CheckoutOption event type requires custom flags.  The event was not sent.  Please review the docs and fix.'
+            );
+            return false;
+        }
+        if (!GA4CommerceEventType) {
+            console.error(
+                'A custom flag of `GA4.CommerceEventType` is required for CheckoutOption events.  The event was not sent.  Please review the docs and fix.'
+            );
+            return false;
+        }
+
+        switch (GA4CommerceEventType) {
+            case ADD_SHIPPING_INFO:
+                ga4CommerceEventParameters = buildAddShippingInfo(event);
+                break;
+            case ADD_PAYMENT_INFO:
+                ga4CommerceEventParameters = buildAddPaymentInfo(event);
+                break;
+            default:
+                console.error(
+                    'If you log a CheckoutOption commerce event, a `GA4.CommerceEventType` custom flag is required..  The event was not sent.  Please review the docs and fix.'
+                );
+        }
+    } catch (e) {
+        console.error(
+            'There is an issue with the custom flags in your CheckoutOption event. The event was not sent.  Plrease review the docs and fix.'
+        );
+        return false;
+    }
+
+    gtag('event', mapGA4EcommerceEventName(event), ga4CommerceEventParameters);
+
+    return true;
 }
 
 module.exports = CommerceHandler;
