@@ -67,7 +67,6 @@ CommerceHandler.prototype.buildProductClick = function (event) {
 
 CommerceHandler.prototype.buildProductViewDetail = function (event) {
     return {
-        // value: event.ProductAction.TotalAmount,
         items: buildProductsList(event.ProductAction.ProductList),
     };
 };

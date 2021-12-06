@@ -15,8 +15,8 @@ EventHandler.prototype.logEvent = function (event) {
         event,
         this.common.mappedEventNames
     );
-    if (mappingMatches) {
-        mappingMatches.matches.forEach(function (match) {
+    if (mappingMatches.length) {
+        mappingMatches.forEach(function (match) {
             gtag('event', match.value, parameters);
         });
     } else {
@@ -52,14 +52,13 @@ EventHandler.prototype.logPageView = function (event) {
 };
 
 function getEventMappingMatches(event, eventMapping) {
-    var mappingObject = null;
     var jsHash = calculateJSHash(
         event.EventDataType,
         event.EventCategory,
         event.EventName
     );
     if (eventMapping) {
-        var filteredArray = eventMapping.filter(function (mappingEntry) {
+        return eventMapping.filter(function (mappingEntry) {
             if (
                 mappingEntry.jsmap &&
                 mappingEntry.maptype &&
@@ -68,15 +67,9 @@ function getEventMappingMatches(event, eventMapping) {
                 return mappingEntry.jsmap === jsHash.toString();
             }
         });
-
-        if (filteredArray && filteredArray.length > 0) {
-            mappingObject = {
-                matches: filteredArray,
-            };
-        }
+    } else {
+        return [];
     }
-
-    return mappingObject;
 }
 
 function calculateJSHash(eventDataType, eventCategory, name) {

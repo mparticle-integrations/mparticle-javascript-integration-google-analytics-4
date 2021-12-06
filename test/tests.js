@@ -613,6 +613,7 @@ describe('Google Analytics 4 Event', function () {
             });
 
             it('should log a view_item commerce event', function (done) {
+                debugger;
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
@@ -661,6 +662,7 @@ describe('Google Analytics 4 Event', function () {
                 });
 
                 result[1] = 'view_item';
+                debugger
                 window.dataLayer[0].should.eql(result);
 
                 done();
