@@ -156,19 +156,28 @@ describe('Google Analytics 4 Event', function () {
         };
     };
 
+    var kitSettings = {
+        clientKey: '123456',
+        appId: 'abcde',
+        userIdField: 'customerId',
+        // The event 'Mapped Event Name' of event type Unknown is mapped to 'earn_virtual_currency'
+        eventNameMapping:
+            '[{&quot;jsmap&quot;:&quot;-2106354334&quot;,&quot;map&quot;:&quot;1740494660027578603&quot;,&quot;maptype&quot;:&quot;EventClass.Id&quot;,&quot;value&quot;:&quot;earn_virtual_currency&quot;}]',
+        // The attributeMapping below has the following mapping:
+        // mappedEventKey1 --> virtual_currency_name
+        // mappedEventKey2 --> value
+        // mappedEventKey2 --> virtual_currency_name
+        attributeMapping:
+            '[{&quot;jsmap&quot;:null,&quot;map&quot;:&quot;mappedEventKey1&quot;,&quot;maptype&quot;:&quot;EventAttributeClass.Name&quot;,&quot;value&quot;:&quot;virtual_currency_name&quot;},{&quot;jsmap&quot;:null,&quot;map&quot;:&quot;mappedEventKey2&quot;,&quot;maptype&quot;:&quot;EventAttributeClass.Name&quot;,&quot;value&quot;:&quot;value&quot;},{&quot;jsmap&quot;:null,&quot;map&quot;:&quot;mappedEventKey3&quot;,&quot;maptype&quot;:&quot;EventAttributeClass.Name&quot;,&quot;value&quot;:&quot;virtual_currency_name&quot;}]',
+    };
+
     describe('initialization', function () {
         it('should initialize gtag and the dataLayer', function (done) {
             (typeof window.gtag === 'undefined').should.be.true();
             (typeof window.dataLayer === 'undefined').should.be.true();
             window.mockGA4EventForwarder = new mockGA4EventForwarder();
             // Include any specific settings that is required for initializing your SDK here
-            var sdkSettings = {
-                clientKey: '123456',
-                appId: 'abcde',
-                userIdField: 'customerId',
-            };
-
-            mParticle.forwarder.init(sdkSettings, reportService.cb, true);
+            mParticle.forwarder.init(kitSettings, reportService.cb, true);
 
             window.gtag.should.be.ok();
             window.dataLayer.should.be.ok();
@@ -180,44 +189,16 @@ describe('Google Analytics 4 Event', function () {
         beforeEach(function () {
             window.dataLayer = [];
             window.mockGA4EventForwarder = new mockGA4EventForwarder();
-            // Include any specific settings that is required for initializing your SDK here
-            var sdkSettings = {
-                clientKey: '123456',
-                appId: 'abcde',
-                userIdField: 'customerId',
+            mParticle.forwarder.init(kitSettings, reportService.cb, true, null);
+            window.gtag = function () {
+                window.dataLayer.push(Array.prototype.slice.call(arguments));
             };
-            // You may require userAttributes or userIdentities to be passed into initialization
-            var userAttributes = {
-                color: 'green',
-            };
-            var userIdentities = [
-                {
-                    Identity: 'customerId',
-                    Type: IdentityType.CustomerId,
-                },
-                {
-                    Identity: 'email',
-                    Type: IdentityType.Email,
-                },
-                {
-                    Identity: 'facebook',
-                    Type: IdentityType.Facebook,
-                },
-            ];
-            mParticle.forwarder.init(
-                sdkSettings,
-                reportService.cb,
-                true,
-                null,
-                userAttributes,
-                userIdentities
-            );
         });
 
         it('should set user attribute', function (done) {
             mParticle.forwarder.setUserAttribute('foo', 'bar');
             var result = ['set', 'user_properties', { foo: 'bar' }];
-            window.dataLayer[0].should.match(result);
+            window.dataLayer[0].should.eql(result);
 
             done();
         });
@@ -225,7 +206,7 @@ describe('Google Analytics 4 Event', function () {
         it('should remove user attribute', function (done) {
             mParticle.forwarder.removeUserAttribute('bar');
             var result = ['set', 'user_properties', { bar: null }];
-            window.dataLayer[0].should.match(result);
+            window.dataLayer[0].should.eql(result);
 
             done();
         });
@@ -321,12 +302,12 @@ describe('Google Analytics 4 Event', function () {
                         TotalAmount: 450,
                         TaxAmount: 40,
                         ShippingAmount: 10,
+                        CouponCode: 'coupon',
                     },
                 });
 
                 result[1] = 'add_to_cart';
-
-                window.dataLayer[0].should.match(result);
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -376,11 +357,12 @@ describe('Google Analytics 4 Event', function () {
                         TotalAmount: 450,
                         TaxAmount: 40,
                         ShippingAmount: 10,
+                        CouponCode: 'couponCode',
                     },
                 });
 
                 result[1] = 'remove_from_cart';
-                window.dataLayer[0].should.match(result);
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -435,7 +417,8 @@ describe('Google Analytics 4 Event', function () {
                 });
 
                 result[1] = 'begin_checkout';
-                window.dataLayer[0].should.match(result);
+                result[2].coupon = 'couponCode';
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -482,6 +465,8 @@ describe('Google Analytics 4 Event', function () {
                                 Variant: 'variant',
                             },
                         ],
+                        Affiliation: 'foo-affiliation-id',
+                        TransactionId: 'foo-transaction-id',
                         TotalAmount: 450,
                         TaxAmount: 40,
                         ShippingAmount: 10,
@@ -490,7 +475,13 @@ describe('Google Analytics 4 Event', function () {
                 });
 
                 result[1] = 'purchase';
-                window.dataLayer[0].should.match(result);
+                result[2].coupon = 'couponCode';
+                result[2].transaction_id = 'foo-transaction-id';
+                result[2].affiliation = 'foo-affiliation-id';
+                result[2].shipping = 10;
+                result[2].tax = 40;
+                result[2].value = 450;
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -537,6 +528,8 @@ describe('Google Analytics 4 Event', function () {
                                 Variant: 'variant',
                             },
                         ],
+                        Affiliation: 'foo-affiliation-id',
+                        TransactionId: 'foo-transaction-id',
                         TotalAmount: 450,
                         TaxAmount: 40,
                         ShippingAmount: 10,
@@ -545,7 +538,13 @@ describe('Google Analytics 4 Event', function () {
                 });
 
                 result[1] = 'refund';
-                window.dataLayer[0].should.match(result);
+                result[2].coupon = 'couponCode';
+                result[2].transaction_id = 'foo-transaction-id';
+                result[2].affiliation = 'foo-affiliation-id';
+                result[2].shipping = 10;
+                result[2].tax = 40;
+                result[2].value = 450;
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -603,7 +602,7 @@ describe('Google Analytics 4 Event', function () {
 
                 result[1] = 'add_to_wishlist';
                 result[2].value = 450;
-                window.dataLayer[0].should.match(result);
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -655,7 +654,6 @@ describe('Google Analytics 4 Event', function () {
                                 Variant: 'variant',
                             },
                         ],
-                        TotalAmount: 450,
                         TaxAmount: 40,
                         ShippingAmount: 10,
                         CouponCode: 'couponCode',
@@ -663,7 +661,7 @@ describe('Google Analytics 4 Event', function () {
                 });
 
                 result[1] = 'view_item';
-                window.dataLayer[0].should.match(result);
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -764,7 +762,7 @@ describe('Google Analytics 4 Event', function () {
                     },
                 ];
 
-                window.dataLayer[0].should.match(result);
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -821,7 +819,7 @@ describe('Google Analytics 4 Event', function () {
                 });
 
                 result[1] = 'select_item';
-                window.dataLayer[0].should.match(result);
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -864,6 +862,7 @@ describe('Google Analytics 4 Event', function () {
                     'event',
                     'view_promotion',
                     {
+                        currency: 'USD',
                         items: [
                             {
                                 promotion_id: 'P_12345',
@@ -881,7 +880,7 @@ describe('Google Analytics 4 Event', function () {
                     },
                 ];
 
-                window.dataLayer[0].should.match(result);
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -924,6 +923,7 @@ describe('Google Analytics 4 Event', function () {
                     'event',
                     'select_promotion',
                     {
+                        currency: 'USD',
                         items: [
                             {
                                 promotion_id: 'P_12345',
@@ -941,7 +941,7 @@ describe('Google Analytics 4 Event', function () {
                     },
                 ];
 
-                window.dataLayer[0].should.match(result);
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -957,43 +957,115 @@ describe('Google Analytics 4 Event', function () {
             it('should log an add_shipping_info commerce event', function (done) {
                 done();
             });
+        });
 
-            // beforeEach(function() {
-            //     window.dataLayer = [];
-            //     window.mockGA4EventForwarder = new mockGA4EventForwarder();
-            //     // Include any specific settings that is required for initializing your SDK here
-            //     var sdkSettings = {
-            //         clientKey: '123456',
-            //         appId: 'abcde',
-            //         userIdField: 'customerId',
-            //     };
-            //     // You may require userAttributes or userIdentities to be passed into initialization
-            //     var userAttributes = {
-            //         color: 'green',
-            //     };
-            //     var userIdentities = [
-            //         {
-            //             Identity: 'customerId',
-            //             Type: IdentityType.CustomerId,
-            //         },
-            //         {
-            //             Identity: 'email',
-            //             Type: IdentityType.Email,
-            //         },
-            //         {
-            //             Identity: 'facebook',
-            //             Type: IdentityType.Facebook,
-            //         },
-            //     ];
-            //     mParticle.forwarder.init(
-            //         sdkSettings,
-            //         reportService.cb,
-            //         true,
-            //         null,
-            //         userAttributes,
-            //         userIdentities
-            //     );
-            // });
+        describe('event mapping', function () {
+            it('should log the event name of the page event if the event name is not mapped to a recommended GA4 event name', function (done) {
+                mParticle.forwarder.process({
+                    EventDataType: MessageType.PageEvent,
+                    EventCategory: EventType.Navigation,
+                    EventName: 'Unmapped Event Name',
+                });
+
+                var result = ['event', 'Unmapped Event Name', {}];
+                console.log(result);
+                console.log(dataLayer[0]);
+                window.dataLayer[0].should.eql(result);
+
+                done();
+            });
+
+            it('should log the mapped event name if the event is mapped', function (done) {
+                mParticle.forwarder.process({
+                    EventDataType: MessageType.PageEvent,
+                    EventCategory: EventType.Unknown,
+                    EventName: 'Mapped Event Name',
+                    CustomFlags: {},
+                });
+
+                var result = ['event', 'earn_virtual_currency', {}];
+
+                window.dataLayer[0].should.eql(result);
+
+                done();
+            });
+
+            it('should log the attributes of an event if the attributes are not mapped to recommended GA4 parameters', function (done) {
+                mParticle.forwarder.process({
+                    EventDataType: MessageType.PageEvent,
+                    EventCategory: EventType.Navigation,
+                    EventName: 'Unmapped Event Name',
+                    EventAttributes: {
+                        unmappedEventKey1: 'test1',
+                        unmappedEventKey2: 'test2',
+                    },
+                });
+
+                var result = [
+                    'event',
+                    'Unmapped Event Name',
+                    { unmappedEventKey1: 'test1', unmappedEventKey2: 'test2' },
+                ];
+
+                window.dataLayer[0].should.eql(result);
+
+                done();
+            });
+
+            it('should log the attributes of an event if the attributes are mapped to recommended GA4 parameters', function (done) {
+                mParticle.forwarder.process({
+                    EventDataType: MessageType.PageEvent,
+                    EventCategory: EventType.Navigation,
+                    EventName: 'Mapping Attribute Test',
+                    EventAttributes: {
+                        mappedEventKey1: 'test1',
+                        mappedEventKey2: 'test2',
+                        mappedEventKey3: 'test3',
+                        unmappedEventKey1: 'test4',
+                    },
+                });
+
+                var result = [
+                    'event',
+                    'Mapping Attribute Test',
+                    {
+                        virtual_currency_name: 'test1',
+                        value: 'test2',
+                        unmappedEventKey1: 'test4',
+                    },
+                ];
+                window.dataLayer[0].should.eql(result);
+
+                done();
+            });
+
+            it('should log page view', function (done) {
+                mParticle.forwarder.process({
+                    EventDataType: MessageType.PageEvent,
+                    EventName: 'test name',
+                    EventAttributes: {
+                        unmappedEventKey1: 'test1',
+                        unmappedEventKey2: 'test2',
+                    },
+                    CustomFlags: {
+                        'Google.Title': 'Foo Page Title',
+                        'Google.Location': '/foo',
+                    },
+                });
+
+                // TODO: Update MAPPEDNAME and any mapped event attributes/parameters
+                // var result = [
+                //     'event',
+                //     MAPPEDNAME,
+                //     {
+                //         page_title: 'Foo Page Title',
+                //         page_location: '/foo',
+                //     },
+                // ];
+                // window.dataLayer[0][2].should.eql(result);
+
+                done();
+            });
         });
     });
 });
