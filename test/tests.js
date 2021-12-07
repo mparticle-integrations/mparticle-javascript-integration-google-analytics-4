@@ -1,3 +1,5 @@
+// TODO: review value vs custom flag
+
 /* eslint-disable no-undef*/
 describe('Google Analytics 4 Event', function () {
     // -------------------DO NOT EDIT ANYTHING BELOW THIS LINE-----------------------
@@ -219,6 +221,7 @@ describe('Google Analytics 4 Event', function () {
                     'event_type_to_be_updated',
                     {
                         currency: 'USD',
+                        value: 100,
                         items: [
                             {
                                 attributes: {
@@ -257,12 +260,13 @@ describe('Google Analytics 4 Event', function () {
                 ];
             });
 
-            it('should log an add_to_cart commerce event', function (done) {
+            it('should map MP AddToCart commerce event to GA4 add_to_cart event', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
                     EventDataType: MessageType.Commerce,
                     EventCategory: CommerceEventType.ProductAddToCart,
+                    CustomFlags: { 'GA4.Value': 100 },
                     ProductAction: {
                         ProductActionType: ProductActionType.AddToCart,
                         ProductList: [
@@ -299,7 +303,6 @@ describe('Google Analytics 4 Event', function () {
                                 Variant: 'variant',
                             },
                         ],
-                        TotalAmount: 450,
                         TaxAmount: 40,
                         ShippingAmount: 10,
                         CouponCode: 'coupon',
@@ -312,12 +315,13 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should log a remove_from_cart commerce event', function (done) {
+            it('should map MP RemoveFromCart commerce event to GA4 remove_from_cart event', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
                     EventDataType: MessageType.Commerce,
                     EventCategory: CommerceEventType.ProductRemoveFromCart,
+                    CustomFlags: { 'GA4.Value': 100 },
                     ProductAction: {
                         ProductActionType: ProductActionType.RemoveFromCart,
                         ProductList: [
@@ -367,12 +371,13 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should log a begin_checkout commerce event', function (done) {
+            it('should map MP Checkout commerce event to GA4 begin_checkout event', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
                     EventDataType: MessageType.Commerce,
                     EventCategory: CommerceEventType.ProductCheckout,
+                    CustomFlags: { 'GA4.Value': 100 },
                     ProductAction: {
                         ProductActionType: ProductActionType.ProductCheckout,
                         ProductList: [
@@ -423,7 +428,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should process a purchase commerce event', function (done) {
+            it('should map MP Purchase commerce event to GA4 purchase event', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
@@ -486,7 +491,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should process a refund commerce event', function (done) {
+            it('should map MP Refund commerce event to GA4 refund event', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
@@ -549,9 +554,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            // TODO: Should we do remove_from_wishlist?
-            // .     We support it but it looks like GA4 doesn't?
-            it('should log an add_to_wishlist commerce event', function (done) {
+            it('should map MP AddToWishlist commerce event to GA4 add_to_wishlist event', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
@@ -607,17 +610,13 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            // TODO: We don't have an analog for this. How do we map?
-            it('should log a view_cart commerce event', function (done) {
-                done();
-            });
-
-            it('should log a view_item commerce event', function (done) {
+            it('should map MP ViewDetail commerce event to GA4 view_item event', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
                     EventDataType: MessageType.Commerce,
                     EventCategory: CommerceEventType.ProductViewDetail,
+                    CustomFlags: { 'GA4.Value': 100 },
                     ProductAction: {
                         ProductActionType: ProductActionType.ViewDetail,
                         ProductList: [
@@ -666,8 +665,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            // TODO: Is this a ProductImpression?
-            it('should log a view_item_list commerce event', function (done) {
+            it('should map MP ProducdtImpression commerce event to GA4 view_item_list event', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
@@ -711,7 +709,6 @@ describe('Google Analytics 4 Event', function () {
                                     Variant: 'variant',
                                 },
                             ],
-                            TotalAmount: 450,
                             TaxAmount: 40,
                             ShippingAmount: 10,
                             CouponCode: 'couponCode',
@@ -767,9 +764,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            // TODO: We should have test cases express the mapping for easier
-            //       readability. I.e. 'should map select_item to ProductAction.Click
-            it('should log a select_item commerce event', function (done) {
+            it('should map MP Click commerce event to GA4 select_item event', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
@@ -819,12 +814,15 @@ describe('Google Analytics 4 Event', function () {
                 });
 
                 result[1] = 'select_item';
+                // select items do not include currency of value, which is by default on the result
+                delete result[2]['currency'];
+                delete result[2]['value'];
                 window.dataLayer[0].should.eql(result);
 
                 done();
             });
 
-            it('should log a view_promotion commerce event', function (done) {
+            xit('should map MP PromotionView commerce event to GA4 view_promotion event', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Promotion Action Event',
@@ -885,7 +883,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should log a select_promotion commerce event', function (done) {
+            xit('should map MP PromotionClick commerce event to GA4 select_promotion event', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
@@ -946,7 +944,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should log an add_payment_info commerce event', function (done) {
+            it('should map MP CheckoutOption commerce event with add_payment_info custom flag to GA4 add_payment_info event', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test add_payment_info Event',
@@ -957,7 +955,7 @@ describe('Google Analytics 4 Event', function () {
                         'GA4.PaymentType': 'credit-card',
                     },
                     ProductAction: {
-                        ProductActionType: ProductActionType.CheckoutOption,
+                        ProductActionType: ProductActionType.Click,
                         ProductList: [
                             {
                                 Attributes: {
@@ -1047,10 +1045,10 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should log an add_shipping_info commerce event', function (done) {
+            it('should map MP CheckoutOption commerce event with add_shipping_info custom flag to GA4 add_shipping_info event', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
-                    EventName: 'Test add_payment_info Event',
+                    EventName: 'Test add_shipping_info Event',
                     EventDataType: MessageType.Commerce,
                     EventCategory: CommerceEventType.ProductCheckoutOption,
                     CustomFlags: {
@@ -1058,7 +1056,7 @@ describe('Google Analytics 4 Event', function () {
                         'GA4.ShippingTier': 'ground',
                     },
                     ProductAction: {
-                        ProductActionType: ProductActionType.CheckoutOption,
+                        ProductActionType: ProductActionType.Click,
                         ProductList: [
                             {
                                 Attributes: {
@@ -1148,7 +1146,8 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should not log an event if a CheckoutOption is sent without a custom flag for GA4.CommerceEventType', function (done) {
+
+            it('should not log an event if a CheckoutOption is sent without a custom flag for GA4.CommerceEventType', function(done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test add_payment_info Event',
@@ -1165,7 +1164,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should log an event if a CheckoutOption is sent with GA4.CommerceEventType but without GA4.ShippingTier', function (done) {
+            it('should log an event if a CheckoutOption is sent with GA4.CommerceEventType but without GA4.ShippingTier', function(done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test add_payment_info Event',
@@ -1194,7 +1193,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should log an event if a CheckoutOption is sent on with GA4.CommerceEventType but without GA4.PaymentType', function (done) {
+            it('should log an event if a CheckoutOption is sent on with GA4.CommerceEventType but without GA4.PaymentType', function(done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test add_payment_info Event',
@@ -1223,7 +1222,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should not log an event if a CheckoutOption is sent without the proper custom flags', function (done) {
+            it('should not log an event if a CheckoutOption is sent without the proper custom flags', function(done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test add_payment_info Event',
