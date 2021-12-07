@@ -847,38 +847,30 @@ describe('Google Analytics 4 Event', function () {
                     },
                 });
 
-                // TODO: Should these be in the root of the object or the items?
-                // result[1] = 'view_promotion';
-                // result[2].creative_name = 'Summer Sale Banner';
-                // result[2].creative_slot = 'featured_sale_2';
-                // result[2].location_id = 'L_12345';
-                // result[2].promotion_id = 'P_12345';
-                // result[2].promotion_name = 'Summer Sale';
-
-                // TODO: Create a promotion sample result
-                result = [
+                result1 = [
                     'event',
                     'view_promotion',
                     {
-                        currency: 'USD',
-                        items: [
-                            {
-                                promotion_id: 'P_12345',
-                                promotion_name: 'Summer Sale Banner',
-                                creative_name: 'Summer Sale',
-                                creative_slot: 'featured_app_1',
-                            },
-                            {
-                                promotion_id: 'P_78901',
-                                promotion_name: 'Winter Sale Banner',
-                                creative_name: 'Winter Sale',
-                                creative_slot: 'featured_app_2',
-                            },
-                        ],
+                        promotion_id: 'P_12345',
+                        promotion_name: 'Summer Sale Banner',
+                        creative_name: 'Summer Sale',
+                        creative_slot: 'featured_app_1',
                     },
                 ];
 
-                window.dataLayer[0].should.eql(result);
+                var result2 = [
+                    'event',
+                    'view_promotion',
+                    {
+                        promotion_id: 'P_78901',
+                        promotion_name: 'Winter Sale Banner',
+                        creative_name: 'Winter Sale',
+                        creative_slot: 'featured_app_2',
+                    },
+                ];
+
+                window.dataLayer[0].should.eql(result1);
+                window.dataLayer[1].should.eql(result2);
 
                 done();
             });
@@ -908,38 +900,30 @@ describe('Google Analytics 4 Event', function () {
                     },
                 });
 
-                // TODO: Should these be in the root of the object or the items?
-                // result[1] = 'select_promotion';
-                // result[2].creative_name = 'Summer Sale Banner';
-                // result[2].creative_slot = 'featured_sale_2';
-                // result[2].location_id = 'L_12345';
-                // result[2].promotion_id = 'P_12345';
-                // result[2].promotion_name = 'Summer Sale';
-
-                // TODO: Create a promotion sample result
-                result = [
+                result1 = [
                     'event',
                     'select_promotion',
                     {
-                        currency: 'USD',
-                        items: [
-                            {
-                                promotion_id: 'P_12345',
-                                promotion_name: 'Summer Sale Banner',
-                                creative_name: 'Summer Sale',
-                                creative_slot: 'featured_app_1',
-                            },
-                            {
-                                promotion_id: 'P_78901',
-                                promotion_name: 'Winter Sale Banner',
-                                creative_name: 'Winter Sale',
-                                creative_slot: 'featured_app_2',
-                            },
-                        ],
+                        promotion_id: 'P_12345',
+                        promotion_name: 'Summer Sale Banner',
+                        creative_name: 'Summer Sale',
+                        creative_slot: 'featured_app_1',
                     },
                 ];
 
-                window.dataLayer[0].should.eql(result);
+                var result2 = [
+                    'event',
+                    'select_promotion',
+                    {
+                        promotion_id: 'P_78901',
+                        promotion_name: 'Winter Sale Banner',
+                        creative_name: 'Winter Sale',
+                        creative_slot: 'featured_app_2',
+                    },
+                ];
+
+                window.dataLayer[0].should.eql(result1);
+                window.dataLayer[1].should.eql(result2);
 
                 done();
             });
@@ -1146,8 +1130,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-
-            it('should not log an event if a CheckoutOption is sent without a custom flag for GA4.CommerceEventType', function(done) {
+            it('should not log an event if a CheckoutOption is sent without a custom flag for GA4.CommerceEventType', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test add_payment_info Event',
@@ -1164,7 +1147,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should log an event if a CheckoutOption is sent with GA4.CommerceEventType but without GA4.ShippingTier', function(done) {
+            it('should log an event if a CheckoutOption is sent with GA4.CommerceEventType but without GA4.ShippingTier', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test add_payment_info Event',
@@ -1193,7 +1176,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should log an event if a CheckoutOption is sent on with GA4.CommerceEventType but without GA4.PaymentType', function(done) {
+            it('should log an event if a CheckoutOption is sent on with GA4.CommerceEventType but without GA4.PaymentType', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test add_payment_info Event',
@@ -1222,7 +1205,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should not log an event if a CheckoutOption is sent without the proper custom flags', function(done) {
+            it('should not log an event if a CheckoutOption is sent without the proper custom flags', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test add_payment_info Event',
