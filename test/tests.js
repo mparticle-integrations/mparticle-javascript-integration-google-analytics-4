@@ -946,15 +946,334 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            // TODO: This seems to conflict with our existing implementation
-            //       Need to sync with Rob/Product for direction
             it('should log an add_payment_info commerce event', function (done) {
+                mParticle.forwarder.process({
+                    CurrencyCode: 'USD',
+                    EventName: 'Test add_payment_info Event',
+                    EventDataType: MessageType.Commerce,
+                    EventCategory: CommerceEventType.ProductCheckoutOption,
+                    CustomFlags: {
+                        'GA4.CommerceEventType': 'add_payment_info',
+                        'GA4.PaymentType': 'credit-card',
+                    },
+                    ProductAction: {
+                        ProductActionType: ProductActionType.CheckoutOption,
+                        ProductList: [
+                            {
+                                Attributes: {
+                                    eventMetric1: 'metric2',
+                                    journeyType: 'testjourneytype1',
+                                },
+                                Brand: 'brand',
+                                Category: 'category',
+                                CouponCode: 'coupon',
+                                Name: 'iphone',
+                                Position: 1,
+                                Price: 999,
+                                Quantity: 1,
+                                Sku: 'iphoneSKU',
+                                TotalAmount: 999,
+                                Variant: 'variant',
+                            },
+                            {
+                                Attributes: {
+                                    eventMetric1: 'metric1',
+                                    journeyType: 'testjourneytype2',
+                                },
+                                Brand: 'brand',
+                                Category: 'category',
+                                CouponCode: 'coupon',
+                                Name: 'iphone',
+                                Position: 1,
+                                Price: 999,
+                                Quantity: 1,
+                                Sku: 'iphoneSKU',
+                                TotalAmount: 999,
+                                Variant: 'variant',
+                            },
+                        ],
+                        TotalAmount: 450,
+                        TaxAmount: 40,
+                        ShippingAmount: 10,
+                        CouponCode: 'couponCode',
+                    },
+                });
+
+                result = [
+                    'event',
+                    'add_payment_info',
+                    {
+                        payment_type: 'credit-card',
+                        coupon: 'couponCode',
+                        items: [
+                            {
+                                attributes: {
+                                    eventMetric1: 'metric2',
+                                    journeyType: 'testjourneytype1',
+                                },
+                                coupon_code: 'coupon',
+                                item_brand: 'brand',
+                                item_category: 'category',
+                                item_id: 'iphoneSKU',
+                                item_name: 'iphone',
+                                item_variant: 'variant',
+                                position: 1,
+                                price: 999,
+                                quantity: 1,
+                                total_amount: 999,
+                            },
+                            {
+                                attributes: {
+                                    eventMetric1: 'metric1',
+                                    journeyType: 'testjourneytype2',
+                                },
+                                coupon_code: 'coupon',
+                                item_brand: 'brand',
+                                item_category: 'category',
+                                item_id: 'iphoneSKU',
+                                item_name: 'iphone',
+                                item_variant: 'variant',
+                                position: 1,
+                                price: 999,
+                                quantity: 1,
+                                total_amount: 999,
+                            },
+                        ],
+                    },
+                ];
+
+                window.dataLayer[0].should.match(result);
+
                 done();
             });
 
-            // TODO: This seems to conflict with our existing implementation
-            //       Need to sync with Rob/Product for direction
             it('should log an add_shipping_info commerce event', function (done) {
+                mParticle.forwarder.process({
+                    CurrencyCode: 'USD',
+                    EventName: 'Test add_payment_info Event',
+                    EventDataType: MessageType.Commerce,
+                    EventCategory: CommerceEventType.ProductCheckoutOption,
+                    CustomFlags: {
+                        'GA4.CommerceEventType': 'add_shipping_info',
+                        'GA4.ShippingTier': 'ground',
+                    },
+                    ProductAction: {
+                        ProductActionType: ProductActionType.CheckoutOption,
+                        ProductList: [
+                            {
+                                Attributes: {
+                                    eventMetric1: 'metric2',
+                                    journeyType: 'testjourneytype1',
+                                },
+                                Brand: 'brand',
+                                Category: 'category',
+                                CouponCode: 'coupon',
+                                Name: 'iphone',
+                                Position: 1,
+                                Price: 999,
+                                Quantity: 1,
+                                Sku: 'iphoneSKU',
+                                TotalAmount: 999,
+                                Variant: 'variant',
+                            },
+                            {
+                                Attributes: {
+                                    eventMetric1: 'metric1',
+                                    journeyType: 'testjourneytype2',
+                                },
+                                Brand: 'brand',
+                                Category: 'category',
+                                CouponCode: 'coupon',
+                                Name: 'iphone',
+                                Position: 1,
+                                Price: 999,
+                                Quantity: 1,
+                                Sku: 'iphoneSKU',
+                                TotalAmount: 999,
+                                Variant: 'variant',
+                            },
+                        ],
+                        TotalAmount: 450,
+                        TaxAmount: 40,
+                        ShippingAmount: 10,
+                        CouponCode: 'couponCode',
+                    },
+                });
+
+                result = [
+                    'event',
+                    'add_shipping_info',
+                    {
+                        shipping_tier: 'ground',
+                        coupon: 'couponCode',
+                        items: [
+                            {
+                                attributes: {
+                                    eventMetric1: 'metric2',
+                                    journeyType: 'testjourneytype1',
+                                },
+                                coupon_code: 'coupon',
+                                item_brand: 'brand',
+                                item_category: 'category',
+                                item_id: 'iphoneSKU',
+                                item_name: 'iphone',
+                                item_variant: 'variant',
+                                position: 1,
+                                price: 999,
+                                quantity: 1,
+                                total_amount: 999,
+                            },
+                            {
+                                attributes: {
+                                    eventMetric1: 'metric1',
+                                    journeyType: 'testjourneytype2',
+                                },
+                                coupon_code: 'coupon',
+                                item_brand: 'brand',
+                                item_category: 'category',
+                                item_id: 'iphoneSKU',
+                                item_name: 'iphone',
+                                item_variant: 'variant',
+                                position: 1,
+                                price: 999,
+                                quantity: 1,
+                                total_amount: 999,
+                            },
+                        ],
+                    },
+                ];
+
+                window.dataLayer[0].should.match(result);
+
+                done();
+            });
+
+            it('should not log an event if a CheckoutOption is sent without a custom flag for GA4.CommerceEventType', function (done) {
+                mParticle.forwarder.process({
+                    CurrencyCode: 'USD',
+                    EventName: 'Test add_payment_info Event',
+                    EventDataType: MessageType.Commerce,
+                    EventCategory: CommerceEventType.ProductCheckoutOption,
+                    CustomFlags: {},
+                    ProductAction: {
+                        ProductActionType: ProductActionType.Click,
+                        ProductList: [],
+                    },
+                });
+                window.dataLayer.length.should.eql(0);
+
+                done();
+            });
+
+            it('should log an event if a CheckoutOption is sent with GA4.CommerceEventType but without GA4.ShippingTier', function (done) {
+                mParticle.forwarder.process({
+                    CurrencyCode: 'USD',
+                    EventName: 'Test add_payment_info Event',
+                    EventDataType: MessageType.Commerce,
+                    EventCategory: CommerceEventType.ProductCheckoutOption,
+                    CustomFlags: {
+                        'GA4.CommerceEventType': 'add_shipping_info',
+                    },
+                    ProductAction: {
+                        ProductActionType: ProductActionType.Click,
+                        ProductList: [],
+                    },
+                });
+
+                result = [
+                    'event',
+                    'add_shipping_info',
+                    {
+                        shipping_tier: null,
+                        coupon: null,
+                        items: [],
+                    },
+                ];
+                window.dataLayer[0].should.eql(result);
+
+                done();
+            });
+
+            it('should log an event if a CheckoutOption is sent on with GA4.CommerceEventType but without GA4.PaymentType', function (done) {
+                mParticle.forwarder.process({
+                    CurrencyCode: 'USD',
+                    EventName: 'Test add_payment_info Event',
+                    EventDataType: MessageType.Commerce,
+                    EventCategory: CommerceEventType.ProductCheckoutOption,
+                    CustomFlags: {
+                        'GA4.CommerceEventType': 'add_payment_info',
+                    },
+                    ProductAction: {
+                        ProductActionType: ProductActionType.Click,
+                        ProductList: [],
+                    },
+                });
+
+                result = [
+                    'event',
+                    'add_payment_info',
+                    {
+                        payment_type: null,
+                        coupon: null,
+                        items: [],
+                    },
+                ];
+                window.dataLayer[0].should.eql(result);
+
+                done();
+            });
+
+            it('should not log an event if a CheckoutOption is sent without the proper custom flags', function (done) {
+                mParticle.forwarder.process({
+                    CurrencyCode: 'USD',
+                    EventName: 'Test add_payment_info Event',
+                    EventDataType: MessageType.Commerce,
+                    EventCategory: CommerceEventType.ProductCheckoutOption,
+                    CustomFlags: {},
+                    ProductAction: {
+                        ProductActionType: ProductActionType.Click,
+                        ProductList: [
+                            {
+                                Attributes: {
+                                    eventMetric1: 'metric2',
+                                    journeyType: 'testjourneytype1',
+                                },
+                                Brand: 'brand',
+                                Category: 'category',
+                                CouponCode: 'coupon',
+                                Name: 'iphone',
+                                Position: 1,
+                                Price: 999,
+                                Quantity: 1,
+                                Sku: 'iphoneSKU',
+                                TotalAmount: 999,
+                                Variant: 'variant',
+                            },
+                            {
+                                Attributes: {
+                                    eventMetric1: 'metric1',
+                                    journeyType: 'testjourneytype2',
+                                },
+                                Brand: 'brand',
+                                Category: 'category',
+                                CouponCode: 'coupon',
+                                Name: 'iphone',
+                                Position: 1,
+                                Price: 999,
+                                Quantity: 1,
+                                Sku: 'iphoneSKU',
+                                TotalAmount: 999,
+                                Variant: 'variant',
+                            },
+                        ],
+                        TotalAmount: 450,
+                        TaxAmount: 40,
+                        ShippingAmount: 10,
+                        CouponCode: 'couponCode',
+                    },
+                });
+                window.dataLayer.length.should.eql(0);
+
                 done();
             });
         });
@@ -968,8 +1287,6 @@ describe('Google Analytics 4 Event', function () {
                 });
 
                 var result = ['event', 'Unmapped Event Name', {}];
-                console.log(result);
-                console.log(dataLayer[0]);
                 window.dataLayer[0].should.eql(result);
 
                 done();

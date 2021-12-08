@@ -31,7 +31,7 @@ Common.prototype.createParameters = function(eventAttributes, map) {
             console.warn(
                 'The key of ' +
                     map[key] +
-                    'has already been mapped. It is not possible to map multiple attributes to the same recommended parameter name.  Please check your set up. Skipping key:' +
+                    ' has already been mapped. It is not possible to map multiple attributes to the same recommended parameter name.  Please check your set up. Skipping key:' +
                     key +
                     '.'
             );
