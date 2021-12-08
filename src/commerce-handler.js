@@ -3,6 +3,7 @@ function CommerceHandler(common) {
 }
 
 var ProductActionTypes = {
+    Unknown: 0,
     AddToCart: 10,
     Click: 14,
     Checkout: 12,
@@ -26,64 +27,86 @@ var GA4_COMMERCE_EVENT_TYPE = 'GA4.CommerceEventType',
     GA4_PAYMENT_TYPE = 'GA4.PaymentType';
 
 var ADD_SHIPPING_INFO = 'add_shipping_info',
-    ADD_PAYMENT_INFO = 'add_payment_info';
+    ADD_PAYMENT_INFO = 'add_payment_info',
+    VIEW_CART = 'view_cart';
 
 CommerceHandler.prototype.logCommerceEvent = function (event) {
+    var needsCurrency = true,
+        needsValue = true,
+        ga4CommerceEventParameters,
+        isViewCartEvent = false;
     if (
         event.EventCategory === PromotionActionTypes.PromotionClick ||
         event.EventCategory === PromotionActionTypes.PromotionView
     ) {
         return logPromotionEvent(event);
-    } else if (event.EventCategory === ProductActionTypes.Impression) {
+    }
+
+    if (event.EventCategory === ProductActionTypes.Impression) {
         return logImpressionEvent(event);
-    } else if (event.EventCategory === ProductActionTypes.CheckoutOption) {
+    }
+
+    if (event.EventCategory === ProductActionTypes.CheckoutOption) {
         return logCheckoutOptionEvent(event);
-    } else {
-        var needsCurrency = true,
-            needsValue = true,
-            ga4CommerceEventParameters;
+        // logging a view cart event requires an Unknown Product Action Type
+        // and custom flag
+    }
 
-        switch (event.EventCategory) {
-            case ProductActionTypes.AddToCart:
-            case ProductActionTypes.RemoveFromCart:
-                ga4CommerceEventParameters = buildAddOrRemoveCartItem(event);
-                break;
-            case ProductActionTypes.Checkout:
-                ga4CommerceEventParameters = buildCheckout(event);
-                break;
-            case ProductActionTypes.Click:
-                ga4CommerceEventParameters = buildSelectItem(event);
+    if (event.EventCategory === ProductActionTypes.Unknown) {
+        if (
+            event.CustomFlags &&
+            event.CustomFlags[GA4_COMMERCE_EVENT_TYPE] === VIEW_CART
+        ) {
+            isViewCartEvent = true;
+            ga4CommerceEventParameters = buildViewCart(event);
+        }
+    }
 
-                needsCurrency = false;
-                needsValue = false;
-                break;
-            case ProductActionTypes.Purchase:
-                ga4CommerceEventParameters = buildPurchase(event);
-                break;
-            case ProductActionTypes.Refund:
-                ga4CommerceEventParameters = buildRefund(event);
-                break;
-            case ProductActionTypes.ViewDetail:
-                ga4CommerceEventParameters = buildViewItem(event);
-                break;
-            case ProductActionTypes.AddToWishlist:
-                ga4CommerceEventParameters = buildAddToWishlist(event);
-                break;
-            default:
-                console.error('Unknown Commerce Type', event);
+    switch (event.EventCategory) {
+        case ProductActionTypes.AddToCart:
+        case ProductActionTypes.RemoveFromCart:
+            ga4CommerceEventParameters = buildAddOrRemoveCartItem(event);
+            break;
+        case ProductActionTypes.Checkout:
+            ga4CommerceEventParameters = buildCheckout(event);
+            break;
+        case ProductActionTypes.Click:
+            ga4CommerceEventParameters = buildSelectItem(event);
+
+            needsCurrency = false;
+            needsValue = false;
+            break;
+        case ProductActionTypes.Purchase:
+            ga4CommerceEventParameters = buildPurchase(event);
+            break;
+        case ProductActionTypes.Refund:
+            ga4CommerceEventParameters = buildRefund(event);
+            break;
+        case ProductActionTypes.ViewDetail:
+            ga4CommerceEventParameters = buildViewItem(event);
+            break;
+        case ProductActionTypes.AddToWishlist:
+            ga4CommerceEventParameters = buildAddToWishlist(event);
+            break;
+        default:
+            if (!isViewCartEvent) {
+                console.error(
+                    'Unsupported Commerce Event. Event not sent.',
+                    event
+                );
                 return false;
-        }
+            }
+    }
 
-        if (needsCurrency) {
-            ga4CommerceEventParameters.currency = event.CurrencyCode;
-        }
+    if (needsCurrency) {
+        ga4CommerceEventParameters.currency = event.CurrencyCode;
+    }
 
-        if (needsValue) {
-            ga4CommerceEventParameters.value =
-                (event.CustomFlags && event.CustomFlags['GA4.Value']) ||
-                event.ProductAction.TotalAmount ||
-                null;
-        }
+    if (needsValue) {
+        ga4CommerceEventParameters.value =
+            (event.CustomFlags && event.CustomFlags['GA4.Value']) ||
+            event.ProductAction.TotalAmount ||
+            null;
     }
 
     gtag('event', mapGA4EcommerceEventName(event), ga4CommerceEventParameters);
@@ -281,6 +304,14 @@ function mapGA4EcommerceEventName(event) {
             return 'select_promotion';
         case PromotionActionTypes.PromotionView:
             return 'view_promotion';
+        case ProductActionTypes.Unknown:
+            if (
+                event.CustomFlags &&
+                event.CustomFlags[GA4_COMMERCE_EVENT_TYPE] === VIEW_CART
+            ) {
+                return 'view_cart';
+            }
+            break;
         default:
             console.error('Product Action Type not supported');
             return null;
@@ -387,6 +418,12 @@ function logImpressionEvent(event) {
         return false;
     }
     return true;
+}
+
+function buildViewCart(event) {
+    return {
+        items: buildProductsList(event.ProductAction.ProductList),
+    };
 }
 
 module.exports = CommerceHandler;
