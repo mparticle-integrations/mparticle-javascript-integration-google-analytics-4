@@ -35,23 +35,12 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
         needsValue = true,
         ga4CommerceEventParameters,
         isViewCartEvent = false;
-    if (
-        event.EventCategory === PromotionActionTypes.PromotionClick ||
-        event.EventCategory === PromotionActionTypes.PromotionView
-    ) {
-        return logPromotionEvent(event);
-    }
 
-    if (event.EventCategory === ProductActionTypes.Impression) {
-        return logImpressionEvent(event);
-    }
-
-    if (event.EventCategory === ProductActionTypes.CheckoutOption) {
-        return logCheckoutOptionEvent(event);
-        // logging a view cart event requires an Unknown Product Action Type
-        // and custom flag
-    }
-
+    // GA4 has a view_cart event which MP does not support via a ProductActionType
+    // In order to log a view_cart event, pass ProductActionType.Unknown along with
+    // the proper custom flag
+    // Unknown ProductActionTypes without a custom flag will reach the switch statement
+    // below and throw an error to the customer
     if (event.EventCategory === ProductActionTypes.Unknown) {
         if (
             event.CustomFlags &&
@@ -88,7 +77,21 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
         case ProductActionTypes.AddToWishlist:
             ga4CommerceEventParameters = buildAddToWishlist(event);
             break;
+
+        case ProductActionTypes.CheckoutOption:
+            return logCheckoutOptionEvent(event);
+
+        // Handle Promotion Events
+        case PromotionActionTypes.PromotionClick:
+        case PromotionActionTypes.PromotionView:
+            return logPromotionEvent(event);
+
+        // Handle Impressions
+        case ProductActionTypes.Impression:
+            return logImpressionEvent(event);
+
         default:
+            // a view cart event is handled at the beginning of this function
             if (!isViewCartEvent) {
                 console.error(
                     'Unsupported Commerce Event. Event not sent.',
@@ -98,6 +101,7 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
             }
     }
 
+    // CheckoutOption, Promotions, and Impressions will not make it to this code
     if (needsCurrency) {
         ga4CommerceEventParameters.currency = event.CurrencyCode;
     }
