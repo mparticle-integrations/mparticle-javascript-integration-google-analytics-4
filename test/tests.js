@@ -822,7 +822,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            xit('should map MP PromotionView commerce event to GA4 view_promotion event', function (done) {
+            it('should map MP PromotionView commerce event to GA4 view_promotion event', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Promotion Action Event',
@@ -875,7 +875,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            xit('should map MP PromotionClick commerce event to GA4 select_promotion event', function (done) {
+            it('should map MP PromotionClick commerce event to GA4 select_promotion event', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
