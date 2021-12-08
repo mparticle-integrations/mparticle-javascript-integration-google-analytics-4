@@ -48,13 +48,13 @@ CommerceHandler.prototype.buildImpression = function (impression) {
     };
 };
 
-CommerceHandler.prototype.buildProductClick = function (event) {
+CommerceHandler.prototype.buildSelectItem = function (event) {
     return {
         items: buildProductsList(event.ProductAction.ProductList),
     };
 };
 
-CommerceHandler.prototype.buildProductViewDetail = function (event) {
+CommerceHandler.prototype.buildViewItem = function (event) {
     return {
         items: buildProductsList(event.ProductAction.ProductList),
     };
@@ -127,8 +127,6 @@ function buildAddPaymentInfo(event) {
 
 CommerceHandler.prototype.logCommerceEvent = function (event) {
     var self = this;
-    var ga4CommerceEventParameters;
-
     if (event.EventCategory === ProductActionTypes.Impression) {
         try {
             event.ProductImpressions.forEach(function (impression) {
@@ -148,6 +146,9 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
     } else if (event.EventCategory === ProductActionTypes.CheckoutOption) {
         return logCheckoutOptionEvent(event);
     } else {
+        var needsCurrency = true,
+            needsValue = true,
+            ga4CommerceEventParameters;
         // TODO: Move this out into a pure builder function that isn't aware of "self"
         switch (event.EventCategory) {
             case ProductActionTypes.AddToCart:
@@ -159,7 +160,10 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
                 ga4CommerceEventParameters = self.buildCheckout(event);
                 break;
             case ProductActionTypes.Click:
-                ga4CommerceEventParameters = self.buildProductClick(event);
+                ga4CommerceEventParameters = self.buildSelectItem(event);
+
+                needsCurrency = false;
+                needsValue = false;
                 break;
 
             case ProductActionTypes.Purchase:
@@ -169,7 +173,7 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
                 ga4CommerceEventParameters = self.buildRefund(event);
                 break;
             case ProductActionTypes.ViewDetail:
-                ga4CommerceEventParameters = self.buildProductViewDetail(event);
+                ga4CommerceEventParameters = self.buildViewItem(event);
                 break;
             case ProductActionTypes.AddToWishlist:
                 ga4CommerceEventParameters = self.buildAddToWishlist(event);
@@ -177,19 +181,28 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
             case PromotionActionTypes.PromotionClick:
             case PromotionActionTypes.PromotionView:
                 ga4CommerceEventParameters = self.buildPromotion(event);
+
+                needsCurrency = false;
+                needsValue = false;
                 break;
             default:
                 console.error('Unknown Commerce Type', event);
                 return false;
         }
-        ga4CommerceEventParameters.currency = event.CurrencyCode || null;
 
-        gtag(
-            'event',
-            mapGA4EcommerceEventName(event),
-            ga4CommerceEventParameters
-        );
+        if (needsCurrency) {
+            ga4CommerceEventParameters.currency = event.CurrencyCode;
+        }
+
+        if (needsValue) {
+            ga4CommerceEventParameters.value =
+                (event.CustomFlags && event.CustomFlags['GA4.Value']) ||
+                event.ProductAction.TotalAmount ||
+                null;
+        }
     }
+
+    gtag('event', mapGA4EcommerceEventName(event), ga4CommerceEventParameters);
     return true;
 };
 
