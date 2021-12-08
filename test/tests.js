@@ -847,7 +847,7 @@ describe('Google Analytics 4 Event', function () {
                     },
                 });
 
-                result1 = [
+                promotionResult1 = [
                     'event',
                     'view_promotion',
                     {
@@ -858,7 +858,7 @@ describe('Google Analytics 4 Event', function () {
                     },
                 ];
 
-                var result2 = [
+                var promotionResult2 = [
                     'event',
                     'view_promotion',
                     {
@@ -869,8 +869,8 @@ describe('Google Analytics 4 Event', function () {
                     },
                 ];
 
-                window.dataLayer[0].should.eql(result1);
-                window.dataLayer[1].should.eql(result2);
+                window.dataLayer[0].should.eql(promotionResult1);
+                window.dataLayer[1].should.eql(promotionResult2);
 
                 done();
             });
@@ -900,7 +900,7 @@ describe('Google Analytics 4 Event', function () {
                     },
                 });
 
-                result1 = [
+                promotionResult1 = [
                     'event',
                     'select_promotion',
                     {
@@ -911,7 +911,7 @@ describe('Google Analytics 4 Event', function () {
                     },
                 ];
 
-                var result2 = [
+                var promotionResult2 = [
                     'event',
                     'select_promotion',
                     {
@@ -922,8 +922,8 @@ describe('Google Analytics 4 Event', function () {
                     },
                 ];
 
-                window.dataLayer[0].should.eql(result1);
-                window.dataLayer[1].should.eql(result2);
+                window.dataLayer[0].should.eql(promotionResult1);
+                window.dataLayer[1].should.eql(promotionResult2);
 
                 done();
             });
