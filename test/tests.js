@@ -30,6 +30,7 @@ describe('Google Analytics 4 Event', function () {
             },
         },
         CommerceEventType = {
+            Unknown: 0,
             ProductAddToCart: 10,
             ProductRemoveFromCart: 11,
             ProductCheckout: 12,
@@ -1254,6 +1255,117 @@ describe('Google Analytics 4 Event', function () {
                         CouponCode: 'couponCode',
                     },
                 });
+                window.dataLayer.length.should.eql(0);
+
+                done();
+            });
+
+            it('should log a view_cart event using ProductActionType.Unknown and a custom flag', function (done) {
+                mParticle.forwarder.process({
+                    CurrencyCode: 'USD',
+                    EventName: 'Unknown Test',
+                    EventDataType: MessageType.Commerce,
+                    EventCategory: CommerceEventType.Unknown,
+                    CustomFlags: {
+                        'GA4.CommerceEventType': 'view_cart',
+                        'GA4.Value': 100,
+                    },
+                    ProductAction: {
+                        ProductActionType: ProductActionType.Unknown,
+                        ProductList: [
+                            {
+                                Attributes: {
+                                    eventMetric1: 'metric2',
+                                    journeyType: 'testjourneytype1',
+                                },
+                                Brand: 'brand',
+                                Category: 'category',
+                                CouponCode: 'coupon',
+                                Name: 'iphone',
+                                Position: 1,
+                                Price: 999,
+                                Quantity: 1,
+                                Sku: 'iphoneSKU',
+                                TotalAmount: 999,
+                                Variant: 'variant',
+                            },
+                            {
+                                Attributes: {
+                                    eventMetric1: 'metric1',
+                                    journeyType: 'testjourneytype2',
+                                },
+                                Brand: 'brand',
+                                Category: 'category',
+                                CouponCode: 'coupon',
+                                Name: 'iphone',
+                                Position: 1,
+                                Price: 999,
+                                Quantity: 1,
+                                Sku: 'iphoneSKU',
+                                TotalAmount: 999,
+                                Variant: 'variant',
+                            },
+                        ],
+                    },
+                });
+
+                result = [
+                    'event',
+                    'view_cart',
+                    {
+                        value: 100,
+                        currency: 'USD',
+                        items: [
+                            {
+                                attributes: {
+                                    eventMetric1: 'metric2',
+                                    journeyType: 'testjourneytype1',
+                                },
+                                coupon_code: 'coupon',
+                                item_brand: 'brand',
+                                item_category: 'category',
+                                item_id: 'iphoneSKU',
+                                item_name: 'iphone',
+                                item_variant: 'variant',
+                                position: 1,
+                                price: 999,
+                                quantity: 1,
+                                total_amount: 999,
+                            },
+                            {
+                                attributes: {
+                                    eventMetric1: 'metric1',
+                                    journeyType: 'testjourneytype2',
+                                },
+                                coupon_code: 'coupon',
+                                item_brand: 'brand',
+                                item_category: 'category',
+                                item_id: 'iphoneSKU',
+                                item_name: 'iphone',
+                                item_variant: 'variant',
+                                position: 1,
+                                price: 999,
+                                quantity: 1,
+                                total_amount: 999,
+                            },
+                        ],
+                    },
+                ];
+
+                window.dataLayer[0].should.eql(result);
+
+                done();
+            });
+
+            it('should not log an Unknown Product Action Type with no custom flags', function (done) {
+                mParticle.forwarder.process({
+                    CurrencyCode: 'USD',
+                    EventName: 'Unknown Test',
+                    EventDataType: MessageType.Commerce,
+                    EventCategory: CommerceEventType.Unknown,
+                    CustomFlags: {},
+                });
+
                 window.dataLayer.length.should.eql(0);
 
                 done();

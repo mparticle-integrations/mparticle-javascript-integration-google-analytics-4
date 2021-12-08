@@ -3,6 +3,7 @@ function CommerceHandler(common) {
 }
 
 var ProductActionTypes = {
+    Unknown: 0,
     AddToCart: 10,
     Click: 14,
     Checkout: 12,
@@ -26,9 +27,13 @@ var GA4_COMMERCE_EVENT_TYPE = 'GA4.CommerceEventType',
     GA4_PAYMENT_TYPE = 'GA4.PaymentType';
 
 var ADD_SHIPPING_INFO = 'add_shipping_info',
-    ADD_PAYMENT_INFO = 'add_payment_info';
+    ADD_PAYMENT_INFO = 'add_payment_info',
+    VIEW_CART = 'view_cart';
 
 CommerceHandler.prototype.logCommerceEvent = function (event) {
+    var needsCurrency = true,
+        needsValue = true,
+        ga4CommerceEventParameters;
     if (
         event.EventCategory === PromotionActionTypes.PromotionClick ||
         event.EventCategory === PromotionActionTypes.PromotionView
@@ -38,11 +43,18 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
         return logImpressionEvent(event);
     } else if (event.EventCategory === ProductActionTypes.CheckoutOption) {
         return logCheckoutOptionEvent(event);
+        // logging a view cart event requires an Unknown Product Action Type
+        // and custom flag
+    } else if (event.EventCategory === ProductActionTypes.Unknown) {
+        if (
+            event.CustomFlags &&
+            event.CustomFlags[GA4_COMMERCE_EVENT_TYPE] === VIEW_CART
+        ) {
+            ga4CommerceEventParameters = buildViewCart(event);
+        } else {
+            return false;
+        }
     } else {
-        var needsCurrency = true,
-            needsValue = true,
-            ga4CommerceEventParameters;
-
         switch (event.EventCategory) {
             case ProductActionTypes.AddToCart:
             case ProductActionTypes.RemoveFromCart:
@@ -73,17 +85,17 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
                 console.error('Unknown Commerce Type', event);
                 return false;
         }
+    }
 
-        if (needsCurrency) {
-            ga4CommerceEventParameters.currency = event.CurrencyCode;
-        }
+    if (needsCurrency) {
+        ga4CommerceEventParameters.currency = event.CurrencyCode;
+    }
 
-        if (needsValue) {
-            ga4CommerceEventParameters.value =
-                (event.CustomFlags && event.CustomFlags['GA4.Value']) ||
-                event.ProductAction.TotalAmount ||
-                null;
-        }
+    if (needsValue) {
+        ga4CommerceEventParameters.value =
+            (event.CustomFlags && event.CustomFlags['GA4.Value']) ||
+            event.ProductAction.TotalAmount ||
+            null;
     }
 
     gtag('event', mapGA4EcommerceEventName(event), ga4CommerceEventParameters);
@@ -281,6 +293,14 @@ function mapGA4EcommerceEventName(event) {
             return 'select_promotion';
         case PromotionActionTypes.PromotionView:
             return 'view_promotion';
+        case ProductActionTypes.Unknown:
+            if (
+                event.CustomFlags &&
+                event.CustomFlags[GA4_COMMERCE_EVENT_TYPE] === VIEW_CART
+            ) {
+                return 'view_cart';
+            }
+            break;
         default:
             console.error('Product Action Type not supported');
             return null;
@@ -387,6 +407,12 @@ function logImpressionEvent(event) {
         return false;
     }
     return true;
+}
+
+function buildViewCart(event) {
+    return {
+        items: buildProductsList(event.ProductAction.ProductList),
+    };
 }
 
 module.exports = CommerceHandler;
