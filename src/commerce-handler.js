@@ -40,13 +40,13 @@ CommerceHandler.prototype.buildCheckout = function (event) {
     };
 };
 
-CommerceHandler.prototype.buildImpression = function (impression) {
+function buildImpression(impression) {
     return {
         item_list_id: impression.ProductImpressionList,
         item_list_name: impression.ProductImpressionList,
         items: buildProductsList(impression.ProductList),
     };
-};
+}
 
 CommerceHandler.prototype.buildSelectItem = function (event) {
     return {
@@ -60,12 +60,8 @@ CommerceHandler.prototype.buildViewItem = function (event) {
     };
 };
 
-CommerceHandler.prototype.buildPromotion = function (event) {
-    // TODO: GA4 Promo object assumes single promo with array of products but
-    //       our SDK provides an array of promos with no products
-    return {
-        items: buildPromoList(event.PromotionAction.PromotionList),
-    };
+CommerceHandler.prototype.buildPromotion = function (promotion) {
+    return parsePromotion(promotion);
 };
 
 CommerceHandler.prototype.buildPurchase = function (event) {
@@ -127,22 +123,13 @@ function buildAddPaymentInfo(event) {
 
 CommerceHandler.prototype.logCommerceEvent = function (event) {
     var self = this;
-    if (event.EventCategory === ProductActionTypes.Impression) {
-        try {
-            event.ProductImpressions.forEach(function (impression) {
-                var ga4ImpressionEvent = self.buildImpression(impression);
-
-                gtag(
-                    'event',
-                    mapGA4EcommerceEventName(event),
-                    ga4ImpressionEvent
-                );
-            });
-        } catch (error) {
-            console.log('error logging impressions', error);
-            return false;
-        }
-        return true;
+    if (
+        event.EventCategory === PromotionActionTypes.PromotionClick ||
+        event.EventCategory === PromotionActionTypes.PromotionView
+    ) {
+        return logPromotionEvent(event);
+    } else if (event.EventCategory === ProductActionTypes.Impression) {
+        return logImpressionEvent(event);
     } else if (event.EventCategory === ProductActionTypes.CheckoutOption) {
         return logCheckoutOptionEvent(event);
     } else {
@@ -165,7 +152,6 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
                 needsCurrency = false;
                 needsValue = false;
                 break;
-
             case ProductActionTypes.Purchase:
                 ga4CommerceEventParameters = self.buildPurchase(event);
                 break;
@@ -177,13 +163,6 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
                 break;
             case ProductActionTypes.AddToWishlist:
                 ga4CommerceEventParameters = self.buildAddToWishlist(event);
-                break;
-            case PromotionActionTypes.PromotionClick:
-            case PromotionActionTypes.PromotionView:
-                ga4CommerceEventParameters = self.buildPromotion(event);
-
-                needsCurrency = false;
-                needsValue = false;
                 break;
             default:
                 console.error('Unknown Commerce Type', event);
@@ -277,16 +256,6 @@ function buildProductsList(products) {
     return productsList;
 }
 
-function buildPromoList(promotions) {
-    var promotionsList = [];
-
-    promotions.forEach(function (promotion) {
-        promotionsList.push(parsePromotion(promotion));
-    });
-
-    return promotionsList;
-}
-
 function mapGA4EcommerceEventName(event) {
     switch (event.EventCategory) {
         case ProductActionTypes.AddToCart:
@@ -375,6 +344,49 @@ function logCheckoutOptionEvent(event) {
 
     gtag('event', mapGA4EcommerceEventName(event), ga4CommerceEventParameters);
 
+    return true;
+}
+
+function logPromotionEvent(event) {
+    try {
+        var ga4CommerceEventParameters;
+        event.PromotionAction.PromotionList.forEach(function (promotion) {
+            ga4CommerceEventParameters = self.buildPromotion(promotion);
+            gtag(
+                'event',
+                mapGA4EcommerceEventName(event),
+                ga4CommerceEventParameters
+            );
+        });
+        return true;
+    } catch (error) {
+        console.error(
+            'Error logging Promotions to GA4. Promotions not logged.',
+            error
+        );
+    }
+    return false;
+}
+
+function logImpressionEvent(event) {
+    try {
+        var ga4CommerceEventParameters;
+        event.ProductImpressions.forEach(function (impression) {
+            ga4CommerceEventParameters = buildImpression(impression);
+
+            gtag(
+                'event',
+                mapGA4EcommerceEventName(event),
+                ga4CommerceEventParameters
+            );
+        });
+    } catch (error) {
+        console.log(
+            'Error logging Impressions to GA4. Impressions not logged',
+            error
+        );
+        return false;
+    }
     return true;
 }
 
