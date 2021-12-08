@@ -23,7 +23,7 @@ var PromotionActionTypes = {
 // Custom Flags
 var GA4_COMMERCE_EVENT_TYPE = 'GA4.CommerceEventType',
     GA4_SHIPPING_TIER = 'GA4.ShippingTier',
-    GA4_Payment_Type = 'GA4.PaymentType';
+    GA4_PAYMENT_TYPE = 'GA4.PaymentType';
 
 var ADD_SHIPPING_INFO = 'add_shipping_info',
     ADD_PAYMENT_INFO = 'add_payment_info';
@@ -118,8 +118,8 @@ function buildAddPaymentInfo(event) {
                 ? event.ProductAction.CouponCode
                 : null,
         payment_type:
-            event.CustomFlags && event.CustomFlags[GA4_Payment_Type]
-                ? event.CustomFlags[GA4_Payment_Type]
+            event.CustomFlags && event.CustomFlags[GA4_PAYMENT_TYPE]
+                ? event.CustomFlags[GA4_PAYMENT_TYPE]
                 : null,
         items: buildProductsList(event.ProductAction.ProductList),
     };
@@ -287,7 +287,7 @@ function mapGA4EcommerceEventName(event) {
         case ProductActionTypes.Checkout:
             return 'begin_checkout';
         case ProductActionTypes.CheckoutOption:
-            return returnShippingOrPaymentEvent(event.CustomFlags);
+            return getShippingOrPaymentEvent(event.CustomFlags);
         case ProductActionTypes.Click:
             return 'select_item';
         case ProductActionTypes.Impression:
@@ -306,7 +306,7 @@ function mapGA4EcommerceEventName(event) {
     }
 }
 
-function returnShippingOrPaymentEvent(customFlags) {
+function getShippingOrPaymentEvent(customFlags) {
     switch (customFlags[GA4_COMMERCE_EVENT_TYPE]) {
         case ADD_SHIPPING_INFO:
             return ADD_SHIPPING_INFO;
