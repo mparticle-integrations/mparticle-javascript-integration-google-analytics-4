@@ -1,5 +1,3 @@
-// TODO: review value vs custom flag
-
 /* eslint-disable no-undef*/
 describe('Google Analytics 4 Event', function () {
     // -------------------DO NOT EDIT ANYTHING BELOW THIS LINE-----------------------
