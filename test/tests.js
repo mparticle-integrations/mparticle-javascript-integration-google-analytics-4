@@ -161,15 +161,6 @@ describe('Google Analytics 4 Event', function () {
         clientKey: '123456',
         appId: 'abcde',
         userIdField: 'customerId',
-        // The event 'Mapped Event Name' of event type Unknown is mapped to 'earn_virtual_currency'
-        eventNameMapping:
-            '[{&quot;jsmap&quot;:&quot;-2106354334&quot;,&quot;map&quot;:&quot;1740494660027578603&quot;,&quot;maptype&quot;:&quot;EventClass.Id&quot;,&quot;value&quot;:&quot;earn_virtual_currency&quot;}]',
-        // The attributeMapping below has the following mapping:
-        // mappedEventKey1 --> virtual_currency_name
-        // mappedEventKey2 --> value
-        // mappedEventKey2 --> virtual_currency_name
-        attributeMapping:
-            '[{&quot;jsmap&quot;:null,&quot;map&quot;:&quot;mappedEventKey1&quot;,&quot;maptype&quot;:&quot;EventAttributeClass.Name&quot;,&quot;value&quot;:&quot;virtual_currency_name&quot;},{&quot;jsmap&quot;:null,&quot;map&quot;:&quot;mappedEventKey2&quot;,&quot;maptype&quot;:&quot;EventAttributeClass.Name&quot;,&quot;value&quot;:&quot;value&quot;},{&quot;jsmap&quot;:null,&quot;map&quot;:&quot;mappedEventKey3&quot;,&quot;maptype&quot;:&quot;EventAttributeClass.Name&quot;,&quot;value&quot;:&quot;virtual_currency_name&quot;}]',
     };
 
     describe('initialization', function () {
@@ -1371,78 +1362,17 @@ describe('Google Analytics 4 Event', function () {
         });
 
         describe('event mapping', function () {
-            it('should log the event name of the page event if the event name is not mapped to a recommended GA4 event name', function (done) {
-                mParticle.forwarder.process({
-                    EventDataType: MessageType.PageEvent,
-                    EventCategory: EventType.Navigation,
-                    EventName: 'Unmapped Event Name',
-                });
-
-                var result = ['event', 'Unmapped Event Name', {}];
-                window.dataLayer[0].should.eql(result);
-
-                done();
-            });
-
-            it('should log the mapped event name if the event is mapped', function (done) {
-                mParticle.forwarder.process({
-                    EventDataType: MessageType.PageEvent,
-                    EventCategory: EventType.Unknown,
-                    EventName: 'Mapped Event Name',
-                    CustomFlags: {},
-                });
-
-                var result = ['event', 'earn_virtual_currency', {}];
-
-                window.dataLayer[0].should.eql(result);
-
-                done();
-            });
-
-            it('should log the attributes of an event if the attributes are not mapped to recommended GA4 parameters', function (done) {
+            it('should log the event name and event attributes of the page event', function (done) {
                 mParticle.forwarder.process({
                     EventDataType: MessageType.PageEvent,
                     EventCategory: EventType.Navigation,
                     EventName: 'Unmapped Event Name',
                     EventAttributes: {
-                        unmappedEventKey1: 'test1',
-                        unmappedEventKey2: 'test2',
+                        foo: 'bar',
                     },
                 });
 
-                var result = [
-                    'event',
-                    'Unmapped Event Name',
-                    { unmappedEventKey1: 'test1', unmappedEventKey2: 'test2' },
-                ];
-
-                window.dataLayer[0].should.eql(result);
-
-                done();
-            });
-
-            it('should log the attributes of an event if the attributes are mapped to recommended GA4 parameters', function (done) {
-                mParticle.forwarder.process({
-                    EventDataType: MessageType.PageEvent,
-                    EventCategory: EventType.Navigation,
-                    EventName: 'Mapping Attribute Test',
-                    EventAttributes: {
-                        mappedEventKey1: 'test1',
-                        mappedEventKey2: 'test2',
-                        mappedEventKey3: 'test3',
-                        unmappedEventKey1: 'test4',
-                    },
-                });
-
-                var result = [
-                    'event',
-                    'Mapping Attribute Test',
-                    {
-                        virtual_currency_name: 'test1',
-                        value: 'test2',
-                        unmappedEventKey1: 'test4',
-                    },
-                ];
+                var result = ['event', 'Unmapped Event Name', { foo: 'bar' }];
                 window.dataLayer[0].should.eql(result);
 
                 done();
@@ -1453,25 +1383,14 @@ describe('Google Analytics 4 Event', function () {
                     EventDataType: MessageType.PageEvent,
                     EventName: 'test name',
                     EventAttributes: {
-                        unmappedEventKey1: 'test1',
-                        unmappedEventKey2: 'test2',
+                        eventKey1: 'test1',
+                        eventKey2: 'test2',
                     },
                     CustomFlags: {
                         'Google.Title': 'Foo Page Title',
                         'Google.Location': '/foo',
                     },
                 });
-
-                // TODO: Update MAPPEDNAME and any mapped event attributes/parameters
-                // var result = [
-                //     'event',
-                //     MAPPEDNAME,
-                //     {
-                //         page_title: 'Foo Page Title',
-                //         page_location: '/foo',
-                //     },
-                // ];
-                // window.dataLayer[0][2].should.eql(result);
 
                 done();
             });
