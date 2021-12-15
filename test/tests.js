@@ -1380,7 +1380,7 @@ describe('Google Analytics 4 Event', function () {
 
             it('should log page view', function (done) {
                 mParticle.forwarder.process({
-                    EventDataType: MessageType.PageEvent,
+                    EventDataType: MessageType.PageView,
                     EventName: 'test name',
                     EventAttributes: {
                         eventKey1: 'test1',
@@ -1391,6 +1391,13 @@ describe('Google Analytics 4 Event', function () {
                         'Google.Location': '/foo',
                     },
                 });
+
+                var result = [
+                    'event',
+                    'page_view',
+                    { page_title: 'Foo Page Title', page_location: '/foo' },
+                ];
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
