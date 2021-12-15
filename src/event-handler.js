@@ -3,7 +3,7 @@ function EventHandler(common) {
 }
 
 EventHandler.prototype.logEvent = function (event) {
-    gtag('event', event.EventName, event.EventAttributes);
+    gtag('event', event.EventName, event.EventAttributes || {});
 };
 
 EventHandler.prototype.logError = function () {
