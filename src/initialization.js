@@ -8,32 +8,19 @@ var initialization = {
     userIdentities example: { 1: 'customerId', 2: 'facebookId', 7: 'emailid@email.com' }
     additional identityTypes can be found at https://github.com/mParticle/mparticle-sdk-javascript/blob/master-v2/src/types.js#L88-L101
 */
-    initForwarder: function(
+    initForwarder: function (
         forwarderSettings,
         testMode,
         userAttributes,
         userIdentities,
         processEvent,
         eventQueue,
-        isInitialized,
-        common
+        isInitialized
     ) {
         var measurementId = forwarderSettings.measurementId;
         window.dataLayer = window.dataLayer || [];
 
-        var parsedParameters = JSON.parse(
-            forwarderSettings.attributeMapping.replace(/&quot;/g, '"')
-        );
-
-        parsedParameters.forEach(function(parameter) {
-            common.mappedParameters[parameter.map] = parameter.value;
-        });
-
-        common.mappedEventNames = JSON.parse(
-            forwarderSettings.eventNameMapping.replace(/&quot;/g, '"')
-        );
-
-        window.gtag = function() {
+        window.gtag = function () {
             window.dataLayer.push(arguments);
         };
 
@@ -48,7 +35,7 @@ var initialization = {
                 document.getElementsByTagName('body')[0]
             ).appendChild(clientScript);
 
-            clientScript.onload = function() {
+            clientScript.onload = function () {
                 isInitialized = true;
                 if (window.dataLayer && gtag && eventQueue.length > 0) {
                     for (var i = 0; i < eventQueue.length; i++) {
