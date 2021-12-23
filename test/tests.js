@@ -1120,24 +1120,36 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should not log an event if a CheckoutOption is sent without a custom flag for GA4.CommerceEventType', function (done) {
+            it('should log a `set_checkout_option` event if a CheckoutOption is sent without a custom flag for GA4.CommerceEventType', function(done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test add_payment_info Event',
                     EventDataType: MessageType.Commerce,
                     EventCategory: CommerceEventType.ProductCheckoutOption,
+                    EventAttributes: {
+                        foo: 'bar',
+                    },
                     CustomFlags: {},
                     ProductAction: {
                         ProductActionType: ProductActionType.Click,
                         ProductList: [],
                     },
                 });
-                window.dataLayer.length.should.eql(0);
+
+                result = [
+                    'event',
+                    'set_checkout_option',
+                    {
+                        items: [],
+                        foo: 'bar',
+                    },
+                ];
+                window.dataLayer.length.should.eql(1);
 
                 done();
             });
 
-            it('should log an event if a CheckoutOption is sent with GA4.CommerceEventType but without GA4.ShippingTier', function (done) {
+            it('should log an event if a CheckoutOption is sent with GA4.CommerceEventType but without GA4.ShippingTier', function(done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test add_payment_info Event',
@@ -1166,7 +1178,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should log an event if a CheckoutOption is sent on with GA4.CommerceEventType but without GA4.PaymentType', function (done) {
+            it('should log an event if a CheckoutOption is sent on with GA4.CommerceEventType but without GA4.PaymentType', function(done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test add_payment_info Event',
@@ -1191,60 +1203,6 @@ describe('Google Analytics 4 Event', function () {
                     },
                 ];
                 window.dataLayer[0].should.eql(result);
-
-                done();
-            });
-
-            it('should not log an event if a CheckoutOption is sent without the proper custom flags', function (done) {
-                mParticle.forwarder.process({
-                    CurrencyCode: 'USD',
-                    EventName: 'Test add_payment_info Event',
-                    EventDataType: MessageType.Commerce,
-                    EventCategory: CommerceEventType.ProductCheckoutOption,
-                    CustomFlags: {},
-                    ProductAction: {
-                        ProductActionType: ProductActionType.Click,
-                        ProductList: [
-                            {
-                                Attributes: {
-                                    eventMetric1: 'metric2',
-                                    journeyType: 'testjourneytype1',
-                                },
-                                Brand: 'brand',
-                                Category: 'category',
-                                CouponCode: 'coupon',
-                                Name: 'iphone',
-                                Position: 1,
-                                Price: 999,
-                                Quantity: 1,
-                                Sku: 'iphoneSKU',
-                                TotalAmount: 999,
-                                Variant: 'variant',
-                            },
-                            {
-                                Attributes: {
-                                    eventMetric1: 'metric1',
-                                    journeyType: 'testjourneytype2',
-                                },
-                                Brand: 'brand',
-                                Category: 'category',
-                                CouponCode: 'coupon',
-                                Name: 'iphone',
-                                Position: 1,
-                                Price: 999,
-                                Quantity: 1,
-                                Sku: 'iphoneSKU',
-                                TotalAmount: 999,
-                                Variant: 'variant',
-                            },
-                        ],
-                        TotalAmount: 450,
-                        TaxAmount: 40,
-                        ShippingAmount: 10,
-                        CouponCode: 'couponCode',
-                    },
-                });
-                window.dataLayer.length.should.eql(0);
 
                 done();
             });

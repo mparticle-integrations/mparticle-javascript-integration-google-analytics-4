@@ -36,6 +36,8 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
         ga4CommerceEventParameters,
         isViewCartEvent = false;
 
+    // ga4CommerceEventParameters = buildParameters(event);
+
     // GA4 has a view_cart event which MP does not support via a ProductActionType
     // In order to log a view_cart event, pass ProductActionType.Unknown along with
     // the proper custom flag
@@ -117,6 +119,12 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
     return true;
 };
 
+function buildParameters(event) {
+    return {
+        items: buildProductsList(event.ProductAction.ProductList),
+    };
+}
+
 function buildAddOrRemoveCartItem(event) {
     return {
         items: buildProductsList(event.ProductAction.ProductList),
@@ -128,6 +136,16 @@ function buildCheckout(event) {
         items: buildProductsList(event.ProductAction.ProductList),
         coupon: event.ProductAction ? event.ProductAction.CouponCode : null,
     };
+}
+
+function buildCheckoutOptions(event) {
+    var parameters = event.EventAttributes;
+    parameters.items = buildProductsList(event.ProductAction.ProductList);
+    parameters.coupon = event.ProductAction
+        ? event.ProductAction.CouponCode
+        : null;
+
+    return parameters;
 }
 
 function parseImpression(impression) {
@@ -295,7 +313,7 @@ function mapGA4EcommerceEventName(event) {
         case ProductActionTypes.Checkout:
             return 'begin_checkout';
         case ProductActionTypes.CheckoutOption:
-            return getShippingOrPaymentEvent(event.CustomFlags);
+            return getCheckoutOptionEventName(event.CustomFlags);
         case ProductActionTypes.Click:
             return 'select_item';
         case ProductActionTypes.Impression:
@@ -322,39 +340,31 @@ function mapGA4EcommerceEventName(event) {
     }
 }
 
-function getShippingOrPaymentEvent(customFlags) {
+function getCheckoutOptionEventName(customFlags) {
     switch (customFlags[GA4_COMMERCE_EVENT_TYPE]) {
         case ADD_SHIPPING_INFO:
             return ADD_SHIPPING_INFO;
         case ADD_PAYMENT_INFO:
             return ADD_PAYMENT_INFO;
         default:
-            console.error(
-                'The GA4.CommerceEventType value you passed in is not supported.'
-            );
-            return null;
+            return 'set_checkout_option';
     }
 }
 
 // Google previously had a CheckoutOption event, and now this has been split into 2 GA4 events - add_shipping_info and add_payment_info
-// Since MP still uses CheckoutOption, we must map this to the 2 events using custom flags
+// Since MP still uses CheckoutOption, we must map this to the 2 events using custom flags.  To prevent any data loss from customers
+// migrating from UA to GA4, we will set a default `set_checkout_option` which matches Firebase's data model.
 function logCheckoutOptionEvent(event) {
     try {
         var customFlags = event.CustomFlags,
             GA4CommerceEventType = customFlags[GA4_COMMERCE_EVENT_TYPE],
             ga4CommerceEventParameters;
 
-        if (!customFlags) {
+        // if no custom flags exist or there is no GA4CommerceEventType, the user has not updated their code from using legacy GA which still supports checkout_option
+        if (!customFlags || !GA4CommerceEventType) {
             console.error(
-                'Your checkout option event for the Google Analytics 4 integration is missing custom flags. The event was not sent.  Please review the docs and fix.'
+                'Your checkout option event for the Google Analytics 4 integration is missing a custom flag for "GA4.CommerceEventType". The event was sent using the deprecated set_checkout_option event.  Review mParticle docs for GA4 for the custom flags to add.'
             );
-            return false;
-        }
-        if (!GA4CommerceEventType) {
-            console.error(
-                'A custom flag of `GA4.CommerceEventType` is required for CheckoutOption events.  The event was not sent.  Please review the docs and fix.'
-            );
-            return false;
         }
 
         switch (GA4CommerceEventType) {
@@ -365,13 +375,13 @@ function logCheckoutOptionEvent(event) {
                 ga4CommerceEventParameters = buildAddPaymentInfo(event);
                 break;
             default:
-                console.error(
-                    'A proper value for the custom flag of `GA4.CommerceEventType` custom flag is required.  The event was not sent.  Please review the docs and fix.'
-                );
+                ga4CommerceEventParameters = buildCheckoutOptions(event);
+                break;
         }
-    } catch (e) {
+    } catch (error) {
         console.error(
-            'There is an issue with the custom flags in your CheckoutOption event. The event was not sent.  Plrease review the docs and fix.'
+            'There is an issue with the custom flags in your CheckoutOption event. The event was not sent.  Plrease review the docs and fix.',
+            error
         );
         return false;
     }
