@@ -47,8 +47,26 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
             event.CustomFlags[GA4_COMMERCE_EVENT_TYPE] === VIEW_CART
         ) {
             isViewCartEvent = true;
-            ga4CommerceEventParameters = buildViewCart(event);
+            return logViewCart(event);
         }
+    }
+    // Handle Impressions
+    if (event.EventCategory === ProductActionTypes.Impression) {
+        return logImpressionEvent(event);
+        // Handle Promotions
+    } else if (
+        event.EventCategory === PromotionActionTypes.PromotionClick ||
+        event.EventCategory === PromotionActionTypes.PromotionView
+    ) {
+        return logPromotionEvent(event);
+    }
+
+    ga4CommerceEventParameters = buildParameters(event);
+    if (event.EventAttributes) {
+        ga4CommerceEventParameters = this.common.mergeObjects(
+            ga4CommerceEventParameters,
+            event.EventAttributes
+        );
     }
 
     switch (event.EventCategory) {
@@ -81,15 +99,6 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
         case ProductActionTypes.CheckoutOption:
             return logCheckoutOptionEvent(event);
 
-        // Handle Promotion Events
-        case PromotionActionTypes.PromotionClick:
-        case PromotionActionTypes.PromotionView:
-            return logPromotionEvent(event);
-
-        // Handle Impressions
-        case ProductActionTypes.Impression:
-            return logImpressionEvent(event);
-
         default:
             // a view cart event is handled at the beginning of this function
             if (!isViewCartEvent) {
@@ -120,6 +129,7 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
 function buildParameters(event) {
     return {
         items: buildProductsList(event.ProductAction.ProductList),
+        coupon: event.ProductAction ? event.ProductAction.CouponCode : null,
     };
 }
 
@@ -429,6 +439,18 @@ function logImpressionEvent(event) {
         );
         return false;
     }
+    return true;
+}
+
+function logViewCart(event) {
+    var ga4CommerceEventParameters = buildViewCart(event);
+    ga4CommerceEventParameters.currency = event.CurrencyCode;
+
+    ga4CommerceEventParameters.value =
+        (event.CustomFlags && event.CustomFlags['GA4.Value']) ||
+        event.ProductAction.TotalAmount ||
+        null;
+    gtag('event', mapGA4EcommerceEventName(event), ga4CommerceEventParameters);
     return true;
 }
 
