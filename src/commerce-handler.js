@@ -36,8 +36,6 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
         ga4CommerceEventParameters,
         isViewCartEvent = false;
 
-    // ga4CommerceEventParameters = buildParameters(event);
-
     // GA4 has a view_cart event which MP does not support via a ProductActionType
     // In order to log a view_cart event, pass ProductActionType.Unknown along with
     // the proper custom flag
