@@ -655,7 +655,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should map MP ProducdtImpression commerce event to GA4 view_item_list event', function (done) {
+            it('should map MP ProductImpression commerce event to GA4 view_item_list event', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test Purchase Event',
@@ -1120,7 +1120,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should log a `set_checkout_option` event if a CheckoutOption is sent without a custom flag for GA4.CommerceEventType', function(done) {
+            it('should log a `set_checkout_option` event if a CheckoutOption is sent without a custom flag for GA4.CommerceEventType', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test add_payment_info Event',
@@ -1149,7 +1149,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should log an event if a CheckoutOption is sent with GA4.CommerceEventType but without GA4.ShippingTier', function(done) {
+            it('should log an event if a CheckoutOption is sent with GA4.CommerceEventType but without GA4.ShippingTier', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test add_payment_info Event',
@@ -1178,7 +1178,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should log an event if a CheckoutOption is sent on with GA4.CommerceEventType but without GA4.PaymentType', function(done) {
+            it('should log an event if a CheckoutOption is sent on with GA4.CommerceEventType but without GA4.PaymentType', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
                     EventName: 'Test add_payment_info Event',
