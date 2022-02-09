@@ -160,7 +160,8 @@ describe('Google Analytics 4 Event', function () {
     var kitSettings = {
         clientKey: '123456',
         appId: 'abcde',
-        userIdField: 'customerId',
+        externalUserIdentityType: 'customerId',
+        measurementId: 'testMeasurementId',
     };
 
     describe('initialization', function () {
@@ -1359,6 +1360,74 @@ describe('Google Analytics 4 Event', function () {
 
                 done();
             });
+        });
+    });
+
+    describe('identity', function () {
+        var mParticleUser = {
+            getMPID: function () {
+                return 'testMPID';
+            },
+            getUserIdentities: function () {
+                return {
+                    userIdentities: {
+                        customerid: 'testCustomerId',
+                        other: 'other1',
+                    },
+                };
+            },
+        };
+
+        beforeEach(function () {
+            window.dataLayer = [];
+        });
+
+        it('should handle onUserIdentified with customerid', function (done) {
+            kitSettings.externalUserIdentityType = 'CustomerId';
+            mParticle.forwarder.init(kitSettings, reportService.cb, true, null);
+
+            mParticle.forwarder.onUserIdentified(mParticleUser);
+
+            var result = [
+                'config',
+                'testMeasurementId',
+                { send_page_view: false, user_id: 'testCustomerId' },
+            ];
+            window.dataLayer[0].should.match(result);
+
+            done();
+        });
+
+        it('should handle onUserIdentified with other1', function (done) {
+            kitSettings.externalUserIdentityType = 'Other';
+            mParticle.forwarder.init(kitSettings, reportService.cb, true, null);
+
+            mParticle.forwarder.onUserIdentified(mParticleUser);
+
+            var result = [
+                'config',
+                'testMeasurementId',
+                { send_page_view: false, user_id: 'other1' },
+            ];
+            window.dataLayer[0].should.match(result);
+
+            done();
+        });
+
+        it('should handle onUserIdentified with mpid', function (done) {
+            kitSettings.externalUserIdentityType = 'mpid';
+            mParticle.forwarder.init(kitSettings, reportService.cb, true, null);
+
+            mParticle.forwarder.onUserIdentified(mParticleUser);
+
+            var result = [
+                'config',
+                'testMeasurementId',
+                { send_page_view: false, user_id: 'testMPID' },
+            ];
+            window.dataLayer[0].should.match(result);
+
+            done();
         });
     });
 });
