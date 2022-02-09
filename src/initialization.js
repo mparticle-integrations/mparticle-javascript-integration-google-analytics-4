@@ -15,9 +15,16 @@ var initialization = {
         userIdentities,
         processEvent,
         eventQueue,
-        isInitialized
+        isInitialized,
+        common
     ) {
+        common.forwarderSettings = forwarderSettings;
         var measurementId = forwarderSettings.measurementId;
+        var userIdType = forwarderSettings.externalUserIdentityType;
+        var hashUserId = forwarderSettings.hashUserId;
+        var configSettings = {
+            send_page_view: forwarderSettings.enablePageView === 'True',
+        };
         window.dataLayer = window.dataLayer || [];
 
         window.gtag = function () {
@@ -36,7 +43,21 @@ var initialization = {
             ).appendChild(clientScript);
 
             clientScript.onload = function () {
+                gtag('js', new Date());
+
+                if (window.mParticle.getVersion().split('.')[0] === '2') {
+                    var userId = common.getUserId(
+                        mParticle.Identity.getCurrentUser(),
+                        userIdType,
+                        hashUserId
+                    );
+                    if (userId) {
+                        configSettings.user_id = userId;
+                    }
+                }
+                gtag('config', measurementId, configSettings);
                 isInitialized = true;
+
                 if (window.dataLayer && gtag && eventQueue.length > 0) {
                     for (var i = 0; i < eventQueue.length; i++) {
                         processEvent(eventQueue[i]);
@@ -44,12 +65,10 @@ var initialization = {
                     eventQueue = [];
                 }
             };
-            gtag('js', new Date());
-
-            gtag('config', measurementId, {});
         } else {
             isInitialized = true;
         }
+        return isInitialized;
     },
 };
 
