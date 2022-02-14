@@ -14,7 +14,7 @@ const productionBuilds = {
         output: {
             ...production.output,
             format: 'iife',
-            file: `dist/${initialization.name}-Kit.iife.js`,
+            file: `dist/${initialization.name}ClientSide-Kit.iife.js`,
             name: `${initialization.name}Kit`,
         },
         plugins: [...production.plugins],
@@ -24,29 +24,10 @@ const productionBuilds = {
         output: {
             ...production.output,
             format: 'cjs',
-            file: `dist/${initialization.name}-Kit.common.js`,
+            file: `dist/${initialization.name}ClientSide-Kit.common.js`,
             name: `${initialization.name}Kit`,
         },
         plugins: [...production.plugins],
-    },
-    server_iife: {
-        input: './server-src/index.js',
-        output: {
-            ...production.output,
-            format: 'iife',
-            file: `dist/${initialization.name}ServerSide-Kit.iife.js`,
-            name: `${initialization.name}Kit`,
-        },
-    },
-    // creates npm module for adobe server side kit
-    server_cjs: {
-        input: './server-src/index.js',
-        output: {
-            ...production.output,
-            format: 'cjs',
-            file: `dist/${initialization.name}ServerSide-Kit.common.js`,
-            name: `${initialization.name}Kit`,
-        },
     },
 };
 
@@ -63,12 +44,7 @@ const testEndToEndBuild = {
 
 let selectedBuilds = [];
 if (ENVIRONMENT === 'production') {
-    selectedBuilds.push(
-        productionBuilds.iife,
-        productionBuilds.cjs,
-        productionBuilds.server_iife,
-        productionBuilds.server_cjs
-    );
+    selectedBuilds.push(productionBuilds.iife, productionBuilds.cjs);
 } else if (ENVIRONMENT === 'testEndToEnd') {
     selectedBuilds.push(testEndToEndBuild);
 }

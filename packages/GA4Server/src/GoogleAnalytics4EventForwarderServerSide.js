@@ -18,18 +18,17 @@
 var name = 'GoogleAnalytics4EventForwarder',
     GA4MODULENUMBER = 160;
 
-var constructor = function () {
+var constructor = function() {
     var self = this;
     self.name = name;
 
     function initForwarder(forwarderSettings, service, testMode) {
-        debugger;
         mParticle._setIntegrationDelay(GA4MODULENUMBER, true);
 
         var measurementId = forwarderSettings.measurementId;
         window.dataLayer = window.dataLayer || [];
 
-        window.gtag = function () {
+        window.gtag = function() {
             window.dataLayer.push(arguments);
         };
 
@@ -44,22 +43,13 @@ var constructor = function () {
                 document.getElementsByTagName('body')[0]
             ).appendChild(clientScript);
 
-            clientScript.onload = function () {
+            clientScript.onload = function() {
                 gtag('js', new Date());
 
-                // gtag('config', measurementId, configSettings);
-
-                if (forwarderSettings.forwardRequestsServerSide === 'True') {
-                    gtag(
-                        'get',
-                        measurementId,
-                        'client_id',
-                        function (clientId) {
-                            setClientId(clientId, GA4MODULENUMBER);
-                        }
-                    );
-                    return;
-                }
+                gtag('get', measurementId, 'client_id', function(clientId) {
+                    setClientId(clientId, GA4MODULENUMBER);
+                });
+                return;
             };
         }
     }
