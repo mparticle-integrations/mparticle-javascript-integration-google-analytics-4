@@ -1,0 +1,11 @@
+{
+    "name": "@mparticle/web-google-analytics-4-kit",
+    "version": "1.0.0",
+    "description": "mParticle Google Analytics 4 kit integration",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4.git"
+    },
+    "author": "Robert Ing (ring@mparticle.com)",
+    "license": "Apache"
+}
