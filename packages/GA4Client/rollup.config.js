@@ -14,7 +14,7 @@ const productionBuilds = {
         output: {
             ...production.output,
             format: 'iife',
-            file: `dist/${initialization.name}-Kit.iife.js`,
+            file: `dist/${initialization.name}ClientSide-Kit.iife.js`,
             name: `${initialization.name}Kit`,
         },
         plugins: [...production.plugins],
@@ -24,7 +24,7 @@ const productionBuilds = {
         output: {
             ...production.output,
             format: 'cjs',
-            file: `dist/${initialization.name}-Kit.common.js`,
+            file: `dist/${initialization.name}ClientSide-Kit.common.js`,
             name: `${initialization.name}Kit`,
         },
         plugins: [...production.plugins],
