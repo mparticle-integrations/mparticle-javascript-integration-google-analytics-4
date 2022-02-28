@@ -1,18 +1,11 @@
-# mParticle Google Analytis 4 Kit Integration
+# mParticle Google Analytis 4 Server Side Kit Integration
 
-
-This repo contains the client side and server side Google Analytics 4 JS integration for mParticle.  
+Google's server side API for GA4 requires a `client_id` which still necessitates loading Google's SDK. In this kit, mParticle loads the SDK, collects the `client_id`, and sends this as an integration attribute to our server to include it on events sent to GA4.
 
 # Usage
 JS kits are automatically included with your mParticle.js file when loading mParticle via the [snippet](https://docs.mparticle.com/developers/sdk/web/getting-started/#add-the-sdk-snippet).
 
-If loading mParticle via [npm](https://docs.mparticle.com/developers/sdk/web/self-hosting/), you will have to manually include either the client side or server side GA4 kit via npm.
-
-```
-npm i @mparticle/web-google-analytics-4-client-kit
-```
-
-or 
+If loading mParticle via [npm](https://docs.mparticle.com/developers/sdk/web/self-hosting/), you will have to manually include the server side GA4 kit via npm:
 
 ```
 npm i @mparticle/web-google-analytics-4-server-kit
