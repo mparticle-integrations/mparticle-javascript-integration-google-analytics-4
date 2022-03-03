@@ -6,22 +6,22 @@ const outputOptions = {
 };
 
 const builds = {
-    // for dynamic script tag loading of adobe server side kit
+    // for dynamic script tag loading of GA4 server side kit
     server_iife: {
         input,
         output: {
             ...outputOptions,
-            name: 'mParticleAdobe',
+            name: 'mParticleGA4',
             file: 'dist/GoogleAnalytics4EventForwarderServerSide-Kit.iife.js',
             format: 'iife',
         },
     },
-    // creates npm module for adobe server side kit
+    // creates npm module for GA4 server side kit
     server_cjs: {
         input,
         output: {
             ...outputOptions,
-            name: 'mParticleAdobe',
+            name: 'mParticleGA4',
             file: 'dist/GoogleAnalytics4EventForwarderServerSide-Kit.common.js',
             format: 'cjs',
         },
