@@ -1,4 +1,4 @@
-var mParticleAdobe = (function (exports) {
+var mParticleGA4 = (function (exports) {
     /* eslint-disable no-undef */
 
     //
@@ -15,6 +15,10 @@ var mParticleAdobe = (function (exports) {
     //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     //  See the License for the specific language governing permissions and
     //  limitations under the License.
+
+
+    // This GA4 server side kit loads gtag, gets the client id, and sets it as an integration attribute on the core sdk.
+    // This kit does not have a `processEvent` method because no events should be sent client side.
 
     var name = 'GoogleAnalytics4EventForwarder',
         GA4MODULENUMBER = 160;
@@ -55,14 +59,9 @@ var mParticleAdobe = (function (exports) {
             }
         }
 
-        function processEvent(event) {
-            return 'Event sent to server side to GA4';
-        }
-
         this.init = initForwarder;
-        this.process = processEvent;
     };
-
+        
     function setClientId(clientId, GA4MODULENUMBER) {
         var GA4CLIENTID = 'client_id';
         var ga4IntegrationAttributes = {};

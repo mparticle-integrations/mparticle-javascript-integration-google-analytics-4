@@ -14,6 +14,7 @@
   "publishConfig": {
     "access": "public"
   },
+  "repository": "https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/tree/master/packages/GA4Client",
   "devDependencies": {
     "@mparticle/web-kit-wrapper": "^1.0.5",
     "mocha": "^5.2.0",
