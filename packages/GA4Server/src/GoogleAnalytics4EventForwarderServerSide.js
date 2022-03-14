@@ -19,7 +19,7 @@
 // This GA4 server side kit loads gtag, gets the client id, and sets it as an integration attribute on the core sdk.
 // This kit does not have a `processEvent` method because no events should be sent client side.
 
-var name = 'GoogleAnalytics4EventForwarder',
+var name = 'GoogleAnalytics4',
     GA4MODULENUMBER = 160;
 
 var constructor = function() {

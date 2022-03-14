@@ -1,5 +1,5 @@
 var initialization = {
-    name: 'GoogleAnalytics4EventForwarder',
+    name: 'GoogleAnalytics4',
     /*  ****** Fill out initForwarder to load your SDK ******
     Note that not all arguments may apply to your SDK initialization.
     These are passed from mParticle, but leave them even if they are not being used.
