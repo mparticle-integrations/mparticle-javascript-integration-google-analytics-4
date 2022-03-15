@@ -86,19 +86,19 @@ Common.prototype.getUserId = function (
                         '. User not set. Please double check your implementation.'
                 );
         }
-    }
-    if (userId) {
-        if (hashUserId == 'True') {
-            userId = window.mParticle.generateHash(userId);
+        if (userId) {
+            if (hashUserId == 'True') {
+                userId = window.mParticle.generateHash(userId);
+            }
+        } else {
+            console.warn(
+                'External identity type of ' +
+                    externalUserIdentityType +
+                    ' not set on the user'
+            );
         }
-    } else {
-        console.warn(
-            'External identity type of ' +
-                externalUserIdentityType +
-                ' not set on the user'
-        );
+        return userId;
     }
-    return userId;
 };
 
 module.exports = Common;
