@@ -90,19 +90,19 @@ Common.prototype.getUserId = function (
                         '. User not set. Please double check your implementation.'
                 );
         }
-    }
-    if (userId) {
-        if (hashUserId == 'True') {
-            userId = window.mParticle.generateHash(userId);
+        if (userId) {
+            if (hashUserId == 'True') {
+                userId = window.mParticle.generateHash(userId);
+            }
+        } else {
+            console.warn(
+                'External identity type of ' +
+                    externalUserIdentityType +
+                    ' not set on the user'
+            );
         }
-    } else {
-        console.warn(
-            'External identity type of ' +
-                externalUserIdentityType +
-                ' not set on the user'
-        );
+        return userId;
     }
-    return userId;
 };
 
 var common = Common;
@@ -673,7 +673,7 @@ IdentityHandler.prototype.onSetUserIdentity = function (
 var identityHandler = IdentityHandler;
 
 var initialization = {
-    name: 'GoogleAnalytics4EventForwarder',
+    name: 'GoogleAnalytics4',
     /*  ****** Fill out initForwarder to load your SDK ******
     Note that not all arguments may apply to your SDK initialization.
     These are passed from mParticle, but leave them even if they are not being used.
