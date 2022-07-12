@@ -3,8 +3,8 @@
   "version": "1.0.1",
   "author": "mParticle Developers <developers@mparticle.com> (https://www.mparticle.com)",
   "description": "mParticle integration sdk for Google Analytics",
-  "main": "dist/GoogleAnalytics4EventForwarder-Kit.common.js",
-  "browser": "dist/GoogleAnalytics4EventForwarder-Kit.iife.js",
+  "main": "dist/GoogleAnalytics4EventForwarderClientSide-Kit.common.js",
+  "browser": "dist/GoogleAnalytics4EventForwarderClientSide-Kit.iife.js",
   "scripts": {
     "test": "node test/boilerplate/test-karma.js",
     "build": "ENVIRONMENT=production rollup --config rollup.config.js",
