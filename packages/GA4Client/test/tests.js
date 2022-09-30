@@ -1337,7 +1337,27 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should log page view', function (done) {
+            it('should log page view ', function (done) {
+                mParticle.forwarder.process({
+                    EventDataType: MessageType.PageView,
+                    EventName: 'test name',
+                    EventAttributes: {},
+                });
+
+                var result = [
+                    'event',
+                    'page_view',
+                    {
+                        page_title: 'Mocha Tests',
+                        page_location: location.href,
+                    },
+                ];
+                window.dataLayer[0].should.eql(result);
+
+                done();
+            });
+
+            it('should log page view with event attributes', function (done) {
                 mParticle.forwarder.process({
                     EventDataType: MessageType.PageView,
                     EventName: 'test name',
@@ -1354,7 +1374,12 @@ describe('Google Analytics 4 Event', function () {
                 var result = [
                     'event',
                     'page_view',
-                    { page_title: 'Foo Page Title', page_location: '/foo' },
+                    {
+                        page_title: 'Foo Page Title',
+                        page_location: '/foo',
+                        eventKey1: 'test1',
+                        eventKey2: 'test2',
+                    },
                 ];
                 window.dataLayer[0].should.eql(result);
 
