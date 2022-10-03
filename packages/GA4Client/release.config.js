@@ -1,7 +1,8 @@
 module.exports = {
     branches: ['master'],
     tagFormat: 'v${version}',
-    repositoryUrl: 'https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4',
+    repositoryUrl:
+        'https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4',
     plugins: [
         [
             '@semantic-release/commit-analyzer',
@@ -44,8 +45,8 @@ module.exports = {
             '@semantic-release/github',
             {
                 assets: [
-                    'dist/GoogleAnalyticsEvent4ForwarderClientSide-Kit.common.js'
-                    'dist/GoogleAnalyticsEvent4ForwarderClientSide-Kit.iife.js'
+                    'dist/GoogleAnalyticsEvent4ForwarderClientSide-Kit.common.js',
+                    'dist/GoogleAnalyticsEvent4ForwarderClientSide-Kit.iife.js',
                 ],
             },
         ],
