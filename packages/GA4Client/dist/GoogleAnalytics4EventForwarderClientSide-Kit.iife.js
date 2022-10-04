@@ -586,21 +586,28 @@ var GoogleAnalytics4Kit = (function (exports) {
         var TITLE = 'Google.Title';
         var LOCATION = 'Google.Location';
         var pageTitle, pageLocation;
-        if (event.CustomFlags.hasOwnProperty(TITLE)) {
+
+        if (event.CustomFlags && event.CustomFlags.hasOwnProperty(TITLE)) {
             pageTitle = event.CustomFlags[TITLE];
         } else {
             pageTitle = document.title;
         }
 
-        if (event.CustomFlags.hasOwnProperty(LOCATION)) {
+        if (event.CustomFlags && event.CustomFlags.hasOwnProperty(LOCATION)) {
             pageLocation = event.CustomFlags[LOCATION];
         } else {
             pageLocation = location.href;
         }
-        gtag('event', 'page_view', {
-            page_title: pageTitle,
-            page_location: pageLocation,
-        });
+
+        var eventAttributes = this.common.mergeObjects(
+            {
+                page_title: pageTitle,
+                page_location: pageLocation,
+            },
+            event.EventAttributes
+        );
+
+        gtag('event', 'page_view', eventAttributes);
 
         return true;
     };
