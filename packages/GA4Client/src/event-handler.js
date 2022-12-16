@@ -11,8 +11,9 @@ EventHandler.prototype.logError = function () {
 };
 
 EventHandler.prototype.logPageView = function (event) {
-    var TITLE = 'Google.Title';
-    var LOCATION = 'Google.Location';
+    var TITLE = 'GA4.Title';
+    var LOCATION = 'GA4.Location';
+
     var pageTitle, pageLocation;
 
     if (event.CustomFlags && event.CustomFlags.hasOwnProperty(TITLE)) {

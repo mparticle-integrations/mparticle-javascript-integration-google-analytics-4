@@ -1369,8 +1369,8 @@ describe('Google Analytics 4 Event', function () {
                         eventKey2: 'test2',
                     },
                     CustomFlags: {
-                        'Google.Title': 'Foo Page Title',
-                        'Google.Location': '/foo',
+                        'GA4.Title': 'Foo Page Title',
+                        'GA4.Location': '/foo',
                     },
                 });
 
