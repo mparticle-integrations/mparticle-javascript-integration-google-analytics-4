@@ -2,8 +2,16 @@ function EventHandler(common) {
     this.common = common || {};
 }
 
+EventHandler.prototype.eventFunction = function (eventName, eventAttributes) {
+    gtag(
+        'event',
+        this.common.truncateEventName(eventName),
+        this.common.truncateEventAttributes(eventAttributes)
+    );
+};
+
 EventHandler.prototype.logEvent = function (event) {
-    gtag('event', event.EventName, event.EventAttributes || {});
+    this.eventFunction(event.EventName, event.EventAttributes);
 };
 
 EventHandler.prototype.logError = function () {
@@ -35,7 +43,7 @@ EventHandler.prototype.logPageView = function (event) {
         event.EventAttributes
     );
 
-    gtag('event', 'page_view', eventAttributes);
+    this.eventFunction('page_view', eventAttributes);
 
     return true;
 };

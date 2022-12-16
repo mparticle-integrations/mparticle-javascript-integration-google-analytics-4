@@ -1,3 +1,12 @@
+var EVENT_MAX_LENGTH = 40;
+var USER_ATTRIBUTE_MAX_LENGTH = 24;
+var EVENT_VAL_MAX_LENGTH = 100;
+var USER_ATTRIBUTE_VALUE_MAX_LENGTH = 36;
+
+function truncateString(string, limit) {
+    return string.length > limit ? string.substring(0, limit) : string;
+}
+
 function Common() {}
 
 Common.prototype.forwarderSettings = null;
@@ -12,6 +21,42 @@ Common.prototype.mergeObjects = function () {
         }
     }
     return resObj;
+};
+
+Common.prototype.truncateAttributes = function (
+    attributes,
+    keyLimit,
+    valueLimit
+) {
+    var truncatedAttributes = {};
+
+    Object.keys(attributes).forEach(function (attribute) {
+        var key = truncateString(attribute, keyLimit);
+        var val = truncateString(attributes[attribute], valueLimit);
+        truncatedAttributes[key] = val;
+    });
+
+    return truncatedAttributes;
+};
+
+Common.prototype.truncateEventName = function (eventName) {
+    return truncateString(eventName, EVENT_MAX_LENGTH);
+};
+
+Common.prototype.truncateEventAttributes = function (eventAttributes) {
+    return this.truncateAttributes(
+        eventAttributes,
+        EVENT_MAX_LENGTH,
+        EVENT_VAL_MAX_LENGTH
+    );
+};
+
+Common.prototype.truncateUserAttributes = function (userAttributes) {
+    return this.truncateAttributes(
+        userAttributes,
+        USER_ATTRIBUTE_MAX_LENGTH,
+        USER_ATTRIBUTE_VALUE_MAX_LENGTH
+    );
 };
 
 Common.prototype.getUserId = function (
