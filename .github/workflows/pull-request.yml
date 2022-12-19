@@ -5,8 +5,8 @@ on: pull_request
 # Kit is split into Client and Server packages
 # We only need to run our workflows against GA4Client
 defaults:
-  run:
-    working-directory: packages/GA4Client
+    run:
+        working-directory: packages/GA4Client
 
 jobs:
     build-and-test:
@@ -14,10 +14,10 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
 
             - name: NPM install
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v3
               with:
                   node-version: 16.x
 
@@ -29,10 +29,10 @@ jobs:
 
             - name: Run Core tests
               run: npm run test
-              
+
             - name: Archive npm failure logs
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v3
               if: failure()
               with:
-                name: npm-logs
-                path: ~/.npm/_logs
+                  name: npm-logs
+                  path: ~/.npm/_logs
