@@ -860,8 +860,8 @@ describe('Google Analytics 4 Event', function () {
                     },
                 ];
 
-                window.dataLayer[0].should.match(promotionResult1);
-                window.dataLayer[1].should.match(promotionResult2);
+                window.dataLayer[0].should.eql(promotionResult1);
+                window.dataLayer[1].should.eql(promotionResult2);
 
                 done();
             });
@@ -1015,7 +1015,7 @@ describe('Google Analytics 4 Event', function () {
                     },
                 ];
 
-                window.dataLayer[0].should.eql(result);
+                window.dataLayer[0].should.match(result);
 
                 done();
             });
@@ -1355,7 +1355,7 @@ describe('Google Analytics 4 Event', function () {
                         page_location: location.href,
                     },
                 ];
-                window.dataLayer[0].should.match(result);
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
