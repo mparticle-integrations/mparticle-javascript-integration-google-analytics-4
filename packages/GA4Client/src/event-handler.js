@@ -15,23 +15,23 @@ EventHandler.prototype.logPageView = function (event) {
     var LOCATION = 'GA4.Location';
 
     // These are being included for backwards compatibility from the previous Google Analytics custom flags
-    var GOOGLE_TITLE = 'Google.Title';
-    var GOOGLE_LOCATION = 'Google.Location';
+    var LEGACY_GA_TITLE = 'Google.Title';
+    var LEGACY_GA_LOCATION = 'Google.Location';
 
     var pageTitle, pageLocation;
 
     if (event.CustomFlags && event.CustomFlags.hasOwnProperty(TITLE)) {
         pageTitle = event.CustomFlags[TITLE];
-    } else if (event.CustomFlags.hasOwnProperty(GOOGLE_TITLE)) {
-        pageTitle = event.CustomFlags[GOOGLE_TITLE];
+    } else if (event.CustomFlags.hasOwnProperty(LEGACY_GA_TITLE)) {
+        pageTitle = event.CustomFlags[LEGACY_GA_TITLE];
     } else {
         pageTitle = document.title;
     }
 
     if (event.CustomFlags && event.CustomFlags.hasOwnProperty(LOCATION)) {
         pageLocation = event.CustomFlags[LOCATION];
-    } else if (event.CustomFlags.hasOwnProperty(GOOGLE_LOCATION)) {
-        pageLocation = event.CustomFlags[GOOGLE_LOCATION];
+    } else if (event.CustomFlags.hasOwnProperty(LEGACY_GA_LOCATION)) {
+        pageLocation = event.CustomFlags[LEGACY_GA_LOCATION];
     } else {
         pageLocation = location.href;
     }

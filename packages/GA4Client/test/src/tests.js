@@ -1358,7 +1358,7 @@ describe('Google Analytics 4 Event', function () {
             });
             // This test exist for backwards compatibility of custom flags carried
             // over from legacy Google Analytics - Google.Title and Google.Location
-            it.only('should log page view with legacy GA custom flags', function (done) {
+            it('should log page view with legacy GA custom flags', function (done) {
                 mParticle.forwarder.process({
                     EventDataType: MessageType.PageView,
                     EventName: 'test name',
