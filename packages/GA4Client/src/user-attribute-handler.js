@@ -2,7 +2,7 @@ function UserAttributeHandler(common) {
     this.common = common || {};
 }
 
-UserAttributeHandler.prototype.userPropertiesFunction = function (
+UserAttributeHandler.prototype.sendUserPropertiesToGA4 = function (
     userAttributes
 ) {
     gtag(
@@ -19,13 +19,13 @@ UserAttributeHandler.prototype.userPropertiesFunction = function (
 UserAttributeHandler.prototype.onRemoveUserAttribute = function (key) {
     var userAttributes = {};
     userAttributes[key] = null;
-    this.userPropertiesFunction(userAttributes);
+    this.sendUserPropertiesToGA4(userAttributes);
 };
 
 UserAttributeHandler.prototype.onSetUserAttribute = function (key, value) {
     var userAttributes = {};
     userAttributes[key] = value;
-    this.userPropertiesFunction(userAttributes);
+    this.sendUserPropertiesToGA4(userAttributes);
 };
 
 // TODO: Commenting this out for now because Integrations PM still determining if this is in scope or not

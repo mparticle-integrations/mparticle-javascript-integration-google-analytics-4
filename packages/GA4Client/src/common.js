@@ -1,3 +1,7 @@
+// Google requires event and user attribute strings to have specific limits
+// in place when sending to data layer.
+// https://support.google.com/analytics/answer/9267744?hl=en
+
 var EVENT_NAME_MAX_LENGTH = 40;
 var EVENT_ATTRIBUTE_KEY_MAX_LENGTH = 40;
 var EVENT_ATTRIBUTE_VAL_MAX_LENGTH = 100;
@@ -43,21 +47,21 @@ Common.prototype.truncateAttributes = function (
 };
 
 Common.prototype.truncateEventName = function (eventName) {
-    return truncateString(eventName, EVENT_MAX_LENGTH);
+    return truncateString(eventName, EVENT_NAME_MAX_LENGTH);
 };
 
 Common.prototype.truncateEventAttributes = function (eventAttributes) {
     return this.truncateAttributes(
         eventAttributes,
-        EVENT_MAX_LENGTH,
-        EVENT_VAL_MAX_LENGTH
+        EVENT_ATTRIBUTE_KEY_MAX_LENGTH,
+        EVENT_ATTRIBUTE_VAL_MAX_LENGTH
     );
 };
 
 Common.prototype.truncateUserAttributes = function (userAttributes) {
     return this.truncateAttributes(
         userAttributes,
-        USER_ATTRIBUTE_MAX_LENGTH,
+        USER_ATTRIBUTE_KEY_MAX_LENGTH,
         USER_ATTRIBUTE_VALUE_MAX_LENGTH
     );
 };
