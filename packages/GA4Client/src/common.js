@@ -4,7 +4,9 @@ var EVENT_VAL_MAX_LENGTH = 100;
 var USER_ATTRIBUTE_VALUE_MAX_LENGTH = 36;
 
 function truncateString(string, limit) {
-    return string.length > limit ? string.substring(0, limit) : string;
+    return !!string && string.length > limit
+        ? string.substring(0, limit)
+        : string;
 }
 
 function Common() {}
