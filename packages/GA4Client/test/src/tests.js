@@ -1350,17 +1350,40 @@ describe('Google Analytics 4 Event', function () {
                 var result = [
                     'event',
                     'page_view',
-                    {
-                        page_title: 'Mocha Tests',
-                        page_location: location.href,
-                    },
+                    { page_title: 'Foo Page Title', page_location: '/foo' },
                 ];
                 window.dataLayer[0].should.eql(result);
 
                 done();
             });
+            // This test exist for backwards compatibility of custom flags carried
+            // over from legacy Google Analytics - Google.Title and Google.Location
+            it.only('should log page view with legacy GA custom flags', function (done) {
+                mParticle.forwarder.process({
+                    EventDataType: MessageType.PageView,
+                    EventName: 'test name',
+                    EventAttributes: {
+                        eventKey1: 'test1',
+                        eventKey2: 'test2',
+                    },
+                    CustomFlags: {
+                        'Google.Title': 'Foo Page Title',
+                        'Google.Location': '/foo',
+                    }
+                });
+                var result = [
+                    'event',
+                    'page_view',
+                    {
+                        page_title: 'Mocha Tests',
+                        page_location: location.href,
+                    },
+                ];
 
-            it('should log page view with event attributes', function (done) {
+                window.dataLayer[0].should.eql(result);
+            });
+
+            it('should log page view with new GA custom flags', function (done) {
                 mParticle.forwarder.process({
                     EventDataType: MessageType.PageView,
                     EventName: 'test name',
