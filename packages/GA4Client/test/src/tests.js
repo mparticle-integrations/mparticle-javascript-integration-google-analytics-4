@@ -838,7 +838,7 @@ describe('Google Analytics 4 Event', function () {
                     },
                 });
 
-                promotionResult1 = [
+                var promotionResult1 = [
                     'event',
                     'view_promotion',
                     {
@@ -891,7 +891,7 @@ describe('Google Analytics 4 Event', function () {
                     },
                 });
 
-                promotionResult1 = [
+                var promotionResult1 = [
                     'event',
                     'select_promotion',
                     {
@@ -1116,7 +1116,7 @@ describe('Google Analytics 4 Event', function () {
                     },
                 ];
 
-                window.dataLayer[0].should.match(result);
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
@@ -1338,6 +1338,9 @@ describe('Google Analytics 4 Event', function () {
             });
 
             it('should log page view ', function (done) {
+                // Mocking page title for headless tests
+                document.title = 'Mocha Tests';
+
                 mParticle.forwarder.process({
                     EventDataType: MessageType.PageView,
                     EventName: 'test name',
@@ -1418,6 +1421,7 @@ describe('Google Analytics 4 Event', function () {
                 'testMeasurementId',
                 { send_page_view: false, user_id: 'testCustomerId' },
             ];
+
             window.dataLayer[0].should.match(result);
 
             done();
