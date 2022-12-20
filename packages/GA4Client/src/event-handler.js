@@ -18,22 +18,21 @@ EventHandler.prototype.logPageView = function (event) {
     var LEGACY_GA_TITLE = 'Google.Title';
     var LEGACY_GA_LOCATION = 'Google.Location';
 
-    var pageTitle, pageLocation;
-
-    if (event.CustomFlags && event.CustomFlags.hasOwnProperty(TITLE)) {
-        pageTitle = event.CustomFlags[TITLE];
-    } else if (event.CustomFlags.hasOwnProperty(LEGACY_GA_TITLE)) {
-        pageTitle = event.CustomFlags[LEGACY_GA_TITLE];
-    } else {
+    var pageLocation = location.href,
         pageTitle = document.title;
-    }
 
-    if (event.CustomFlags && event.CustomFlags.hasOwnProperty(LOCATION)) {
-        pageLocation = event.CustomFlags[LOCATION];
-    } else if (event.CustomFlags.hasOwnProperty(LEGACY_GA_LOCATION)) {
-        pageLocation = event.CustomFlags[LEGACY_GA_LOCATION];
-    } else {
-        pageLocation = location.href;
+    if (event.CustomFlags) {
+        if (event.CustomFlags.hasOwnProperty(TITLE)) {
+            pageTitle = event.CustomFlags[TITLE];
+        } else if (event.CustomFlags.hasOwnProperty(LEGACY_GA_TITLE)) {
+            pageTitle = event.CustomFlags[LEGACY_GA_TITLE];
+        }
+
+        if (event.CustomFlags.hasOwnProperty(LOCATION)) {
+            pageLocation = event.CustomFlags[LOCATION];
+        } else if (event.CustomFlags.hasOwnProperty(LEGACY_GA_LOCATION)) {
+            pageLocation = event.CustomFlags[LEGACY_GA_LOCATION];
+        }
     }
 
     var eventAttributes = this.common.mergeObjects(
