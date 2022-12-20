@@ -14,7 +14,7 @@ EventHandler.prototype.logPageView = function (event) {
     var TITLE = 'GA4.Title';
     var LOCATION = 'GA4.Location';
 
-    // These are being included for backwards compatibility from the previous Google Analytics custom flags
+    // These are being included for backwards compatibility from the legacy Google Analytics custom flags
     var LEGACY_GA_TITLE = 'Google.Title';
     var LEGACY_GA_LOCATION = 'Google.Location';
 
