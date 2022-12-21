@@ -1390,6 +1390,47 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
+            it('should truncate long event attributes keys and values', function (done) {
+                mParticle.forwarder.process({
+                    EventDataType: MessageType.PageEvent,
+                    EventCategory: EventType.Navigation,
+                    EventName:
+                        'This is a very long event name that should be truncated at some point',
+                    EventAttributes: {
+                        foo: 'bar',
+                        superLongEventAttributeNameThatShouldBeTruncatedWhenItsTooLong:
+                            'Super Long Event Attribute value that should be truncated because we do not want super long attribute names that would upset Google',
+                    },
+                });
+
+                var expectedEventName =
+                    'This is a very long event name that shou';
+
+                var expectedEventAttributes = {
+                    foo: 'bar',
+                    superLongEventAttributeNameThatShouldBeT:
+                        'Super Long Event Attribute value that should be truncated because we do not want super long attribut',
+                };
+
+                window.dataLayer[0][1].should.eql(expectedEventName);
+                window.dataLayer[0][2].should.eql(expectedEventAttributes);
+                done();
+            });
+
+            it('should truncate long user attribute keys and values', function (done) {
+                mParticle.forwarder.setUserAttribute(
+                    'superLongUserAttributeNameThatShouldBeTruncated',
+                    'Super Long User Attribute Value That Should Be Truncated'
+                );
+
+                window.dataLayer[0][2].should.eql({
+                    superLongUserAttributeNa:
+                        'Super Long User Attribute Value That',
+                });
+
+                done();
+            });
+
             // This test exist for backwards compatibility of custom flags carried
             // over from legacy Google Analytics - Google.Title and Google.Location
             it('should log page view with legacy GA custom flags', function (done) {
