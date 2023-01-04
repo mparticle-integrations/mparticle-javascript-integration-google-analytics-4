@@ -2,6 +2,22 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+// Google requires event and user attribute strings to have specific limits
+// in place when sending to data layer.
+// https://support.google.com/analytics/answer/9267744?hl=en
+
+var EVENT_NAME_MAX_LENGTH = 40;
+var EVENT_ATTRIBUTE_KEY_MAX_LENGTH = 40;
+var EVENT_ATTRIBUTE_VAL_MAX_LENGTH = 100;
+var USER_ATTRIBUTE_KEY_MAX_LENGTH = 24;
+var USER_ATTRIBUTE_VALUE_MAX_LENGTH = 36;
+
+function truncateString(string, limit) {
+    return !!string && string.length > limit
+        ? string.substring(0, limit)
+        : string;
+}
+
 function Common() {}
 
 Common.prototype.forwarderSettings = null;
@@ -16,6 +32,42 @@ Common.prototype.mergeObjects = function () {
         }
     }
     return resObj;
+};
+
+Common.prototype.truncateAttributes = function (
+    attributes,
+    keyLimit,
+    valueLimit
+) {
+    var truncatedAttributes = {};
+
+    Object.keys(attributes).forEach(function (attribute) {
+        var key = truncateString(attribute, keyLimit);
+        var val = truncateString(attributes[attribute], valueLimit);
+        truncatedAttributes[key] = val;
+    });
+
+    return truncatedAttributes;
+};
+
+Common.prototype.truncateEventName = function (eventName) {
+    return truncateString(eventName, EVENT_NAME_MAX_LENGTH);
+};
+
+Common.prototype.truncateEventAttributes = function (eventAttributes) {
+    return this.truncateAttributes(
+        eventAttributes,
+        EVENT_ATTRIBUTE_KEY_MAX_LENGTH,
+        EVENT_ATTRIBUTE_VAL_MAX_LENGTH
+    );
+};
+
+Common.prototype.truncateUserAttributes = function (userAttributes) {
+    return this.truncateAttributes(
+        userAttributes,
+        USER_ATTRIBUTE_KEY_MAX_LENGTH,
+        USER_ATTRIBUTE_VALUE_MAX_LENGTH
+    );
 };
 
 Common.prototype.getUserId = function (
@@ -575,8 +627,16 @@ function EventHandler(common) {
     this.common = common || {};
 }
 
+EventHandler.prototype.sendEventToGA4 = function (eventName, eventAttributes) {
+    gtag(
+        'event',
+        this.common.truncateEventName(eventName),
+        this.common.truncateEventAttributes(eventAttributes)
+    );
+};
+
 EventHandler.prototype.logEvent = function (event) {
-    gtag('event', event.EventName, event.EventAttributes || {});
+    this.sendEventToGA4(event.EventName, event.EventAttributes);
 };
 
 EventHandler.prototype.logError = function () {
@@ -584,20 +644,28 @@ EventHandler.prototype.logError = function () {
 };
 
 EventHandler.prototype.logPageView = function (event) {
-    var TITLE = 'Google.Title';
-    var LOCATION = 'Google.Location';
-    var pageTitle, pageLocation;
+    var TITLE = 'GA4.Title';
+    var LOCATION = 'GA4.Location';
 
-    if (event.CustomFlags && event.CustomFlags.hasOwnProperty(TITLE)) {
-        pageTitle = event.CustomFlags[TITLE];
-    } else {
+    // These are being included for backwards compatibility from the legacy Google Analytics custom flags
+    var LEGACY_GA_TITLE = 'Google.Title';
+    var LEGACY_GA_LOCATION = 'Google.Location';
+
+    var pageLocation = location.href,
         pageTitle = document.title;
-    }
 
-    if (event.CustomFlags && event.CustomFlags.hasOwnProperty(LOCATION)) {
-        pageLocation = event.CustomFlags[LOCATION];
-    } else {
-        pageLocation = location.href;
+    if (event.CustomFlags) {
+        if (event.CustomFlags.hasOwnProperty(TITLE)) {
+            pageTitle = event.CustomFlags[TITLE];
+        } else if (event.CustomFlags.hasOwnProperty(LEGACY_GA_TITLE)) {
+            pageTitle = event.CustomFlags[LEGACY_GA_TITLE];
+        }
+
+        if (event.CustomFlags.hasOwnProperty(LOCATION)) {
+            pageLocation = event.CustomFlags[LOCATION];
+        } else if (event.CustomFlags.hasOwnProperty(LEGACY_GA_LOCATION)) {
+            pageLocation = event.CustomFlags[LEGACY_GA_LOCATION];
+        }
     }
 
     var eventAttributes = this.common.mergeObjects(
@@ -608,7 +676,7 @@ EventHandler.prototype.logPageView = function (event) {
         event.EventAttributes
     );
 
-    gtag('event', 'page_view', eventAttributes);
+    this.sendEventToGA4('page_view', eventAttributes);
 
     return true;
 };
@@ -770,20 +838,30 @@ function UserAttributeHandler(common) {
     this.common = common || {};
 }
 
+UserAttributeHandler.prototype.sendUserPropertiesToGA4 = function (
+    userAttributes
+) {
+    gtag(
+        'set',
+        'user_properties',
+        this.common.truncateUserAttributes(userAttributes)
+    );
+};
+
 // `mParticleUser` was removed from the function signatures onRemoveUserAttribute, onSetUserAttribute, and onConsentStateUpload because they were not being used
 // In the future if mParticleUser is ever required for an implementation of any of the below APIs, see https://github.com/mparticle-integrations/mparticle-javascript-integration-example/blob/master/src/user-attribute-handler.js
 // for previous function signatures
 
-UserAttributeHandler.prototype.onRemoveUserAttribute = function(key) {
+UserAttributeHandler.prototype.onRemoveUserAttribute = function (key) {
     var userAttributes = {};
     userAttributes[key] = null;
-    gtag('set', 'user_properties', userAttributes);
+    this.sendUserPropertiesToGA4(userAttributes);
 };
 
-UserAttributeHandler.prototype.onSetUserAttribute = function(key, value) {
+UserAttributeHandler.prototype.onSetUserAttribute = function (key, value) {
     var userAttributes = {};
     userAttributes[key] = value;
-    gtag('set', 'user_properties', userAttributes);
+    this.sendUserPropertiesToGA4(userAttributes);
 };
 
 // TODO: Commenting this out for now because Integrations PM still determining if this is in scope or not
