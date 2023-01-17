@@ -11,7 +11,7 @@ npm i @mparticle/web-google-analytics-4-client-kit
 
 Full documentation on usage can be found [here](https://docs.mparticle.com/integrations/google-analytics-4/event/).
 
-#License
+# License
 
 Copyright 2022 mParticle, Inc.
 
