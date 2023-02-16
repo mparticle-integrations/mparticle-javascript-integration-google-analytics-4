@@ -100,6 +100,13 @@ describe('Google Analytics 4 Event', function () {
                 getMPID: function () {
                     return '123';
                 },
+                getUserIdentities: function () {
+                    return {
+                        userIdentities: {
+                            customerid: 'abc',
+                        },
+                    };
+                },
             };
         },
     };
@@ -186,6 +193,7 @@ describe('Google Analytics 4 Event', function () {
             window.gtag = function () {
                 window.dataLayer.push(Array.prototype.slice.call(arguments));
             };
+            window.dataLayer = [];
         });
 
         it('should set user attribute', function (done) {
@@ -249,6 +257,8 @@ describe('Google Analytics 4 Event', function () {
                         ],
                     },
                 ];
+
+                window.dataLayer = [];
             });
 
             it('should map MP AddToCart commerce event to GA4 add_to_cart event', function (done) {
@@ -1321,6 +1331,10 @@ describe('Google Analytics 4 Event', function () {
         });
 
         describe('event mapping', function () {
+            beforeEach(function () {
+                window.dataLayer = [];
+            });
+
             it('should log the event without attributes', function (done) {
                 mParticle.forwarder.process({
                     EventDataType: MessageType.PageEvent,
@@ -1346,7 +1360,6 @@ describe('Google Analytics 4 Event', function () {
                 window.dataLayer[0].should.eql(result);
 
                 done();
-            });
 
             it('should log the event name and event attributes of the page event', function (done) {
                 mParticle.forwarder.process({
@@ -1364,6 +1377,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
+            // this test will fail when opened in index.html but not when run in the command lane due to the location.href
             it('should log page view ', function (done) {
                 // Mocking page title for headless tests
                 document.title = 'Mocha Tests';
@@ -1524,14 +1538,10 @@ describe('Google Analytics 4 Event', function () {
             },
         };
 
-        beforeEach(function () {
-            window.dataLayer = [];
-        });
-
         it('should handle onUserIdentified with customerid', function (done) {
             kitSettings.externalUserIdentityType = 'CustomerId';
             mParticle.forwarder.init(kitSettings, reportService.cb, true, null);
-
+            dataLayer = [];
             mParticle.forwarder.onUserIdentified(mParticleUser);
 
             var result = [
@@ -1548,6 +1558,7 @@ describe('Google Analytics 4 Event', function () {
         it('should handle onUserIdentified with other1', function (done) {
             kitSettings.externalUserIdentityType = 'Other';
             mParticle.forwarder.init(kitSettings, reportService.cb, true, null);
+            dataLayer = [];
 
             mParticle.forwarder.onUserIdentified(mParticleUser);
 
@@ -1564,6 +1575,7 @@ describe('Google Analytics 4 Event', function () {
         it('should handle onUserIdentified with mpid', function (done) {
             kitSettings.externalUserIdentityType = 'mpid';
             mParticle.forwarder.init(kitSettings, reportService.cb, true, null);
+            dataLayer = [];
 
             mParticle.forwarder.onUserIdentified(mParticleUser);
 
