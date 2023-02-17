@@ -32,6 +32,8 @@ var initialization = {
         };
         gtag('js', new Date());
 
+        // Check to see if mParticle SDK is V2 because V1 does not have the
+        // Identity API
         if (window.mParticle.getVersion().split('.')[0] === '2') {
             var userId = common.getUserId(
                 mParticle.Identity.getCurrentUser(),
