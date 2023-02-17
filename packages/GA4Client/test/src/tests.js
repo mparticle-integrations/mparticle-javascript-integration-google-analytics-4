@@ -1360,6 +1360,7 @@ describe('Google Analytics 4 Event', function () {
                 window.dataLayer[0].should.eql(result);
 
                 done();
+            });
 
             it('should log the event name and event attributes of the page event', function (done) {
                 mParticle.forwarder.process({
