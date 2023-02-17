@@ -34,10 +34,6 @@ Common.prototype.mergeObjects = function () {
     return resObj;
 };
 
-Common.prototype.isMpV2 = function (globalMpObject) {
-    return globalMpObject.getVersion().split('.')[0] === '2';
-};
-
 Common.prototype.truncateAttributes = function (
     attributes,
     keyLimit,
