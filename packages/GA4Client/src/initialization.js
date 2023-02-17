@@ -32,7 +32,9 @@ var initialization = {
         };
         gtag('js', new Date());
 
-        if (window.mParticle.getVersion().split('.')[0] === '2') {
+        // check to see if mParticle SDK is V2 because V1 does not have the
+        // Identity API
+        if (common.isMpV2(window.mParticle)) {
             var userId = common.getUserId(
                 mParticle.Identity.getCurrentUser(),
                 userIdType,
@@ -42,6 +44,7 @@ var initialization = {
                 configSettings.user_id = userId;
             }
         }
+
         gtag('config', measurementId, configSettings);
 
         if (!testMode) {
