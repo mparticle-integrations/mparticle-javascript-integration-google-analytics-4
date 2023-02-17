@@ -1558,7 +1558,7 @@ describe('Google Analytics 4 Event', function () {
         it('should handle onUserIdentified with other1', function (done) {
             kitSettings.externalUserIdentityType = 'Other';
             mParticle.forwarder.init(kitSettings, reportService.cb, true, null);
-            dataLayer = [];
+            window.dataLayer = [];
 
             mParticle.forwarder.onUserIdentified(mParticleUser);
 
