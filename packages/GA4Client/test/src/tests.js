@@ -1377,8 +1377,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            // This test will fail when opened in index.html but not when run in the command line due to the location.href
-            // This will not be an issue when we migrate to jest and only have a command line testing environment
+            // this test will fail when opened in index.html but not when run in the command line due to the location.href
             it('should log page view ', function (done) {
                 // Mocking page title for headless tests
                 document.title = 'Mocha Tests';
