@@ -1334,7 +1334,7 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should log the event attributes are null', function (done) {
+            it('should log the event when attributes are null', function (done) {
                 mParticle.forwarder.process({
                     EventDataType: MessageType.PageEvent,
                     EventCategory: EventType.Navigation,
