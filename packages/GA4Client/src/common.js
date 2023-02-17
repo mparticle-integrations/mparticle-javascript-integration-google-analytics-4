@@ -14,6 +14,10 @@ function truncateString(string, limit) {
         : string;
 }
 
+function isEmpty(value) {
+    return value == null || !(Object.keys(value) || value).length;
+}
+
 function Common() {}
 
 Common.prototype.forwarderSettings = null;
@@ -37,11 +41,13 @@ Common.prototype.truncateAttributes = function (
 ) {
     var truncatedAttributes = {};
 
-    Object.keys(attributes).forEach(function (attribute) {
-        var key = truncateString(attribute, keyLimit);
-        var val = truncateString(attributes[attribute], valueLimit);
-        truncatedAttributes[key] = val;
-    });
+    if (!isEmpty(attributes)) {
+        Object.keys(attributes).forEach(function (attribute) {
+            var key = truncateString(attribute, keyLimit);
+            var val = truncateString(attributes[attribute], valueLimit);
+            truncatedAttributes[key] = val;
+        });
+    }
 
     return truncatedAttributes;
 };
