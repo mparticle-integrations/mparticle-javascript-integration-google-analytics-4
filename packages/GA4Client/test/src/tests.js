@@ -1575,7 +1575,7 @@ describe('Google Analytics 4 Event', function () {
         it('should handle onUserIdentified with mpid', function (done) {
             kitSettings.externalUserIdentityType = 'mpid';
             mParticle.forwarder.init(kitSettings, reportService.cb, true, null);
-            dataLayer = [];
+            window.dataLayer = [];
 
             mParticle.forwarder.onUserIdentified(mParticleUser);
 
