@@ -1321,6 +1321,33 @@ describe('Google Analytics 4 Event', function () {
         });
 
         describe('event mapping', function () {
+            it('should log the event without attributes', function (done) {
+                mParticle.forwarder.process({
+                    EventDataType: MessageType.PageEvent,
+                    EventCategory: EventType.Navigation,
+                    EventName: 'Unmapped Event Name',
+                });
+
+                var result = ['event', 'Unmapped Event Name', {}];
+                window.dataLayer[0].should.eql(result);
+
+                done();
+            });
+
+            it('should log the event attributes are null', function (done) {
+                mParticle.forwarder.process({
+                    EventDataType: MessageType.PageEvent,
+                    EventCategory: EventType.Navigation,
+                    EventName: 'Unmapped Event Name',
+                    EventAttributes: null,
+                });
+
+                var result = ['event', 'Unmapped Event Name', {}];
+                window.dataLayer[0].should.eql(result);
+
+                done();
+            });
+
             it('should log the event name and event attributes of the page event', function (done) {
                 mParticle.forwarder.process({
                     EventDataType: MessageType.PageEvent,
