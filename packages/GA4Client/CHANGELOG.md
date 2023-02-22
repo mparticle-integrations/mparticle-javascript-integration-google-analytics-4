@@ -1,3 +1,11 @@
+## [1.0.6](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.0.5...v1.0.6) (2023-02-22)
+
+
+### Bug Fixes
+
+* Check if Event Attributes are empty before truncating ([#35](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/35)) ([c17f92b](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/c17f92b4f747fa4669ba76780d71ed7311b043bd))
+* Relocate config call earlier in kit initialization ([#34](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/34)) ([4587fda](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/4587fdaa998e114886412c5e99f18392c178eca3))
+
 ## [1.0.5](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.0.4...v1.0.5) (2023-01-04)
 
 
