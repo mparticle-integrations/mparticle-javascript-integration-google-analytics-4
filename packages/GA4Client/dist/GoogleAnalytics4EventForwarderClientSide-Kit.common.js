@@ -18,6 +18,10 @@ function truncateString(string, limit) {
         : string;
 }
 
+function isEmpty(value) {
+    return value == null || !(Object.keys(value) || value).length;
+}
+
 function Common() {}
 
 Common.prototype.forwarderSettings = null;
@@ -41,11 +45,13 @@ Common.prototype.truncateAttributes = function (
 ) {
     var truncatedAttributes = {};
 
-    Object.keys(attributes).forEach(function (attribute) {
-        var key = truncateString(attribute, keyLimit);
-        var val = truncateString(attributes[attribute], valueLimit);
-        truncatedAttributes[key] = val;
-    });
+    if (!isEmpty(attributes)) {
+        Object.keys(attributes).forEach(function (attribute) {
+            var key = truncateString(attribute, keyLimit);
+            var val = truncateString(attributes[attribute], valueLimit);
+            truncatedAttributes[key] = val;
+        });
+    }
 
     return truncatedAttributes;
 };
@@ -779,6 +785,21 @@ var initialization = {
         window.gtag = function () {
             window.dataLayer.push(arguments);
         };
+        gtag('js', new Date());
+
+        // Check to see if mParticle SDK is V2 because V1 does not have the
+        // Identity API
+        if (window.mParticle.getVersion().split('.')[0] === '2') {
+            var userId = common.getUserId(
+                mParticle.Identity.getCurrentUser(),
+                userIdType,
+                hashUserId
+            );
+            if (userId) {
+                configSettings.user_id = userId;
+            }
+        }
+        gtag('config', measurementId, configSettings);
 
         if (!testMode) {
             var clientScript = document.createElement('script');
@@ -792,19 +813,6 @@ var initialization = {
             ).appendChild(clientScript);
 
             clientScript.onload = function () {
-                gtag('js', new Date());
-
-                if (window.mParticle.getVersion().split('.')[0] === '2') {
-                    var userId = common.getUserId(
-                        mParticle.Identity.getCurrentUser(),
-                        userIdType,
-                        hashUserId
-                    );
-                    if (userId) {
-                        configSettings.user_id = userId;
-                    }
-                }
-                gtag('config', measurementId, configSettings);
                 isInitialized = true;
 
                 if (window.dataLayer && gtag && eventQueue.length > 0) {
