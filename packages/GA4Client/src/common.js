@@ -43,7 +43,7 @@ Common.prototype.truncateAttributes = function (
 
     if (!isEmpty(attributes)) {
         Object.keys(attributes).forEach(function (attribute) {
-            var key = truncateString(attribute, keyLimit);
+            var key = truncateString(attribute.replace("[^a-zA-Z0-9_]".toRegex(), "_"), keyLimit);
             var val = truncateString(attributes[attribute], valueLimit);
             truncatedAttributes[key] = val;
         });
@@ -63,6 +63,31 @@ Common.prototype.truncateEventAttributes = function (eventAttributes) {
         EVENT_ATTRIBUTE_VAL_MAX_LENGTH
     );
 };
+
+Common.prototype.standardizeParameters = function (parameters) {
+    var standardizedParameters = {};
+    Object.keys(parameters).forEach(key => {
+        var standardizedKey = (' ' + key).slice(1);
+
+        standardizedKey = standardizedKey.replace("[^a-zA-Z0-9_]".toRegex(), "_")
+        for (forbiddenPrefix in forbiddenPrefixes) {
+            if (standardizedKey.startsWith(forbiddenPrefix)) {
+                standardizedKey = standardizedKey.replaceFirst(forbiddenPrefix.toRegex(), "")
+            }
+        }
+        while (standardizedKey.isNotEmpty() && !Character.isLetter(standardizedKey.toCharArray()[0])) {
+            standardizedKey = standardizedKey.substring(1)
+        }
+
+        standardizedParameters[standardizedKey] = parameters[key];
+    });
+
+    return this.truncateAttributes(
+        standardizedParameters,
+        EVENT_ATTRIBUTE_KEY_MAX_LENGTH,
+        EVENT_ATTRIBUTE_VAL_MAX_LENGTH
+    );
+}
 
 Common.prototype.truncateUserAttributes = function (userAttributes) {
     return this.truncateAttributes(
