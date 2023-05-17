@@ -30,11 +30,6 @@ var ADD_SHIPPING_INFO = 'add_shipping_info',
     ADD_PAYMENT_INFO = 'add_payment_info',
     VIEW_CART = 'view_cart';
 
-var eventMaxLength = 40,
-    eventValMaxLength = 100;
-
-var forbiddenPrefixes = ['google_', 'firebase_', 'ga_'];
-
 CommerceHandler.prototype.logCommerceEvent = function (event) {
     var needsCurrency = true,
         needsValue = true,

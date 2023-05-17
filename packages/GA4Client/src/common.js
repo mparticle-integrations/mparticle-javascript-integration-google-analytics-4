@@ -8,6 +8,8 @@ var EVENT_ATTRIBUTE_VAL_MAX_LENGTH = 100;
 var USER_ATTRIBUTE_KEY_MAX_LENGTH = 24;
 var USER_ATTRIBUTE_VALUE_MAX_LENGTH = 36;
 
+var FORBIDDEN_PREFIXES = ['google_', 'firebase_', 'ga_'];
+
 function truncateString(string, limit) {
     return !!string && string.length > limit
         ? string.substring(0, limit)
@@ -43,7 +45,8 @@ Common.prototype.truncateAttributes = function (
 
     if (!isEmpty(attributes)) {
         Object.keys(attributes).forEach(function (attribute) {
-            var key = truncateString(attribute.replace("[^a-zA-Z0-9_]".toRegex(), "_"), keyLimit);
+            var standardizedKey = attribute.replace(/[^a-zA-Z0-9_]/g, '_');
+            var key = truncateString(standardizedKey, keyLimit);
             var val = truncateString(attributes[attribute], valueLimit);
             truncatedAttributes[key] = val;
         });
@@ -67,15 +70,13 @@ Common.prototype.truncateEventAttributes = function (eventAttributes) {
 Common.prototype.standardizeParameters = function (parameters) {
     var standardizedParameters = {};
     Object.keys(parameters).forEach(key => {
-        var standardizedKey = (' ' + key).slice(1);
-
-        standardizedKey = standardizedKey.replace("[^a-zA-Z0-9_]".toRegex(), "_")
-        for (forbiddenPrefix in forbiddenPrefixes) {
+        var standardizedKey = key.replace(/[^a-zA-Z0-9_]/g, '_');
+        for (forbiddenPrefix in FORBIDDEN_PREFIXES) {
             if (standardizedKey.startsWith(forbiddenPrefix)) {
                 standardizedKey = standardizedKey.replace(forbiddenPrefix.toRegex(), "")
             }
         }
-        while (standardizedKey.isNotEmpty() && !Character.isLetter(standardizedKey.toCharArray()[0])) {
+        while (!isEmpty(standardizedKey) && standardizedKey.charAt(0).match(/[^a-zA-Z]/i)) {
             standardizedKey = standardizedKey.substring(1)
         }
 
