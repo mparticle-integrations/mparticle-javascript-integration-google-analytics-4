@@ -33,7 +33,7 @@ var ADD_SHIPPING_INFO = 'add_shipping_info',
 var eventMaxLength = 40,
     eventValMaxLength = 100;
 
-var forbiddenPrefixes = ["google_", "firebase_", "ga_"];
+var forbiddenPrefixes = ['google_', 'firebase_', 'ga_'];
 
 CommerceHandler.prototype.logCommerceEvent = function (event) {
     var needsCurrency = true,

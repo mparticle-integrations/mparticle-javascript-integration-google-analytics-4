@@ -72,7 +72,7 @@ Common.prototype.standardizeParameters = function (parameters) {
         standardizedKey = standardizedKey.replace("[^a-zA-Z0-9_]".toRegex(), "_")
         for (forbiddenPrefix in forbiddenPrefixes) {
             if (standardizedKey.startsWith(forbiddenPrefix)) {
-                standardizedKey = standardizedKey.replaceFirst(forbiddenPrefix.toRegex(), "")
+                standardizedKey = standardizedKey.replace(forbiddenPrefix.toRegex(), "")
             }
         }
         while (standardizedKey.isNotEmpty() && !Character.isLetter(standardizedKey.toCharArray()[0])) {
