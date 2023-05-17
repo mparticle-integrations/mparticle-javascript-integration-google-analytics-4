@@ -9,6 +9,8 @@ var USER_ATTRIBUTE_KEY_MAX_LENGTH = 24;
 var USER_ATTRIBUTE_VALUE_MAX_LENGTH = 36;
 
 var FORBIDDEN_PREFIXES = ['google_', 'firebase_', 'ga_'];
+var FORBIDDEN_CHARACTERS_REGEX = /[^a-zA-Z0-9_]/g;
+
 
 function truncateString(string, limit) {
     return !!string && string.length > limit
@@ -45,7 +47,7 @@ Common.prototype.truncateAttributes = function (
 
     if (!isEmpty(attributes)) {
         Object.keys(attributes).forEach(function (attribute) {
-            var standardizedKey = attribute.replace(/[^a-zA-Z0-9_]/g, '_');
+            var standardizedKey = attribute.replace(FORBIDDEN_CHARACTERS_REGEX, '_')
             var key = truncateString(standardizedKey, keyLimit);
             var val = truncateString(attributes[attribute], valueLimit);
             truncatedAttributes[key] = val;
@@ -70,7 +72,7 @@ Common.prototype.truncateEventAttributes = function (eventAttributes) {
 Common.prototype.standardizeParameters = function (parameters) {
     var standardizedParameters = {};
     Object.keys(parameters).forEach(key => {
-        var standardizedKey = key.replace(/[^a-zA-Z0-9_]/g, '_');
+        var standardizedKey = attribute.replace(FORBIDDEN_CHARACTERS_REGEX, '_')
         for (forbiddenPrefix in FORBIDDEN_PREFIXES) {
             if (standardizedKey.startsWith(forbiddenPrefix)) {
                 standardizedKey = standardizedKey.replace(forbiddenPrefix.toRegex(), "")
