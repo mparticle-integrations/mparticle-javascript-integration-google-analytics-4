@@ -1,5 +1,6 @@
+var self = this;
 function CommerceHandler(common) {
-    this.common = common || {};
+    self.common = this.common = common || {};
 }
 
 var ProductActionTypes = {
@@ -62,10 +63,12 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
     }
 
     ga4CommerceEventParameters = buildParameters(event);
+
     if (event.EventAttributes) {
+        var standardizedEventAttributes = this.common.standardizeParameters(event.EventAttributes);
         ga4CommerceEventParameters = this.common.mergeObjects(
             ga4CommerceEventParameters,
-            event.EventAttributes
+            standardizedEventAttributes
         );
     }
 
@@ -122,7 +125,7 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
             null;
     }
 
-    gtag('event', mapGA4EcommerceEventName(event), this.common.standardizeParameters(ga4CommerceEventParameters));
+    gtag('event', mapGA4EcommerceEventName(event), ga4CommerceEventParameters);
     return true;
 };
 
@@ -240,14 +243,13 @@ function buildAddPaymentInfo(event) {
 // Utility function
 function toUnderscore(string) {
     return string
-        .split(/(?=[A-Z])/)
-        .join('_')
-        .toLowerCase();
+    .split(/(?=[A-Z])/)
+    .join('_')
+    .toLowerCase();
 }
 
 function parseProduct(_product) {
     var product = {};
-
     for (var key in _product) {
         switch (key) {
             case 'Sku':
@@ -270,7 +272,7 @@ function parseProduct(_product) {
         }
     }
 
-    return product;
+    return self.common.standardizeParameters(product);
 }
 
 function parsePromotion(_promotion) {
@@ -295,7 +297,7 @@ function parsePromotion(_promotion) {
         }
     }
 
-    return promotion;
+    return self.common.standardizeParameters(promotion);
 }
 
 function buildProductsList(products) {
@@ -394,7 +396,7 @@ function logCheckoutOptionEvent(event) {
         return false;
     }
 
-    gtag('event', mapGA4EcommerceEventName(event), this.common.standardizeParameters(ga4CommerceEventParameters));
+    gtag('event', mapGA4EcommerceEventName(event), ga4CommerceEventParameters);
 
     return true;
 }
@@ -407,7 +409,7 @@ function logPromotionEvent(event) {
             gtag(
                 'event',
                 mapGA4EcommerceEventName(event),
-                this.common.standardizeParameters(ga4CommerceEventParameters)
+                ga4CommerceEventParameters
             );
         });
         return true;
@@ -429,7 +431,7 @@ function logImpressionEvent(event) {
             gtag(
                 'event',
                 mapGA4EcommerceEventName(event),
-                this.common.standardizeParameters(ga4CommerceEventParameters)
+                ga4CommerceEventParameters
             );
         });
     } catch (error) {
@@ -450,7 +452,7 @@ function logViewCart(event) {
         (event.CustomFlags && event.CustomFlags['GA4.Value']) ||
         event.ProductAction.TotalAmount ||
         null;
-    gtag('event', mapGA4EcommerceEventName(event), this.common.standardizeParameters(ga4CommerceEventParameters));
+    gtag('event', mapGA4EcommerceEventName(event), ga4CommerceEventParameters);
     return true;
 }
 

@@ -11,7 +11,6 @@ var USER_ATTRIBUTE_VALUE_MAX_LENGTH = 36;
 var FORBIDDEN_PREFIXES = ['google_', 'firebase_', 'ga_'];
 var FORBIDDEN_CHARACTERS_REGEX = /[^a-zA-Z0-9_]/g;
 
-
 function truncateString(string, limit) {
     return !!string && string.length > limit
         ? string.substring(0, limit)
@@ -71,25 +70,30 @@ Common.prototype.truncateEventAttributes = function (eventAttributes) {
 
 Common.prototype.standardizeParameters = function (parameters) {
     var standardizedParameters = {};
-    Object.keys(parameters).forEach(key => {
-        var standardizedKey = attribute.replace(FORBIDDEN_CHARACTERS_REGEX, '_')
-        for (forbiddenPrefix in FORBIDDEN_PREFIXES) {
-            if (standardizedKey.startsWith(forbiddenPrefix)) {
-                standardizedKey = standardizedKey.replace(forbiddenPrefix.toRegex(), "")
-            }
-        }
-        while (!isEmpty(standardizedKey) && standardizedKey.charAt(0).match(/[^a-zA-Z]/i)) {
-            standardizedKey = standardizedKey.substring(1)
-        }
-
+    for (var key in parameters) {
+        var standardizedKey = this.standardizeName(key)
         standardizedParameters[standardizedKey] = parameters[key];
-    });
+    };
 
     return this.truncateAttributes(
         standardizedParameters,
         EVENT_ATTRIBUTE_KEY_MAX_LENGTH,
         EVENT_ATTRIBUTE_VAL_MAX_LENGTH
     );
+}
+
+Common.prototype.standardizeName = function (name) {
+    var standardizedName = name.replace(FORBIDDEN_CHARACTERS_REGEX, '_')
+        for (var prefixIndex in FORBIDDEN_PREFIXES) {
+            if (FORBIDDEN_PREFIXES[prefixIndex].indexOf(standardizedName) >= 0) {
+                standardizedName = standardizedName.replace(FORBIDDEN_PREFIXES[prefixIndex].toRegex(), "")
+            }
+        }
+        while (!isEmpty(standardizedName) && standardizedName.charAt(0).match(/[^a-zA-Z]/i)) {
+            standardizedName = standardizedName.substring(1)
+        }
+
+    return this.truncateEventName(standardizedName);
 }
 
 Common.prototype.truncateUserAttributes = function (userAttributes) {

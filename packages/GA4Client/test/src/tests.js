@@ -692,6 +692,9 @@ describe('Google Analytics 4 Event', function () {
                                     Sku: 'iphoneSKU',
                                     TotalAmount: 999,
                                     Variant: 'variant',
+                                    'test 1': 'test1',
+                                    'test??2': 'test2',
+                                    '3!test 3': 'test3',
                                 },
                                 {
                                     Attributes: {
@@ -739,6 +742,9 @@ describe('Google Analytics 4 Event', function () {
                                 price: 999,
                                 quantity: 1,
                                 total_amount: 999,
+                                'test_1': 'test1',
+                                'test__2': 'test2',
+                                'test_3': 'test3',
                             },
                             {
                                 attributes: {
@@ -1342,7 +1348,7 @@ describe('Google Analytics 4 Event', function () {
                     EventName: 'Unmapped Event Name',
                 });
 
-                var result = ['event', 'Unmapped Event Name', {}];
+                var result = ['event', 'Unmapped_Event_Name', {}];
                 window.dataLayer[0].should.eql(result);
 
                 done();
@@ -1356,7 +1362,7 @@ describe('Google Analytics 4 Event', function () {
                     EventAttributes: null,
                 });
 
-                var result = ['event', 'Unmapped Event Name', {}];
+                var result = ['event', 'Unmapped_Event_Name', {}];
                 window.dataLayer[0].should.eql(result);
 
                 done();
@@ -1372,7 +1378,7 @@ describe('Google Analytics 4 Event', function () {
                     },
                 });
 
-                var result = ['event', 'Unmapped Event Name', { foo: 'bar' }];
+                var result = ['event', 'Unmapped_Event_Name', { foo: 'bar' }];
                 window.dataLayer[0].should.eql(result);
 
                 done();
@@ -1432,6 +1438,31 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
+            it('should standardize event names and attributes keys', function (done) {
+                mParticle.forwarder.process({
+                    EventDataType: MessageType.PageEvent,
+                    EventCategory: EventType.Navigation,
+                    EventName:
+                        '2?Test Event ?Standardization',
+                    EventAttributes: {
+                        foo: 'bar',
+                        '1?test4ever!!!': 'tester',
+                    },
+                });
+
+                var expectedEventName =
+                    'Test_Event__Standardization';
+
+                var expectedEventAttributes = {
+                    foo: 'bar',
+                    test4ever___: 'tester',
+                };
+
+                window.dataLayer[0][1].should.eql(expectedEventName);
+                window.dataLayer[0][2].should.eql(expectedEventAttributes);
+                done();
+            });
+
             it('should truncate long event attributes keys and values', function (done) {
                 mParticle.forwarder.process({
                     EventDataType: MessageType.PageEvent,
@@ -1446,7 +1477,7 @@ describe('Google Analytics 4 Event', function () {
                 });
 
                 var expectedEventName =
-                    'This is a very long event name that shou';
+                    'This_is_a_very_long_event_name_that_shou';
 
                 var expectedEventAttributes = {
                     foo: 'bar',
