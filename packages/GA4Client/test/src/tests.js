@@ -184,6 +184,22 @@ describe('Google Analytics 4 Event', function () {
 
             done();
         });
+
+        it('should initialize with a measurement id as `client_id`', function (done) {
+            (typeof window.gtag === 'undefined').should.be.true();
+            (typeof window.dataLayer === 'undefined').should.be.true();
+            window.mockGA4EventForwarder = new mockGA4EventForwarder();
+            // Include any specific settings that is required for initializing your SDK here
+            mParticle.forwarder.init(kitSettings, reportService.cb, true);
+
+            window.gtag.should.be.ok();
+            window.dataLayer.should.be.ok();
+            window.dataLayer[2][0].should.eql('get');
+            window.dataLayer[2][1].should.eql('testMeasurementId');
+            window.dataLayer[2][2].should.eql('client_id');
+
+            done();
+        });
     });
     describe('forwarder mapping', function () {
         beforeEach(function () {

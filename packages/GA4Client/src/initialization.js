@@ -1,5 +1,6 @@
 var initialization = {
     name: 'GoogleAnalytics4',
+    moduleId: '160',
     /*  ****** Fill out initForwarder to load your SDK ******
     Note that not all arguments may apply to your SDK initialization.
     These are passed from mParticle, but leave them even if they are not being used.
@@ -46,6 +47,10 @@ var initialization = {
         }
         gtag('config', measurementId, configSettings);
 
+        gtag('get', measurementId, 'client_id', function (clientId) {
+            setClientId(clientId, this.moduleId);
+        });
+
         if (!testMode) {
             var clientScript = document.createElement('script');
             clientScript.type = 'text/javascript';
@@ -73,5 +78,13 @@ var initialization = {
         return isInitialized;
     },
 };
+
+function setClientId(clientId, moduleId) {
+    var GA4CLIENTID = 'client_id';
+    var ga4IntegrationAttributes = {};
+    ga4IntegrationAttributes[GA4CLIENTID] = clientId;
+    mParticle.setIntegrationAttribute(moduleId, ga4IntegrationAttributes);
+    mParticle._setIntegrationDelay(moduleId, false);
+}
 
 module.exports = initialization;
