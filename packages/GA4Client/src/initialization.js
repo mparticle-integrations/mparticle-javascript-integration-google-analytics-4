@@ -1,6 +1,6 @@
 var initialization = {
     name: 'GoogleAnalytics4',
-    moduleId: '160',
+    moduleId: 160,
     /*  ****** Fill out initForwarder to load your SDK ******
     Note that not all arguments may apply to your SDK initialization.
     These are passed from mParticle, but leave them even if they are not being used.
@@ -19,6 +19,8 @@ var initialization = {
         isInitialized,
         common
     ) {
+        mParticle._setIntegrationDelay(this.moduleId, true);
+
         common.forwarderSettings = forwarderSettings;
         var measurementId = forwarderSettings.measurementId;
         var userIdType = forwarderSettings.externalUserIdentityType;
@@ -48,7 +50,7 @@ var initialization = {
         gtag('config', measurementId, configSettings);
 
         gtag('get', measurementId, 'client_id', function (clientId) {
-            setClientId(clientId, this.moduleId);
+            setClientId(clientId, initialization.moduleId);
         });
 
         if (!testMode) {
