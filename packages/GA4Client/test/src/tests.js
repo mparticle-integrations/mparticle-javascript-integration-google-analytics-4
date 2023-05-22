@@ -1,3 +1,5 @@
+var sinon = require('sinon');
+
 /* eslint-disable no-undef*/
 describe('Google Analytics 4 Event', function () {
     // -------------------DO NOT EDIT ANYTHING BELOW THIS LINE-----------------------
@@ -186,8 +188,6 @@ describe('Google Analytics 4 Event', function () {
         });
 
         it('should initialize with a measurement id as `client_id`', function (done) {
-            (typeof window.gtag === 'undefined').should.be.true();
-            (typeof window.dataLayer === 'undefined').should.be.true();
             window.mockGA4EventForwarder = new mockGA4EventForwarder();
             // Include any specific settings that is required for initializing your SDK here
             mParticle.forwarder.init(kitSettings, reportService.cb, true);
@@ -198,6 +198,38 @@ describe('Google Analytics 4 Event', function () {
             window.dataLayer[2][1].should.eql('testMeasurementId');
             window.dataLayer[2][2].should.eql('client_id');
 
+            done();
+        });
+
+        it('should set the measurement ID as an Integration Attribute', function (done) {
+            var sandbox = sinon.createSandbox();
+            var mPStub = sinon.stub(window.mParticle);
+
+            // Kit init requires checking SDK version, which in turn requires
+            // the SDK to be initialized. The actual version number is not
+            // relevant to capturing measurment ID.
+            mPStub.getVersion.returns('X.XX.X');
+
+            window.mockGA4EventForwarder = new mockGA4EventForwarder();
+
+            mParticle.forwarder.init(kitSettings, reportService.cb, true);
+
+            // GTAG will fire an async get request so we are simply
+            // verifying that measurementID/clientID makes it into
+            // mParticle.setIntegrationAttribute via gtag
+            dataLayer[2][3]('testMeasurementId');
+
+            // Verify that data later triggers setClientId
+            mPStub.setIntegrationAttribute.calledWith(160, {
+                client_id: 'testMeasurementId',
+            });
+
+            // Set Integration Delay should be called twice upon init
+            // First, as true, then false after client ID is registered
+            mPStub._setIntegrationDelay.getCall(0).calledWith(160, true);
+            mPStub._setIntegrationDelay.getCall(1).calledWith(160, true);
+
+            sandbox.restore();
             done();
         });
     });

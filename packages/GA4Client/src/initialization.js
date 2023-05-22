@@ -50,6 +50,7 @@ var initialization = {
         gtag('config', measurementId, configSettings);
 
         gtag('get', measurementId, 'client_id', function (clientId) {
+            // TODO: Does GTAG Hash the clientId somehow?
             setClientId(clientId, initialization.moduleId);
         });
 
@@ -85,8 +86,11 @@ function setClientId(clientId, moduleId) {
     var GA4CLIENTID = 'client_id';
     var ga4IntegrationAttributes = {};
     ga4IntegrationAttributes[GA4CLIENTID] = clientId;
-    mParticle.setIntegrationAttribute(moduleId, ga4IntegrationAttributes);
-    mParticle._setIntegrationDelay(moduleId, false);
+    window.mParticle.setIntegrationAttribute(
+        moduleId,
+        ga4IntegrationAttributes
+    );
+    window.mParticle._setIntegrationDelay(moduleId, false);
 }
 
 module.exports = initialization;

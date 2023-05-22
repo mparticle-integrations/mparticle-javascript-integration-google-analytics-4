@@ -44,7 +44,8 @@
         "watchify": "^3.11.0"
     },
     "dependencies": {
-        "@mparticle/web-sdk": "^2.12.2"
+        "@mparticle/web-sdk": "^2.12.2",
+        "sinon": "^15.1.0"
     },
     "license": "Apache-2.0"
 }
