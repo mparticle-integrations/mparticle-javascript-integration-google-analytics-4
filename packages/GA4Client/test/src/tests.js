@@ -220,15 +220,15 @@ describe('Google Analytics 4 Event', function () {
             // asynchronously. However, since we are mocking GTAG within our tests,
             // we need to manually trigger the callback directly to verify that
             // mParticle.setIntegrationAttribute is eventually called with
-            // measurementID/clientID via GTAG.
+            // clientID via GTAG.
             // The specific 'get' request is index 2, and the callback is
             // index 3. We are manually passing a string into the callback
             // as GTAG seems to hash the id internally.
-            dataLayer[2][3]('testMeasurementId');
+            dataLayer[2][3]('test-client-id');
 
             // Verify that data later triggers setClientId
             mPStub.setIntegrationAttribute.calledWith(160, {
-                client_id: 'testMeasurementId',
+                client_id: 'test-client-id',
             });
 
             // Set Integration Delay should be called twice upon init

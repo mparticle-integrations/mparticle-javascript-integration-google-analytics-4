@@ -50,7 +50,6 @@ var initialization = {
         gtag('config', measurementId, configSettings);
 
         gtag('get', measurementId, 'client_id', function (clientId) {
-            // TODO: Does GTAG Hash the clientId somehow?
             setClientId(clientId, initialization.moduleId);
         });
 
