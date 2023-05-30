@@ -1,4 +1,7 @@
-var sinon = require('sinon');
+// If we are testing this in a browser runner, sinon is loaded via script tag
+if (typeof require !== 'undefined') {
+    var sinon = require('sinon');
+}
 
 /* eslint-disable no-undef*/
 describe('Google Analytics 4 Event', function () {
