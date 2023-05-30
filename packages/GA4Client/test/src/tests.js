@@ -216,9 +216,14 @@ describe('Google Analytics 4 Event', function () {
 
             mParticle.forwarder.init(kitSettings, reportService.cb, true);
 
-            // GTAG will fire an async get request so we are simply
-            // verifying that measurementID/clientID makes it into
-            // mParticle.setIntegrationAttribute via gtag
+            // GTAG will normally trigger every callback in the DataLayer
+            // asynchronously. However, since we are mocking GTAG within our tests,
+            // we need to manually trigger the callback directly to verify that
+            // mParticle.setIntegrationAttribute is eventually called with
+            // measurementID/clientID via GTAG.
+            // The specific 'get' request is index 2, and the callback is
+            // index 3. We are manually passing a string into the callback
+            // as GTAG seems to hash the id internally.
             dataLayer[2][3]('testMeasurementId');
 
             // Verify that data later triggers setClientId
