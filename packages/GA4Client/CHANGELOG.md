@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.0.6...v1.1.0) (2023-05-30)
+
+
+### Features
+
+* Capture Client ID on Client Side Forwarding ([#37](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/37)) ([9636091](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/963609125d598220a69c8d1f7b854c41f345c3ba))
+
 ## [1.0.6](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.0.5...v1.0.6) (2023-02-22)
 
 
