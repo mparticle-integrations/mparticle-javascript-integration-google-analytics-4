@@ -189,7 +189,6 @@ describe('Google Analytics 4 Event', function () {
 
         it('should initialize with a measurement id as `client_id`', function (done) {
             window.mockGA4EventForwarder = new mockGA4EventForwarder();
-            // Include any specific settings that is required for initializing your SDK here
             mParticle.forwarder.init(kitSettings, reportService.cb, true);
 
             window.gtag.should.be.ok();
@@ -227,7 +226,7 @@ describe('Google Analytics 4 Event', function () {
             // Set Integration Delay should be called twice upon init
             // First, as true, then false after client ID is registered
             mPStub._setIntegrationDelay.getCall(0).calledWith(160, true);
-            mPStub._setIntegrationDelay.getCall(1).calledWith(160, true);
+            mPStub._setIntegrationDelay.getCall(1).calledWith(160, false);
 
             sandbox.restore();
             done();
