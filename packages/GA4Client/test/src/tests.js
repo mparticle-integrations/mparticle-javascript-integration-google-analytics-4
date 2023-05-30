@@ -1,3 +1,8 @@
+// If we are testing this in a browser runner, sinon is loaded via script tag
+if (typeof require !== 'undefined') {
+    var sinon = require('sinon');
+}
+
 /* eslint-disable no-undef*/
 describe('Google Analytics 4 Event', function () {
     // -------------------DO NOT EDIT ANYTHING BELOW THIS LINE-----------------------
@@ -182,6 +187,56 @@ describe('Google Analytics 4 Event', function () {
             window.gtag.should.be.ok();
             window.dataLayer.should.be.ok();
 
+            done();
+        });
+
+        it('should initialize with a measurement id as `client_id`', function (done) {
+            window.mockGA4EventForwarder = new mockGA4EventForwarder();
+            mParticle.forwarder.init(kitSettings, reportService.cb, true);
+
+            window.gtag.should.be.ok();
+            window.dataLayer.should.be.ok();
+            window.dataLayer[2][0].should.eql('get');
+            window.dataLayer[2][1].should.eql('testMeasurementId');
+            window.dataLayer[2][2].should.eql('client_id');
+
+            done();
+        });
+
+        it('should set the measurement ID as an Integration Attribute', function (done) {
+            var sandbox = sinon.createSandbox();
+            var mPStub = sinon.stub(window.mParticle);
+
+            // Kit init requires checking SDK version, which in turn requires
+            // the SDK to be initialized. The actual version number is not
+            // relevant to capturing measurment ID.
+            mPStub.getVersion.returns('X.XX.X');
+
+            window.mockGA4EventForwarder = new mockGA4EventForwarder();
+
+            mParticle.forwarder.init(kitSettings, reportService.cb, true);
+
+            // GTAG will normally trigger every callback in the DataLayer
+            // asynchronously. However, since we are mocking GTAG within our tests,
+            // we need to manually trigger the callback directly to verify that
+            // mParticle.setIntegrationAttribute is eventually called with
+            // clientID via GTAG.
+            // The specific 'get' request is index 2, and the callback is
+            // index 3. We are manually passing a string into the callback
+            // as GTAG seems to hash the id internally.
+            dataLayer[2][3]('test-client-id');
+
+            // Verify that data later triggers setClientId
+            mPStub.setIntegrationAttribute.calledWith(160, {
+                client_id: 'test-client-id',
+            });
+
+            // Set Integration Delay should be called twice upon init
+            // First, as true, then false after client ID is registered
+            mPStub._setIntegrationDelay.getCall(0).calledWith(160, true);
+            mPStub._setIntegrationDelay.getCall(1).calledWith(160, false);
+
+            sandbox.restore();
             done();
         });
     });
