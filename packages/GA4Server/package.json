@@ -7,7 +7,11 @@
   "files": ["dist/GoogleAnalytics4EventForwarderServerSide-Kit.common.js"],
   "scripts": {
     "build": "rollup --config rollup.config.js",
-    "watch": "rollup --config rollup.config.js -w"
+    "build:test": "ENVIRONMENT=production rollup --config rollup.test.config.js",
+    "watch": "rollup --config rollup.config.js -w",
+    "test": "npm run build && npm run build:test && DEBUG=false karma start test/karma.config.js",
+    "test:debug": "npm run build && npm run build:test && DEBUG=true karma start test/karma.config.js"
+
   },
   "author": "mParticle Developers <developers@mparticle.com> (https://www.mparticle.com)",
   "license": "Apache-2.0",
@@ -16,6 +20,14 @@
   },
   "repository": "https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/tree/master/packages/GA4Server",
   "devDependencies": {
-    "rollup": "^1.15.6"
+    "mocha": "^5.2.0",
+    "rollup": "^1.15.6",
+    "rollup-plugin-commonjs": "^10.0.0",
+    "rollup-plugin-node-resolve": "^5.0.3",
+    "should": "13.2.3",
+    "sinon": "^15.1.0"
+  },
+  "dependencies": {
+    "@mparticle/web-sdk": "^2.12.2"
   }
 }
