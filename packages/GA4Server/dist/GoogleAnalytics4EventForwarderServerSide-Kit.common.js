@@ -22,11 +22,13 @@ Object.defineProperty(exports, '__esModule', { value: true });
 // This kit does not have a `processEvent` method because no events should be sent client side.
 
 var name = 'GoogleAnalytics4',
-    GA4MODULENUMBER = 160;
+    GA4MODULENUMBER = 160,
+    suffix = 'Server';
 
 var constructor = function() {
     var self = this;
     self.name = name;
+    self.suffix = suffix;
 
     function initForwarder(forwarderSettings, service, testMode) {
         mParticle._setIntegrationDelay(GA4MODULENUMBER, true);
@@ -38,6 +40,12 @@ var constructor = function() {
             window.dataLayer.push(arguments);
         };
 
+        gtag('js', new Date());
+
+        gtag('get', measurementId, 'client_id', function(clientId) {
+            setClientId(clientId, GA4MODULENUMBER);
+        });
+
         if (!testMode) {
             var clientScript = document.createElement('script');
             clientScript.type = 'text/javascript';
@@ -48,21 +56,12 @@ var constructor = function() {
                 document.getElementsByTagName('head')[0] ||
                 document.getElementsByTagName('body')[0]
             ).appendChild(clientScript);
-
-            clientScript.onload = function() {
-                gtag('js', new Date());
-
-                gtag('get', measurementId, 'client_id', function(clientId) {
-                    setClientId(clientId, GA4MODULENUMBER);
-                });
-                return;
-            };
         }
     }
 
     this.init = initForwarder;
 };
-    
+
 function setClientId(clientId, GA4MODULENUMBER) {
     var GA4CLIENTID = 'client_id';
     var ga4IntegrationAttributes = {};
@@ -83,13 +82,18 @@ if (window && window.mParticle && window.mParticle.addForwarder) {
         name: name,
         constructor: constructor,
         getId: getId,
+        // A suffix is added if there are multiple different versions of
+        // a client kit.  This matches the suffix in the DB.
+        suffix: suffix,
     });
 }
 
 function register(config) {
+    var forwarderNameWithSuffix = [name, suffix].join('-');
     if (!config) {
         window.console.log(
-            'You must pass a config object to register the kit ' + name
+            'You must pass a config object to register the kit ' +
+                forwarderNameWithSuffix
         );
         return;
     }
@@ -102,17 +106,19 @@ function register(config) {
     }
 
     if (isObject(config.kits)) {
-        config.kits[name] = {
+        config.kits[forwarderNameWithSuffix] = {
             constructor: constructor,
         };
     } else {
         config.kits = {};
-        config.kits[name] = {
+        config.kits[forwarderNameWithSuffix] = {
             constructor: constructor,
         };
     }
     window.console.log(
-        'Successfully registered ' + name + ' to your mParticle configuration'
+        'Successfully registered ' +
+            forwarderNameWithSuffix +
+            ' to your mParticle configuration'
     );
 }
 
