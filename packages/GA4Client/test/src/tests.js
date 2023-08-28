@@ -1827,7 +1827,7 @@ describe('Google Analytics 4 Event', function () {
                 ],
             });
 
-            result = [
+            var result = [
                 'event',
                 'view_item_list',
                 {
