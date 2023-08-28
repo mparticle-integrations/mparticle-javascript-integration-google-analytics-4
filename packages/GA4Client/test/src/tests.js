@@ -692,9 +692,6 @@ describe('Google Analytics 4 Event', function () {
                                     Sku: 'iphoneSKU',
                                     TotalAmount: 999,
                                     Variant: 'variant',
-                                    'test 1': 'test1',
-                                    'test??2': 'test2',
-                                    '3!test 3': 'test3',
                                 },
                                 {
                                     Attributes: {
@@ -742,9 +739,6 @@ describe('Google Analytics 4 Event', function () {
                                 price: 999,
                                 quantity: 1,
                                 total_amount: 999,
-                                'test_1': 'test1',
-                                'test__2': 'test2',
-                                'test_3': 'test3',
                             },
                             {
                                 attributes: {
@@ -1346,9 +1340,10 @@ describe('Google Analytics 4 Event', function () {
                     EventDataType: MessageType.PageEvent,
                     EventCategory: EventType.Navigation,
                     EventName: 'Unmapped Event Name',
+                    EventAttributes: {},
                 });
 
-                var result = ['event', 'Unmapped_Event_Name', {}];
+                var result = ['event', 'Unmapped Event Name', {}];
                 window.dataLayer[0].should.eql(result);
 
                 done();
@@ -1362,7 +1357,7 @@ describe('Google Analytics 4 Event', function () {
                     EventAttributes: null,
                 });
 
-                var result = ['event', 'Unmapped_Event_Name', {}];
+                var result = ['event', 'Unmapped Event Name', {}];
                 window.dataLayer[0].should.eql(result);
 
                 done();
@@ -1378,7 +1373,7 @@ describe('Google Analytics 4 Event', function () {
                     },
                 });
 
-                var result = ['event', 'Unmapped_Event_Name', { foo: 'bar' }];
+                var result = ['event', 'Unmapped Event Name', { foo: 'bar' }];
                 window.dataLayer[0].should.eql(result);
 
                 done();
@@ -1438,31 +1433,6 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should standardize event names and attributes keys', function (done) {
-                mParticle.forwarder.process({
-                    EventDataType: MessageType.PageEvent,
-                    EventCategory: EventType.Navigation,
-                    EventName:
-                        '2?Test Event ?Standardization',
-                    EventAttributes: {
-                        foo: 'bar',
-                        '1?test4ever!!!': 'tester',
-                    },
-                });
-
-                var expectedEventName =
-                    'Test_Event__Standardization';
-
-                var expectedEventAttributes = {
-                    foo: 'bar',
-                    test4ever___: 'tester',
-                };
-
-                window.dataLayer[0][1].should.eql(expectedEventName);
-                window.dataLayer[0][2].should.eql(expectedEventAttributes);
-                done();
-            });
-
             it('should truncate long event attributes keys and values', function (done) {
                 mParticle.forwarder.process({
                     EventDataType: MessageType.PageEvent,
@@ -1477,7 +1447,7 @@ describe('Google Analytics 4 Event', function () {
                 });
 
                 var expectedEventName =
-                    'This_is_a_very_long_event_name_that_shou';
+                    'This is a very long event name that shou';
 
                 var expectedEventAttributes = {
                     foo: 'bar',
@@ -1617,6 +1587,293 @@ describe('Google Analytics 4 Event', function () {
                 { send_page_view: false, user_id: 'testMPID' },
             ];
             window.dataLayer[0].should.match(result);
+
+            done();
+        });
+    });
+
+    describe('set enable mobile cleansing = true', function () {
+        beforeEach(function () {
+            var kitSettings = {
+                clientKey: '123456',
+                appId: 'abcde',
+                externalUserIdentityType: 'customerId',
+                measurementId: 'testMeasurementId',
+                enableDataCleansing: 'True',
+            };
+            mParticle.forwarder.init(kitSettings, reportService.cb, true);
+            window.gtag = function () {
+                window.dataLayer.push(Array.prototype.slice.call(arguments));
+            };
+
+            window.dataLayer = [];
+        });
+        afterEach(function () {
+            window.gtag = undefined;
+            window.dataLayer = undefined;
+        });
+
+        // This forces the dataLayer to have a type array to make testing easier
+        // Without this, it is an array-like object of arguments
+
+        it('should standardize event names and attributes keys', function (done) {
+            mParticle.forwarder.process({
+                EventDataType: MessageType.PageEvent,
+                EventCategory: EventType.Navigation,
+                EventName: '2?Test Event ?Standardization',
+                EventAttributes: {
+                    foo: 'bar',
+                    '1?test4ever!!!': 'tester',
+                },
+            });
+
+            var expectedEventName = 'Test_Event__Standardization';
+
+            var expectedEventAttributes = {
+                foo: 'bar',
+                test4ever___: 'tester',
+            };
+
+            window.dataLayer[0][1].should.eql(expectedEventName);
+            window.dataLayer[0][2].should.eql(expectedEventAttributes);
+            done();
+        });
+
+        it('should remove forbidden prefixes', function (done) {
+            mParticle.forwarder.process({
+                EventDataType: MessageType.PageEvent,
+                EventCategory: EventType.Navigation,
+                EventName: '123___google_test_event',
+            });
+
+            var expectedEventName = 'test_event';
+
+            window.dataLayer[0][1].should.eql(expectedEventName);
+            window.dataLayer = [];
+
+            mParticle.forwarder.process({
+                EventDataType: MessageType.PageEvent,
+                EventCategory: EventType.Navigation,
+                EventName: 'firebase_$$$test_event',
+            });
+
+            window.dataLayer[0][1].should.eql(expectedEventName);
+            window.dataLayer = [];
+
+            mParticle.forwarder.process({
+                EventDataType: MessageType.PageEvent,
+                EventCategory: EventType.Navigation,
+                EventName: 'ga_$$$test_event',
+            });
+
+            window.dataLayer[0][1].should.eql(expectedEventName);
+            window.dataLayer = [];
+
+            done();
+        });
+
+        it('should standardize attribute keys for ecommerce events', function (done) {
+            mParticle.forwarder.process({
+                CurrencyCode: 'USD',
+                EventName: 'Test Purchase Event',
+                EventDataType: MessageType.Commerce,
+                EventCategory: CommerceEventType.ProductAddToWishlist,
+                ProductAction: {
+                    ProductActionType: ProductActionType.AddToWishlist,
+                    ProductList: [
+                        {
+                            Attributes: {
+                                eventMetric1: 'metric2',
+                                journeyType: 'testjourneytype1',
+                            },
+                            '1?test4ever!!!': 'tester',
+                            Brand: 'brand',
+                            Category: 'category',
+                            $$CouponCode: 'coupon',
+                            Name: 'iphone',
+                            Position: 1,
+                            Price: 999,
+                            Quantity: 1,
+                            Sku: 'iphoneSKU',
+                            TotalAmount: 999,
+                            Variant: 'variant',
+                        },
+                        {
+                            Attributes: {
+                                eventMetric1: 'metric1',
+                                journeyType: 'testjourneytype2',
+                            },
+                            '1?test4ever!!!': 'tester',
+                            Brand: 'brand',
+                            Category: 'category',
+                            CouponCode: 'coupon',
+                            Name: 'iphone',
+                            Position: 1,
+                            Price: 999,
+                            Quantity: 1,
+                            Sku: 'iphoneSKU',
+                            TotalAmount: 999,
+                            Variant: 'variant',
+                        },
+                    ],
+                    TotalAmount: 450,
+                    TaxAmount: 40,
+                    ShippingAmount: 10,
+                    CouponCode: 'couponCode',
+                },
+            });
+
+            var result = [
+                'event',
+                'add_to_wishlist',
+                {
+                    value: 450,
+                    items: [
+                        {
+                            attributes: {
+                                eventMetric1: 'metric2',
+                                journeyType: 'testjourneytype1',
+                            },
+                            coupon_code: 'coupon',
+                            item_brand: 'brand',
+                            item_category: 'category',
+                            item_id: 'iphoneSKU',
+                            item_name: 'iphone',
+                            item_variant: 'variant',
+                            position: 1,
+                            price: 999,
+                            quantity: 1,
+                            test4ever___: 'tester',
+                            total_amount: 999,
+                        },
+                        {
+                            attributes: {
+                                eventMetric1: 'metric1',
+                                journeyType: 'testjourneytype2',
+                            },
+                            test4ever___: 'tester',
+                            coupon_code: 'coupon',
+                            item_brand: 'brand',
+                            item_category: 'category',
+                            item_id: 'iphoneSKU',
+                            item_name: 'iphone',
+                            item_variant: 'variant',
+                            position: 1,
+                            price: 999,
+                            quantity: 1,
+                            total_amount: 999,
+                        },
+                    ],
+                    currency: 'USD',
+                },
+            ];
+
+            window.dataLayer[0].should.eql(result);
+
+            done();
+        });
+
+        it('should map MP ProductImpression commerce event to GA4 view_item_list event', function (done) {
+            mParticle.forwarder.process({
+                CurrencyCode: 'USD',
+                EventName: 'Test Purchase Event',
+                EventDataType: MessageType.Commerce,
+                EventCategory: CommerceEventType.ProductImpression,
+                ProductImpressions: [
+                    {
+                        // TODO: Does this map to the name or id of the impression?
+                        ProductImpressionList: 'Related Products',
+                        ProductList: [
+                            {
+                                Attributes: {
+                                    eventMetric1: 'metric2',
+                                    journeyType: 'testjourneytype1',
+                                },
+                                Brand: 'brand',
+                                Category: 'category',
+                                CouponCode: 'coupon',
+                                Name: 'iphone',
+                                Position: 1,
+                                Price: 999,
+                                Quantity: 1,
+                                Sku: 'iphoneSKU',
+                                TotalAmount: 999,
+                                Variant: 'variant',
+                                'test 1': 'test1',
+                                'test??2': 'test2',
+                                '3!test 3': 'test3',
+                            },
+                            {
+                                Attributes: {
+                                    eventMetric1: 'metric1',
+                                    journeyType: 'testjourneytype2',
+                                },
+                                Brand: 'brand',
+                                Category: 'category',
+                                CouponCode: 'coupon',
+                                Name: 'iphone',
+                                Position: 1,
+                                Price: 999,
+                                Quantity: 1,
+                                Sku: 'iphoneSKU',
+                                TotalAmount: 999,
+                                Variant: 'variant',
+                            },
+                        ],
+                        TaxAmount: 40,
+                        ShippingAmount: 10,
+                        CouponCode: 'couponCode',
+                    },
+                ],
+            });
+
+            result = [
+                'event',
+                'view_item_list',
+                {
+                    item_list_id: 'Related Products',
+                    item_list_name: 'Related Products',
+                    items: [
+                        {
+                            attributes: {
+                                eventMetric1: 'metric2',
+                                journeyType: 'testjourneytype1',
+                            },
+                            coupon_code: 'coupon',
+                            item_brand: 'brand',
+                            item_category: 'category',
+                            item_id: 'iphoneSKU',
+                            item_name: 'iphone',
+                            item_variant: 'variant',
+                            position: 1,
+                            price: 999,
+                            quantity: 1,
+                            total_amount: 999,
+                            test_1: 'test1',
+                            test__2: 'test2',
+                            test_3: 'test3',
+                        },
+                        {
+                            attributes: {
+                                eventMetric1: 'metric1',
+                                journeyType: 'testjourneytype2',
+                            },
+                            coupon_code: 'coupon',
+                            item_brand: 'brand',
+                            item_category: 'category',
+                            item_id: 'iphoneSKU',
+                            item_name: 'iphone',
+                            item_variant: 'variant',
+                            position: 1,
+                            price: 999,
+                            quantity: 1,
+                            total_amount: 999,
+                        },
+                    ],
+                },
+            ];
+
+            window.dataLayer[0].should.eql(result);
 
             done();
         });

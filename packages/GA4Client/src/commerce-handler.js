@@ -65,10 +65,15 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
     ga4CommerceEventParameters = buildParameters(event);
 
     if (event.EventAttributes) {
-        var standardizedEventAttributes = this.common.standardizeParameters(event.EventAttributes);
         ga4CommerceEventParameters = this.common.mergeObjects(
             ga4CommerceEventParameters,
-            standardizedEventAttributes
+            event.EventAttributes
+        );
+    }
+
+    if (this.common.forwarderSettings.enableDataCleansing) {
+        ga4CommerceEventParameters = this.common.standardizeParameters(
+            ga4CommerceEventParameters
         );
     }
 
@@ -243,9 +248,9 @@ function buildAddPaymentInfo(event) {
 // Utility function
 function toUnderscore(string) {
     return string
-    .split(/(?=[A-Z])/)
-    .join('_')
-    .toLowerCase();
+        .split(/(?=[A-Z])/)
+        .join('_')
+        .toLowerCase();
 }
 
 function parseProduct(_product) {
@@ -272,7 +277,11 @@ function parseProduct(_product) {
         }
     }
 
-    return self.common.standardizeParameters(product);
+    if (self.common.forwarderSettings.enableDataCleansing) {
+        return self.common.standardizeParameters(product);
+    } else {
+        return product;
+    }
 }
 
 function parsePromotion(_promotion) {
@@ -297,7 +306,11 @@ function parsePromotion(_promotion) {
         }
     }
 
-    return self.common.standardizeParameters(promotion);
+    if (self.common.forwarderSettings.enableDataCleansing) {
+        return self.common.standardizeParameters(promotion);
+    } else {
+        return promotion;
+    }
 }
 
 function buildProductsList(products) {

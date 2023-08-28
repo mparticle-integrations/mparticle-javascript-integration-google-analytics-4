@@ -46,7 +46,10 @@ Common.prototype.truncateAttributes = function (
 
     if (!isEmpty(attributes)) {
         Object.keys(attributes).forEach(function (attribute) {
-            var standardizedKey = attribute.replace(FORBIDDEN_CHARACTERS_REGEX, '_')
+            var standardizedKey = attribute.replace(
+                FORBIDDEN_CHARACTERS_REGEX,
+                '_'
+            );
             var key = truncateString(standardizedKey, keyLimit);
             var val = truncateString(attributes[attribute], valueLimit);
             truncatedAttributes[key] = val;
@@ -71,30 +74,44 @@ Common.prototype.truncateEventAttributes = function (eventAttributes) {
 Common.prototype.standardizeParameters = function (parameters) {
     var standardizedParameters = {};
     for (var key in parameters) {
-        var standardizedKey = this.standardizeName(key)
+        var standardizedKey = this.standardizeName(key);
         standardizedParameters[standardizedKey] = parameters[key];
-    };
+    }
 
     return this.truncateAttributes(
         standardizedParameters,
         EVENT_ATTRIBUTE_KEY_MAX_LENGTH,
         EVENT_ATTRIBUTE_VAL_MAX_LENGTH
     );
-}
+};
 
 Common.prototype.standardizeName = function (name) {
-    var standardizedName = name.replace(FORBIDDEN_CHARACTERS_REGEX, '_')
-        for (var prefixIndex in FORBIDDEN_PREFIXES) {
-            if (FORBIDDEN_PREFIXES[prefixIndex].indexOf(standardizedName) >= 0) {
-                standardizedName = standardizedName.replace(FORBIDDEN_PREFIXES[prefixIndex].toRegex(), "")
-            }
+    function removeNonAlphanumericCharacterFromStart(name) {
+        while (!isEmpty(name) && name.charAt(0).match(/[^a-zA-Z]/i)) {
+            name = name.substring(1);
         }
-        while (!isEmpty(standardizedName) && standardizedName.charAt(0).match(/[^a-zA-Z]/i)) {
-            standardizedName = standardizedName.substring(1)
+        return name;
+    }
+    // 1. Remove forbidden characters
+    var standardizedName = name.replace(FORBIDDEN_CHARACTERS_REGEX, '_');
+
+    // 2. Ensure beginning currently does not start with a non-alphanumeric character
+    standardizedName =
+        removeNonAlphanumericCharacterFromStart(standardizedName);
+
+    // 3. Ensure there is no forbidden prefix
+    FORBIDDEN_PREFIXES.forEach(function (prefix) {
+        if (standardizedName.indexOf(prefix) >= 0) {
+            standardizedName = standardizedName.replace(prefix, '');
         }
+    });
+
+    // 4. Check again to ensure beginning does not start with a non-alphanumeric character
+    standardizedName =
+        removeNonAlphanumericCharacterFromStart(standardizedName);
 
     return this.truncateEventName(standardizedName);
-}
+};
 
 Common.prototype.truncateUserAttributes = function (userAttributes) {
     return this.truncateAttributes(

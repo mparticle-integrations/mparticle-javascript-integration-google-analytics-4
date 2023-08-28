@@ -19,6 +19,8 @@ var initialization = {
         common
     ) {
         common.forwarderSettings = forwarderSettings;
+        common.forwarderSettings.enableDataCleansing =
+            common.forwarderSettings.enableDataCleansing === 'True';
         var measurementId = forwarderSettings.measurementId;
         var userIdType = forwarderSettings.externalUserIdentityType;
         var hashUserId = forwarderSettings.hashUserId;
