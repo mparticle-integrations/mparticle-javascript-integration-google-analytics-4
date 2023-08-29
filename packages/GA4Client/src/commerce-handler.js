@@ -278,6 +278,7 @@ function parseProduct(_product) {
         }
     }
 
+    // TODO: https://mparticle-eng.atlassian.net/browse/SQDSDKS-5716
     if (self.common.forwarderSettings.enableDataCleansing) {
         return self.common.standardizeParameters(product);
     } else {
