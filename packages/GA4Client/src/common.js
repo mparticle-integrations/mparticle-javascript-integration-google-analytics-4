@@ -8,6 +8,9 @@ var EVENT_ATTRIBUTE_VAL_MAX_LENGTH = 100;
 var USER_ATTRIBUTE_KEY_MAX_LENGTH = 24;
 var USER_ATTRIBUTE_VALUE_MAX_LENGTH = 36;
 
+var FORBIDDEN_PREFIXES = ['google_', 'firebase_', 'ga_'];
+var FORBIDDEN_CHARACTERS_REGEX = /[^a-zA-Z0-9_]/g;
+
 function truncateString(string, limit) {
     return !!string && string.length > limit
         ? string.substring(0, limit)
@@ -43,7 +46,11 @@ Common.prototype.truncateAttributes = function (
 
     if (!isEmpty(attributes)) {
         Object.keys(attributes).forEach(function (attribute) {
-            var key = truncateString(attribute, keyLimit);
+            var standardizedKey = attribute.replace(
+                FORBIDDEN_CHARACTERS_REGEX,
+                '_'
+            );
+            var key = truncateString(standardizedKey, keyLimit);
             var val = truncateString(attributes[attribute], valueLimit);
             truncatedAttributes[key] = val;
         });
@@ -62,6 +69,83 @@ Common.prototype.truncateEventAttributes = function (eventAttributes) {
         EVENT_ATTRIBUTE_KEY_MAX_LENGTH,
         EVENT_ATTRIBUTE_VAL_MAX_LENGTH
     );
+};
+
+Common.prototype.standardizeParameters = function (parameters) {
+    var standardizedParameters = {};
+    for (var key in parameters) {
+        var standardizedKey = this.standardizeName(key);
+        standardizedParameters[standardizedKey] = parameters[key];
+    }
+    return standardizedParameters;
+};
+
+Common.prototype.standardizeName = function (name) {
+    // names of events and parameters have the following requirements:
+    // 1. They must only contain letters, numbers, and underscores
+    function removeForbiddenCharacters(name) {
+        return name.replace(FORBIDDEN_CHARACTERS_REGEX, '_');
+    }
+
+    // 2. They must start with a letter
+    function doesNameStartsWithLetter(name) {
+        return !isEmpty(name) && /^[a-zA-Z]/.test(name.charAt(0));
+    }
+
+    // 3. They must not start with certain prefixes
+    function doesNameStartWithForbiddenPrefix(name) {
+        var hasPrefix = false;
+        if (!isEmpty(name)) {
+            for (var i = 0; i < FORBIDDEN_PREFIXES.length; i++) {
+                var prefix = FORBIDDEN_PREFIXES[i];
+                if (name.indexOf(prefix) === 0) {
+                    hasPrefix = true;
+                    break;
+                }
+            }
+        }
+
+        return hasPrefix;
+    }
+
+    function removeNonAlphabetCharacterFromStart(name) {
+        var str = name.slice();
+        while (!isEmpty(str) && str.charAt(0).match(/[^a-zA-Z]/i)) {
+            str = str.substring(1);
+        }
+        return str;
+    }
+
+    function removeForbiddenPrefix(name) {
+        var str = name.slice();
+
+        FORBIDDEN_PREFIXES.forEach(function (prefix) {
+            if (str.indexOf(prefix) === 0) {
+                str = str.replace(prefix, '');
+            }
+        });
+
+        return str;
+    }
+
+    var standardizedName = removeForbiddenCharacters(name);
+
+    // While loops is required because there is a chance that once certain sanitization
+    // occurs, that the resulting string will end up violating a different criteria.
+    // An example is 123___google_$$google_test_event.  If letters, are removed and
+    // prefix is removed once, the remaining string will be __google_test_event which violates
+    // a string starting with a letter.  We have to repeat the sanitizations repeatedly
+    // until all criteria checks pass.
+    while (
+        !doesNameStartsWithLetter(standardizedName) ||
+        doesNameStartWithForbiddenPrefix(standardizedName)
+    ) {
+        standardizedName =
+            removeNonAlphabetCharacterFromStart(standardizedName);
+        standardizedName = removeForbiddenPrefix(standardizedName);
+    }
+
+    return standardizedName;
 };
 
 Common.prototype.truncateUserAttributes = function (userAttributes) {

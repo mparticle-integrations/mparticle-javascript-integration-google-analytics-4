@@ -1,5 +1,6 @@
+var self = this;
 function CommerceHandler(common) {
-    this.common = common || {};
+    self.common = this.common = common || {};
 }
 
 var ProductActionTypes = {
@@ -62,10 +63,18 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
     }
 
     ga4CommerceEventParameters = buildParameters(event);
+
     if (event.EventAttributes) {
         ga4CommerceEventParameters = this.common.mergeObjects(
             ga4CommerceEventParameters,
             event.EventAttributes
+        );
+    }
+
+    // TODO: https://mparticle-eng.atlassian.net/browse/SQDSDKS-5714
+    if (this.common.forwarderSettings.enableDataCleansing) {
+        ga4CommerceEventParameters = this.common.standardizeParameters(
+            ga4CommerceEventParameters
         );
     }
 
@@ -281,7 +290,12 @@ function parseProduct(product) {
         }
     }
 
-    return productWithAllAttributes;
+    // TODO: https://mparticle-eng.atlassian.net/browse/SQDSDKS-5716
+    if (self.common.forwarderSettings.enableDataCleansing) {
+        return self.common.standardizeParameters(productWithAllAttributes);
+    } else {
+        return productWithAllAttributes;
+    }
 }
 
 function parsePromotion(_promotion) {
@@ -306,7 +320,11 @@ function parsePromotion(_promotion) {
         }
     }
 
-    return promotion;
+    if (self.common.forwarderSettings.enableDataCleansing) {
+        return self.common.standardizeParameters(promotion);
+    } else {
+        return promotion;
+    }
 }
 
 function buildProductsList(products) {
