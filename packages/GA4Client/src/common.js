@@ -108,21 +108,24 @@ Common.prototype.standardizeName = function (name) {
         return hasPrefix;
     }
 
-    function removeNonAlphanumericCharacterFromStart(name) {
-        while (!isEmpty(name) && name.charAt(0).match(/[^a-zA-Z]/i)) {
-            name = name.substring(1);
+    function removeNonAlphabetCharacterFromStart(name) {
+        var str = name.slice();
+        while (!isEmpty(str) && str.charAt(0).match(/[^a-zA-Z]/i)) {
+            str = str.substring(1);
         }
-        return name;
+        return str;
     }
 
     function removeForbiddenPrefix(name) {
+        var str = name.slice();
+
         FORBIDDEN_PREFIXES.forEach(function (prefix) {
-            if (name.indexOf(prefix) >= 0) {
-                name = name.replace(prefix, '');
+            if (str.indexOf(prefix) === 0) {
+                str = str.replace(prefix, '');
             }
         });
 
-        return name;
+        return str;
     }
 
     var standardizedName = removeForbiddenCharacters(name);
@@ -138,7 +141,7 @@ Common.prototype.standardizeName = function (name) {
         doesNameStartWithForbiddenPrefix(standardizedName)
     ) {
         standardizedName =
-            removeNonAlphanumericCharacterFromStart(standardizedName);
+            removeNonAlphabetCharacterFromStart(standardizedName);
         standardizedName = removeForbiddenPrefix(standardizedName);
     }
 

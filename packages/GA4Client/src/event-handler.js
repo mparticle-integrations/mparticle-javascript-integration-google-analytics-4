@@ -2,6 +2,7 @@ function EventHandler(common) {
     this.common = common || {};
 }
 
+// TODO: https://mparticle-eng.atlassian.net/browse/SQDSDKS-5715
 EventHandler.prototype.sendEventToGA4 = function (eventName, eventAttributes) {
     var standardizedEventName;
     var standardizedAttributes;
