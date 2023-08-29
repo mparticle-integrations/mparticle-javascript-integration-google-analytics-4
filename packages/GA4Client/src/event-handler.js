@@ -3,17 +3,21 @@ function EventHandler(common) {
 }
 
 EventHandler.prototype.sendEventToGA4 = function (eventName, eventAttributes) {
+    var standardizedEventName;
+    var standardizedAttributes;
     if (this.common.forwarderSettings.enableDataCleansing) {
-        eventAttributes = this.common.standardizeParameters(eventAttributes);
-        eventName = this.common.standardizeName(eventName);
-        gtag('event', eventName, eventAttributes);
+        standardizedEventName = this.common.standardizeName(eventName);
+        standardizedAttributes =
+            this.common.standardizeParameters(eventAttributes);
     } else {
-        gtag(
-            'event',
-            this.common.truncateEventName(eventName),
-            this.common.truncateEventAttributes(eventAttributes)
-        );
+        standardizedEventName = eventName;
+        standardizedAttributes = eventAttributes;
     }
+    gtag(
+        'event',
+        this.common.truncateEventName(standardizedEventName),
+        this.common.truncateEventAttributes(standardizedAttributes)
+    );
 };
 
 EventHandler.prototype.logEvent = function (event) {

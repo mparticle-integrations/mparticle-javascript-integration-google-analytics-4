@@ -77,40 +77,72 @@ Common.prototype.standardizeParameters = function (parameters) {
         var standardizedKey = this.standardizeName(key);
         standardizedParameters[standardizedKey] = parameters[key];
     }
-
-    return this.truncateAttributes(
-        standardizedParameters,
-        EVENT_ATTRIBUTE_KEY_MAX_LENGTH,
-        EVENT_ATTRIBUTE_VAL_MAX_LENGTH
-    );
+    return standardizedParameters;
 };
 
 Common.prototype.standardizeName = function (name) {
+    // names of events and parameters have the following requirements:
+    // 1. They must only contain letters, numbers, and underscores
+    function removeForbiddenCharacters(name) {
+        return name.replace(FORBIDDEN_CHARACTERS_REGEX, '_');
+    }
+
+    // 2. They must start with a letter
+    function doesNameStartsWithLetter(name) {
+        return !isEmpty(name) && /^[a-zA-Z]/.test(name.charAt(0));
+    }
+
+    // 3. They must not start with certain prefixes
+    function doesNameStartWithForbiddenPrefix(name) {
+        var hasPrefix = false;
+        if (!isEmpty(name)) {
+            for (var i = 0; i < FORBIDDEN_PREFIXES.length; i++) {
+                var prefix = FORBIDDEN_PREFIXES[i];
+                if (name.indexOf(prefix) === 0) {
+                    hasPrefix = true;
+                    break;
+                }
+            }
+        }
+
+        return hasPrefix;
+    }
+
     function removeNonAlphanumericCharacterFromStart(name) {
         while (!isEmpty(name) && name.charAt(0).match(/[^a-zA-Z]/i)) {
             name = name.substring(1);
         }
         return name;
     }
-    // 1. Remove forbidden characters
-    var standardizedName = name.replace(FORBIDDEN_CHARACTERS_REGEX, '_');
 
-    // 2. Ensure beginning currently does not start with a non-alphanumeric character
-    standardizedName =
-        removeNonAlphanumericCharacterFromStart(standardizedName);
+    function removeForbiddenPrefix(name) {
+        FORBIDDEN_PREFIXES.forEach(function (prefix) {
+            if (name.indexOf(prefix) >= 0) {
+                name = name.replace(prefix, '');
+            }
+        });
 
-    // 3. Ensure there is no forbidden prefix
-    FORBIDDEN_PREFIXES.forEach(function (prefix) {
-        if (standardizedName.indexOf(prefix) >= 0) {
-            standardizedName = standardizedName.replace(prefix, '');
-        }
-    });
+        return name;
+    }
 
-    // 4. Check again to ensure beginning does not start with a non-alphanumeric character
-    standardizedName =
-        removeNonAlphanumericCharacterFromStart(standardizedName);
+    var standardizedName = removeForbiddenCharacters(name);
 
-    return this.truncateEventName(standardizedName);
+    // While loops is required because there is a chance that once certain sanitization
+    // occurs, that the resulting string will end up violating a different criteria.
+    // An example is 123___google_$$google_test_event.  If letters, are removed and
+    // prefix is removed once, the remaining string will be __google_test_event which violates
+    // a string starting with a letter.  We have to repeat the sanitizations repeatedly
+    // until all criteria checks pass.
+    while (
+        !doesNameStartsWithLetter(standardizedName) ||
+        doesNameStartWithForbiddenPrefix(standardizedName)
+    ) {
+        standardizedName =
+            removeNonAlphanumericCharacterFromStart(standardizedName);
+        standardizedName = removeForbiddenPrefix(standardizedName);
+    }
+
+    return standardizedName;
 };
 
 Common.prototype.truncateUserAttributes = function (userAttributes) {

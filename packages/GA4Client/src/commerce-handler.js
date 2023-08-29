@@ -71,6 +71,7 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
         );
     }
 
+    // TODO: https://mparticle-eng.atlassian.net/browse/SQDSDKS-5714
     if (this.common.forwarderSettings.enableDataCleansing) {
         ga4CommerceEventParameters = this.common.standardizeParameters(
             ga4CommerceEventParameters

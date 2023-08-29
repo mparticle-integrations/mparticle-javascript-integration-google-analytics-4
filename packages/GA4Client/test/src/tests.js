@@ -1643,7 +1643,7 @@ describe('Google Analytics 4 Event', function () {
             mParticle.forwarder.process({
                 EventDataType: MessageType.PageEvent,
                 EventCategory: EventType.Navigation,
-                EventName: '123___google_test_event',
+                EventName: '123___google_$$google_test_event',
             });
 
             var expectedEventName = 'test_event';
