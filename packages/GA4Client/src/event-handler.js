@@ -2,11 +2,22 @@ function EventHandler(common) {
     this.common = common || {};
 }
 
+// TODO: https://mparticle-eng.atlassian.net/browse/SQDSDKS-5715
 EventHandler.prototype.sendEventToGA4 = function (eventName, eventAttributes) {
+    var standardizedEventName;
+    var standardizedAttributes;
+    if (this.common.forwarderSettings.enableDataCleansing) {
+        standardizedEventName = this.common.standardizeName(eventName);
+        standardizedAttributes =
+            this.common.standardizeParameters(eventAttributes);
+    } else {
+        standardizedEventName = eventName;
+        standardizedAttributes = eventAttributes;
+    }
     gtag(
         'event',
-        this.common.truncateEventName(eventName),
-        this.common.truncateEventAttributes(eventAttributes)
+        this.common.truncateEventName(standardizedEventName),
+        this.common.truncateEventAttributes(standardizedAttributes)
     );
 };
 
