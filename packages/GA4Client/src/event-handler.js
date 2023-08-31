@@ -10,6 +10,9 @@ EventHandler.prototype.sendEventToGA4 = function (eventName, eventAttributes) {
         standardizedEventName = this.common.standardizeName(eventName);
         standardizedAttributes =
             this.common.standardizeParameters(eventAttributes);
+        standardizedAttributes = this.common.limitEventAttributes(
+            standardizedAttributes
+        );
     } else {
         standardizedEventName = eventName;
         standardizedAttributes = eventAttributes;
