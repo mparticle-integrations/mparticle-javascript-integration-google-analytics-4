@@ -245,32 +245,43 @@ function toUnderscore(string) {
         .toLowerCase();
 }
 
-function parseProduct(_product) {
-    var product = {};
+function parseProduct(product) {
+    var productWithAllAttributes = {};
 
-    for (var key in _product) {
-        switch (key) {
-            case 'Sku':
-                product.item_id = _product.Sku;
-                break;
-            case 'Name':
-                product.item_name = _product.Name;
-                break;
-            case 'Brand':
-                product.item_brand = _product.Brand;
-                break;
-            case 'Category':
-                product.item_category = _product.Category;
-                break;
-            case 'Variant':
-                product.item_variant = _product.Variant;
-                break;
-            default:
-                product[toUnderscore(key)] = _product[key];
+    // 1. Move key/value pairs from product.Attributes to be at the same level
+    // as all keys in product
+    if (product.Attributes) {
+        for (var prodAttr in product.Attributes) {
+            productWithAllAttributes[prodAttr] = product.Attributes[prodAttr];
         }
     }
 
-    return product;
+    // 2. Copy key/value pairs in product
+    for (var key in product) {
+        switch (key) {
+            case 'Sku':
+                productWithAllAttributes.item_id = product.Sku;
+                break;
+            case 'Name':
+                productWithAllAttributes.item_name = product.Name;
+                break;
+            case 'Brand':
+                productWithAllAttributes.item_brand = product.Brand;
+                break;
+            case 'Category':
+                productWithAllAttributes.item_category = product.Category;
+                break;
+            case 'Variant':
+                productWithAllAttributes.item_variant = product.Variant;
+                break;
+            case 'Attributes':
+                break;
+            default:
+                productWithAllAttributes[toUnderscore(key)] = product[key];
+        }
+    }
+
+    return productWithAllAttributes;
 }
 
 function parsePromotion(_promotion) {

@@ -278,10 +278,6 @@ describe('Google Analytics 4 Event', function () {
                         value: 100,
                         items: [
                             {
-                                attributes: {
-                                    eventMetric1: 'metric2',
-                                    journeyType: 'testjourneytype1',
-                                },
                                 coupon_code: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
@@ -292,12 +288,12 @@ describe('Google Analytics 4 Event', function () {
                                 price: 999,
                                 quantity: 1,
                                 total_amount: 999,
+                                eventMetric1: 'metric2',
+                                journeyType: 'testjourneytype1',
                             },
                             {
-                                attributes: {
-                                    eventMetric1: 'metric1',
-                                    journeyType: 'testjourneytype2',
-                                },
+                                eventMetric1: 'metric1',
+                                journeyType: 'testjourneytype2',
                                 coupon_code: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
@@ -780,10 +776,8 @@ describe('Google Analytics 4 Event', function () {
                         item_list_name: 'Related Products',
                         items: [
                             {
-                                attributes: {
-                                    eventMetric1: 'metric2',
-                                    journeyType: 'testjourneytype1',
-                                },
+                                eventMetric1: 'metric2',
+                                journeyType: 'testjourneytype1',
                                 coupon_code: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
@@ -796,10 +790,8 @@ describe('Google Analytics 4 Event', function () {
                                 total_amount: 999,
                             },
                             {
-                                attributes: {
-                                    eventMetric1: 'metric1',
-                                    journeyType: 'testjourneytype2',
-                                },
+                                eventMetric1: 'metric1',
+                                journeyType: 'testjourneytype2',
                                 coupon_code: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
@@ -1045,10 +1037,8 @@ describe('Google Analytics 4 Event', function () {
                         coupon: 'couponCode',
                         items: [
                             {
-                                attributes: {
-                                    eventMetric1: 'metric2',
-                                    journeyType: 'testjourneytype1',
-                                },
+                                eventMetric1: 'metric2',
+                                journeyType: 'testjourneytype1',
                                 coupon_code: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
@@ -1061,10 +1051,8 @@ describe('Google Analytics 4 Event', function () {
                                 total_amount: 999,
                             },
                             {
-                                attributes: {
-                                    eventMetric1: 'metric1',
-                                    journeyType: 'testjourneytype2',
-                                },
+                                eventMetric1: 'metric1',
+                                journeyType: 'testjourneytype2',
                                 coupon_code: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
@@ -1146,10 +1134,8 @@ describe('Google Analytics 4 Event', function () {
                         coupon: 'couponCode',
                         items: [
                             {
-                                attributes: {
-                                    eventMetric1: 'metric2',
-                                    journeyType: 'testjourneytype1',
-                                },
+                                eventMetric1: 'metric2',
+                                journeyType: 'testjourneytype1',
                                 coupon_code: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
@@ -1162,10 +1148,8 @@ describe('Google Analytics 4 Event', function () {
                                 total_amount: 999,
                             },
                             {
-                                attributes: {
-                                    eventMetric1: 'metric1',
-                                    journeyType: 'testjourneytype2',
-                                },
+                                eventMetric1: 'metric1',
+                                journeyType: 'testjourneytype2',
                                 coupon_code: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
@@ -1330,10 +1314,8 @@ describe('Google Analytics 4 Event', function () {
                         currency: 'USD',
                         items: [
                             {
-                                attributes: {
-                                    eventMetric1: 'metric2',
-                                    journeyType: 'testjourneytype1',
-                                },
+                                eventMetric1: 'metric2',
+                                journeyType: 'testjourneytype1',
                                 coupon_code: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
@@ -1346,10 +1328,8 @@ describe('Google Analytics 4 Event', function () {
                                 total_amount: 999,
                             },
                             {
-                                attributes: {
-                                    eventMetric1: 'metric1',
-                                    journeyType: 'testjourneytype2',
-                                },
+                                eventMetric1: 'metric1',
+                                journeyType: 'testjourneytype2',
                                 coupon_code: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
