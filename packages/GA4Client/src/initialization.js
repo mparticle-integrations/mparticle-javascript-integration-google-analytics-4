@@ -25,6 +25,7 @@ var initialization = {
         var measurementId = forwarderSettings.measurementId;
         var userIdType = forwarderSettings.externalUserIdentityType;
         var hashUserId = forwarderSettings.hashUserId;
+
         var configSettings = {
             send_page_view: forwarderSettings.enablePageView === 'True',
         };
