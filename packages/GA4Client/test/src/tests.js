@@ -240,6 +240,7 @@ describe('Google Analytics 4 Event', function () {
             done();
         });
     });
+
     describe('forwarder mapping', function () {
         beforeEach(function () {
             window.dataLayer = [];
@@ -1557,7 +1558,134 @@ describe('Google Analytics 4 Event', function () {
 
                 done();
             });
+
+            it('should limit the number of event attribute keys', function (done) {
+                var eventAttributeKeys = [
+                    'aa',
+                    'ab',
+                    'ac',
+                    'ad',
+                    'ae',
+                    'af',
+                    'ag',
+                    'ah',
+                    'ai',
+                    'aj',
+                    'ak',
+                    'al',
+                    'am',
+                    'an',
+                    'ao',
+                    'ap',
+                    'aq',
+                    'ar',
+                    'as',
+                    'at',
+                    'au',
+                    'av',
+                    'aw',
+                    'ax',
+                    'ay',
+                    'az',
+                    'ba',
+                    'bb',
+                    'bc',
+                    'bd',
+                    'be',
+                    'bf',
+                    'bg',
+                    'bh',
+                    'bi',
+                    'bj',
+                    'bk',
+                    'bl',
+                    'bm',
+                    'bn',
+                    'bo',
+                    'bp',
+                    'bq',
+                    'br',
+                    'bs',
+                    'bt',
+                    'bu',
+                    'bv',
+                    'bw',
+                    'bx',
+                    'by',
+                    'bz',
+                    'ca',
+                    'cb',
+                    'cc',
+                    'cd',
+                    'ce',
+                    'cf',
+                    'cg',
+                    'ch',
+                    'ci',
+                    'cj',
+                    'ck',
+                    'cl',
+                    'cm',
+                    'cn',
+                    'co',
+                    'cp',
+                    'cq',
+                    'cr',
+                    'cs',
+                    'ct',
+                    'cu',
+                    'cv',
+                    'cw',
+                    'cx',
+                    'cy',
+                    'cz',
+                    'da',
+                    'db',
+                    'dc',
+                    'dd',
+                    'de',
+                    'df',
+                    'dg',
+                    'dh',
+                    'di',
+                    'dj',
+                    'dk',
+                    'dl',
+                    'dm',
+                    'dn',
+                    'do',
+                    'dp',
+                    'dq',
+                    'dr',
+                    'ds',
+                    'dt',
+                    'du',
+                    'dv',
+                    'dw',
+                ];
+    
+                var event = {
+                    CurrencyCode: 'USD',
+                    EventName: 'Test Purchase Event',
+                    EventDataType: MessageType.PageEvent,
+                    EventCategory: CommerceEventType.ProductImpression,
+                    EventAttributes: {},
+                };
+                // add on 101 event attributes
+                eventAttributeKeys.forEach(function (key) {
+                    event.EventAttributes[key] = key;
+                });
+                mParticle.forwarder.process(event);
+    
+                var resultEventAttributeKeys = Object.keys(dataLayer[0][2]);
+                resultEventAttributeKeys.length.should.eql(100);
+                // dw is the 101st item.  The limit is 100, so
+                resultEventAttributeKeys.should.not.have.property('dw');
+    
+                done();
+            });
         });
+
     });
 
     describe('identity', function () {
@@ -1645,6 +1773,7 @@ describe('Google Analytics 4 Event', function () {
 
             window.dataLayer = [];
         });
+
         afterEach(function () {
             window.gtag = undefined;
             window.dataLayer = undefined;
@@ -1901,134 +2030,6 @@ describe('Google Analytics 4 Event', function () {
                 ];
 
                 window.dataLayer[0].should.eql(result);
-
-                done();
-            });
-        });
-
-        describe('limit number of event, item, and user properties', function () {
-            var eventAttributeKeys = [
-                'aa',
-                'ab',
-                'ac',
-                'ad',
-                'ae',
-                'af',
-                'ag',
-                'ah',
-                'ai',
-                'aj',
-                'ak',
-                'al',
-                'am',
-                'an',
-                'ao',
-                'ap',
-                'aq',
-                'ar',
-                'as',
-                'at',
-                'au',
-                'av',
-                'aw',
-                'ax',
-                'ay',
-                'az',
-                'ba',
-                'bb',
-                'bc',
-                'bd',
-                'be',
-                'bf',
-                'bg',
-                'bh',
-                'bi',
-                'bj',
-                'bk',
-                'bl',
-                'bm',
-                'bn',
-                'bo',
-                'bp',
-                'bq',
-                'br',
-                'bs',
-                'bt',
-                'bu',
-                'bv',
-                'bw',
-                'bx',
-                'by',
-                'bz',
-                'ca',
-                'cb',
-                'cc',
-                'cd',
-                'ce',
-                'cf',
-                'cg',
-                'ch',
-                'ci',
-                'cj',
-                'ck',
-                'cl',
-                'cm',
-                'cn',
-                'co',
-                'cp',
-                'cq',
-                'cr',
-                'cs',
-                'ct',
-                'cu',
-                'cv',
-                'cw',
-                'cx',
-                'cy',
-                'cz',
-                'da',
-                'db',
-                'dc',
-                'dd',
-                'de',
-                'df',
-                'dg',
-                'dh',
-                'di',
-                'dj',
-                'dk',
-                'dl',
-                'dm',
-                'dn',
-                'do',
-                'dp',
-                'dq',
-                'dr',
-                'ds',
-                'dt',
-                'du',
-                'dv',
-                'dw',
-            ];
-
-            it('should limit the number of event items', function (done) {
-                var event = {
-                    CurrencyCode: 'USD',
-                    EventName: 'Test Purchase Event',
-                    EventDataType: MessageType.PageEvent,
-                    EventCategory: CommerceEventType.ProductImpression,
-                    EventAttributes: {},
-                };
-                // add on 101 event attributes
-                eventAttributeKeys.forEach(function (key) {
-                    event.EventAttributes[key] = key;
-                });
-                mParticle.forwarder.process(event);
-
-                var resultEventAttributeKeys = Object.keys(dataLayer[0][2]);
-                resultEventAttributeKeys.length.should.eql(100);
-                // dw is the 101st item.  The limit is 100, so
-                resultEventAttributeKeys.should.not.have.property('dw');
 
                 done();
             });

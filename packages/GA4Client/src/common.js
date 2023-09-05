@@ -62,6 +62,10 @@ Common.prototype.truncateAttributes = function (
 };
 
 Common.prototype.limitAttributes = function (attributes, limitNumber) {
+    if (isEmpty(attributes)) {
+        return {};
+    }
+
     var attributeKeys = Object.keys(attributes);
 
     attributeKeys.sort();
