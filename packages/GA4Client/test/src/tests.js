@@ -1709,10 +1709,11 @@ describe('Google Analytics 4 Event', function () {
                         event.EventAttributes[key] = key;
                     });
                     mParticle.forwarder.process(event);
-
                     var resultEventAttributeKeys = Object.keys(dataLayer[0][2]);
+                    // confirm event attribuets have been successfully set
+                    resultEventAttributeKeys.includes('aa').should.equal(true);
                     // dw is the 101st item.  The limit is 100, so
-                    resultEventAttributeKeys.should.not.have.property('dw');
+                    resultEventAttributeKeys.includes('dw').should.equal(false);
 
                     done();
                 });
@@ -1738,8 +1739,10 @@ describe('Google Analytics 4 Event', function () {
                     mParticle.forwarder.process(event);
 
                     var resultEventAttributeKeys = Object.keys(dataLayer[0][2]);
+                    // confirm event attribuets have been successfully set
+                    resultEventAttributeKeys.includes('aa').should.equal(true);
                     // dw is the 101st item.  The limit is 100, so
-                    resultEventAttributeKeys.should.not.have.property('dw');
+                    resultEventAttributeKeys.includes('dw').should.equal(false);
 
                     done();
                 });

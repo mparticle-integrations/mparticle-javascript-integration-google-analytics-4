@@ -35,7 +35,8 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
     var needsCurrency = true,
         needsValue = true,
         ga4CommerceEventParameters,
-        isViewCartEvent = false;
+        isViewCartEvent = false,
+        customEventAttributes = event.EventAttributes || {};
 
     // GA4 has a view_cart event which MP does not support via a ProductActionType
     // In order to log a view_cart event, pass ProductActionType.Unknown along with
@@ -67,14 +68,7 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
     if (event.EventAttributes) {
         ga4CommerceEventParameters = this.common.mergeObjects(
             ga4CommerceEventParameters,
-            this.common.limitEventAttributes(event.EventAttributes)
-        );
-    }
-
-    // TODO: https://mparticle-eng.atlassian.net/browse/SQDSDKS-5714
-    if (this.common.forwarderSettings.enableDataCleansing) {
-        ga4CommerceEventParameters = this.common.standardizeParameters(
-            ga4CommerceEventParameters
+            event.EventAttributes
         );
     }
 
@@ -118,6 +112,18 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
                 return false;
             }
     }
+
+    // TODO: https://mparticle-eng.atlassian.net/browse/SQDSDKS-5714
+    if (this.common.forwarderSettings.enableDataCleansing) {
+        customEventAttributes = this.common.standardizeParameters(
+            customEventAttributes
+        );
+    }
+
+    ga4CommerceEventParameters = this.common.mergeObjects(
+        ga4CommerceEventParameters,
+        this.common.limitEventAttributes(customEventAttributes)
+    );
 
     // CheckoutOption, Promotions, and Impressions will not make it to this code
     if (needsCurrency) {
