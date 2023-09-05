@@ -67,7 +67,7 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
     if (event.EventAttributes) {
         ga4CommerceEventParameters = this.common.mergeObjects(
             ga4CommerceEventParameters,
-            event.EventAttributes
+            this.common.limitEventAttributes(event.EventAttributes)
         );
     }
 
@@ -473,6 +473,10 @@ function logImpressionEvent(event) {
 
 function logViewCart(event) {
     var ga4CommerceEventParameters = buildViewCart(event);
+    ga4CommerceEventParameters = self.common.mergeObjects(
+        ga4CommerceEventParameters,
+        self.common.limitEventAttributes(event.EventAttributes)
+    );
     ga4CommerceEventParameters.currency = event.CurrencyCode;
 
     ga4CommerceEventParameters.value =

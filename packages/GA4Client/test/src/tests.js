@@ -1559,8 +1559,9 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
-            it('should limit the number of event attribute keys', function (done) {
-                var eventAttributeKeys = [
+            describe('limit event attributes', function () {
+                // 101 event attribute keys because the limit is 100
+                var eventAttributeKeys101 = [
                     'aa',
                     'ab',
                     'ac',
@@ -1663,26 +1664,85 @@ describe('Google Analytics 4 Event', function () {
                     'dv',
                     'dw',
                 ];
-    
-                var event = {
-                    CurrencyCode: 'USD',
-                    EventName: 'Test Purchase Event',
-                    EventDataType: MessageType.PageEvent,
-                    EventCategory: CommerceEventType.ProductImpression,
-                    EventAttributes: {},
-                };
-                // add on 101 event attributes
-                eventAttributeKeys.forEach(function (key) {
-                    event.EventAttributes[key] = key;
+
+                it('should limit the number of event attribute keys', function (done) {
+                    var event = {
+                        CurrencyCode: 'USD',
+                        EventName: 'Test Purchase Event',
+                        EventDataType: MessageType.PageEvent,
+                        EventCategory: CommerceEventType.ProductImpression,
+                        EventAttributes: {},
+                    };
+                    // add on 101 event attributes
+                    eventAttributeKeys101.forEach(function (key) {
+                        event.EventAttributes[key] = key;
+                    });
+                    mParticle.forwarder.process(event);
+
+                    var resultEventAttributeKeys = Object.keys(dataLayer[0][2]);
+                    resultEventAttributeKeys.length.should.eql(100);
+                    // dw is the 101st item.  The limit is 100, so
+                    resultEventAttributeKeys.should.not.have.property('dw');
+
+                    done();
                 });
-                mParticle.forwarder.process(event);
-    
-                var resultEventAttributeKeys = Object.keys(dataLayer[0][2]);
-                resultEventAttributeKeys.length.should.eql(100);
-                // dw is the 101st item.  The limit is 100, so
-                resultEventAttributeKeys.should.not.have.property('dw');
-    
-                done();
+
+                it('should limit the number of event attribute keys on GA4 view cart commerce events', function (done) {
+                    var event = {
+                        CurrencyCode: 'USD',
+                        EventName: 'Unknown Test',
+                        EventDataType: MessageType.Commerce,
+                        EventAttributes: {},
+                        EventCategory: CommerceEventType.Unknown,
+                        CustomFlags: {
+                            'GA4.CommerceEventType': 'view_cart',
+                            'GA4.Value': 100,
+                        },
+                        ProductAction: {
+                            ProductActionType: ProductActionType.Unknown,
+                            ProductList: [],
+                        },
+                    };
+
+                    // add on 101 event attributes
+                    eventAttributeKeys101.forEach(function (key) {
+                        event.EventAttributes[key] = key;
+                    });
+                    mParticle.forwarder.process(event);
+
+                    var resultEventAttributeKeys = Object.keys(dataLayer[0][2]);
+                    // dw is the 101st item.  The limit is 100, so
+                    resultEventAttributeKeys.should.not.have.property('dw');
+
+                    done();
+                });
+
+                it('should limit the number of event attribute keys on product action commerce events', function (done) {
+                    var event = {
+                        CurrencyCode: 'USD',
+                        EventName: 'eCommerce - AddToCart',
+                        EventDataType: MessageType.Commerce,
+                        EventAttributes: {},
+                        EventCategory: CommerceEventType.ProductAddToCart,
+                        ProductAction: {
+                            ProductActionType: ProductActionType.Unknown,
+                            ProductList: [],
+                        },
+                    };
+
+                    // add on 101 event attributes
+                    eventAttributeKeys101.forEach(function (key) {
+                        event.EventAttributes[key] = key;
+                    });
+
+                    mParticle.forwarder.process(event);
+
+                    var resultEventAttributeKeys = Object.keys(dataLayer[0][2]);
+                    // dw is the 101st item.  The limit is 100, so
+                    resultEventAttributeKeys.should.not.have.property('dw');
+
+                    done();
+                });
             });
         });
 
