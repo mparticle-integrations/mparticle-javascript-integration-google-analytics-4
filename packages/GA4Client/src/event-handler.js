@@ -14,6 +14,11 @@ EventHandler.prototype.sendEventToGA4 = function (eventName, eventAttributes) {
         standardizedEventName = eventName;
         standardizedAttributes = eventAttributes;
     }
+
+    standardizedAttributes = this.common.limitEventAttributes(
+        standardizedAttributes
+    );
+
     gtag(
         'event',
         this.common.truncateEventName(standardizedEventName),
