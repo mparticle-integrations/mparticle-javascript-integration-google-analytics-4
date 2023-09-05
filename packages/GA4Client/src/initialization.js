@@ -29,8 +29,7 @@ var initialization = {
         var hashUserId = forwarderSettings.hashUserId;
 
         var configSettings = {
-            send_page_view: forwarderSettings.enablePageView === 'True',
-            debug_mode: true,
+            send_page_view: forwarderSettings.enablePageView === 'True'
         };
         window.dataLayer = window.dataLayer || [];
 
