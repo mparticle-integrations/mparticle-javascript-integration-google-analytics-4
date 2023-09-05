@@ -261,15 +261,11 @@ function toUnderscore(string) {
 }
 
 function parseProduct(product) {
-    var productWithAllAttributes = {};
-
     // 1. Move key/value pairs from product.Attributes to be at the same level
-    // as all keys in product
-    if (product.Attributes) {
-        for (var prodAttr in product.Attributes) {
-            productWithAllAttributes[prodAttr] = product.Attributes[prodAttr];
-        }
-    }
+    // as all keys in product, limiting them to 10 in the process.
+    var productWithAllAttributes = self.common.limitProductAttributes(
+        product.Attributes
+    );
 
     // 2. Copy key/value pairs in product
     for (var key in product) {

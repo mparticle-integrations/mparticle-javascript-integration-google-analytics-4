@@ -1746,6 +1746,78 @@ describe('Google Analytics 4 Event', function () {
 
                     done();
                 });
+
+                it('should limit the number of event attribute keys on items to 10', function (done) {
+                    var event = {
+                        CurrencyCode: 'USD',
+                        EventName: 'eCommerce - AddToCart',
+                        EventDataType: MessageType.Commerce,
+                        EventAttributes: {},
+                        EventCategory: CommerceEventType.ProductAddToCart,
+                        ProductAction: {
+                            ProductActionType: ProductActionType.Unknown,
+                            ProductList: [
+                                {
+                                    Attributes: {
+                                        item_category2: 'testjourneytype1',
+                                        a: 'foo',
+                                        b: 'foo',
+                                        c: 'foo',
+                                        d: 'foo',
+                                        e: 'foo',
+                                        f: 'foo',
+                                        g: 'foo',
+                                        h: 'foo',
+                                        i: 'foo',
+                                        j: 'foo',
+                                        k: 'foo',
+                                    },
+                                    Brand: 'brand',
+                                    Category: 'category',
+                                    Name: 'iphone',
+                                    Position: 1,
+                                    Price: 999,
+                                    Quantity: 1,
+                                    Sku: 'iphoneSKU',
+                                    TotalAmount: 999,
+                                    Variant: 'variant',
+                                },
+                            ],
+                        },
+                    };
+
+                    mParticle.forwarder.process(event);
+
+                    // We filter out k from the attributes because it is the 11th item
+                    // while retaining item_category2 since this is a reserved key
+                    var item1 = {
+                        item_category2: 'testjourneytype1',
+                        a: 'foo',
+                        b: 'foo',
+                        c: 'foo',
+                        d: 'foo',
+                        e: 'foo',
+                        f: 'foo',
+                        g: 'foo',
+                        h: 'foo',
+                        i: 'foo',
+                        j: 'foo',
+                        item_brand: 'brand',
+                        item_category: 'category',
+                        item_id: 'iphoneSKU',
+                        item_name: 'iphone',
+                        item_variant: 'variant',
+                        position: 1,
+                        price: 999,
+                        quantity: 1,
+                        total_amount: 999,
+                    };
+
+                    // Ths 1st item shoudl match the result above, removing `k`
+                    window.dataLayer[0][2].items[0].should.match(item1);
+
+                    done();
+                });
             });
         });
 

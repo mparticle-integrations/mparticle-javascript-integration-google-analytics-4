@@ -10,6 +10,16 @@ var EVENT_ATTRIBUTE_MAX_NUMBER = 100;
 var USER_ATTRIBUTE_KEY_MAX_LENGTH = 24;
 var USER_ATTRIBUTE_VALUE_MAX_LENGTH = 36;
 
+var PRODUCT_ATTRIBUTE_MAX_NUMBER = 10;
+
+var RESERVED_PRODUCT_KEYS = [
+    'item_category',
+    'item_category2',
+    'item_category3',
+    'item_category4',
+    'item_category5',
+];
+
 var FORBIDDEN_PREFIXES = ['google_', 'firebase_', 'ga_'];
 var FORBIDDEN_CHARACTERS_REGEX = /[^a-zA-Z0-9_]/g;
 
@@ -82,6 +92,26 @@ Common.prototype.limitAttributes = function (attributes, limitNumber) {
 
 Common.prototype.limitEventAttributes = function (attributes) {
     return this.limitAttributes(attributes, EVENT_ATTRIBUTE_MAX_NUMBER);
+};
+
+Common.prototype.limitProductAttributes = function (attributes) {
+    var productAttributes = {};
+    var reservedAttributes = {};
+
+    for (var key in attributes) {
+        if (RESERVED_PRODUCT_KEYS.indexOf(key) >= 0) {
+            reservedAttributes[key] = attributes[key];
+        } else {
+            productAttributes[key] = attributes[key];
+        }
+    }
+
+    var limitedProductAttributes = this.limitAttributes(
+        productAttributes,
+        PRODUCT_ATTRIBUTE_MAX_NUMBER
+    );
+
+    return this.mergeObjects(limitedProductAttributes, reservedAttributes);
 };
 
 Common.prototype.truncateEventName = function (eventName) {
