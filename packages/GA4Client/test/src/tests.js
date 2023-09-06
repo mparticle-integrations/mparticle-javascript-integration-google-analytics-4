@@ -279,7 +279,7 @@ describe('Google Analytics 4 Event', function () {
                         value: 100,
                         items: [
                             {
-                                coupon_code: 'coupon',
+                                coupon: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
                                 item_id: 'iphoneSKU',
@@ -295,7 +295,7 @@ describe('Google Analytics 4 Event', function () {
                             {
                                 eventMetric1: 'metric1',
                                 journeyType: 'testjourneytype2',
-                                coupon_code: 'coupon',
+                                coupon: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
                                 item_id: 'iphoneSKU',
@@ -779,7 +779,7 @@ describe('Google Analytics 4 Event', function () {
                             {
                                 eventMetric1: 'metric2',
                                 journeyType: 'testjourneytype1',
-                                coupon_code: 'coupon',
+                                coupon: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
                                 item_id: 'iphoneSKU',
@@ -793,7 +793,7 @@ describe('Google Analytics 4 Event', function () {
                             {
                                 eventMetric1: 'metric1',
                                 journeyType: 'testjourneytype2',
-                                coupon_code: 'coupon',
+                                coupon: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
                                 item_id: 'iphoneSKU',
@@ -1040,7 +1040,7 @@ describe('Google Analytics 4 Event', function () {
                             {
                                 eventMetric1: 'metric2',
                                 journeyType: 'testjourneytype1',
-                                coupon_code: 'coupon',
+                                coupon: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
                                 item_id: 'iphoneSKU',
@@ -1054,7 +1054,7 @@ describe('Google Analytics 4 Event', function () {
                             {
                                 eventMetric1: 'metric1',
                                 journeyType: 'testjourneytype2',
-                                coupon_code: 'coupon',
+                                coupon: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
                                 item_id: 'iphoneSKU',
@@ -1137,7 +1137,7 @@ describe('Google Analytics 4 Event', function () {
                             {
                                 eventMetric1: 'metric2',
                                 journeyType: 'testjourneytype1',
-                                coupon_code: 'coupon',
+                                coupon: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
                                 item_id: 'iphoneSKU',
@@ -1151,7 +1151,7 @@ describe('Google Analytics 4 Event', function () {
                             {
                                 eventMetric1: 'metric1',
                                 journeyType: 'testjourneytype2',
-                                coupon_code: 'coupon',
+                                coupon: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
                                 item_id: 'iphoneSKU',
@@ -1317,7 +1317,7 @@ describe('Google Analytics 4 Event', function () {
                             {
                                 eventMetric1: 'metric2',
                                 journeyType: 'testjourneytype1',
-                                coupon_code: 'coupon',
+                                coupon: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
                                 item_id: 'iphoneSKU',
@@ -1331,7 +1331,7 @@ describe('Google Analytics 4 Event', function () {
                             {
                                 eventMetric1: 'metric1',
                                 journeyType: 'testjourneytype2',
-                                coupon_code: 'coupon',
+                                coupon: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
                                 item_id: 'iphoneSKU',
@@ -1820,7 +1820,6 @@ describe('Google Analytics 4 Event', function () {
                 });
             });
         });
-
     });
 
     describe('identity', function () {
@@ -2047,7 +2046,7 @@ describe('Google Analytics 4 Event', function () {
                                 eventMetric1: 'metric1',
                                 journeyType: 'testjourneytype2',
                                 test4ever___: 'tester',
-                                coupon_code: 'coupon',
+                                coupon: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
                                 item_id: 'iphoneSKU',
@@ -2132,7 +2131,7 @@ describe('Google Analytics 4 Event', function () {
                             {
                                 eventMetric1: 'metric2',
                                 journeyType: 'testjourneytype1',
-                                coupon_code: 'coupon',
+                                coupon: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
                                 item_id: 'iphoneSKU',
@@ -2149,7 +2148,7 @@ describe('Google Analytics 4 Event', function () {
                             {
                                 eventMetric1: 'metric1',
                                 journeyType: 'testjourneytype2',
-                                coupon_code: 'coupon',
+                                coupon: 'coupon',
                                 item_brand: 'brand',
                                 item_category: 'category',
                                 item_id: 'iphoneSKU',
