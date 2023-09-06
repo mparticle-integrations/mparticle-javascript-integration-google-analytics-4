@@ -282,6 +282,9 @@ function parseProduct(product) {
             case 'Category':
                 productWithAllAttributes.item_category = product.Category;
                 break;
+            case 'CouponCode':
+                productWithAllAttributes.coupon = product.CouponCode;
+                break;
             case 'Variant':
                 productWithAllAttributes.item_variant = product.Variant;
                 break;
