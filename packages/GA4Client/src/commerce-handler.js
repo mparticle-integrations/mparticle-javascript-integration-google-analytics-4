@@ -36,7 +36,12 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
         needsValue = true,
         ga4CommerceEventParameters,
         isViewCartEvent = false,
-        customEventAttributes = event.EventAttributes || {};
+        customEventAttributes = event.EventAttributes || {},
+        // affiliation potentially lives on any commerce event with items
+        affiliation =
+            event && event.ProductAction
+                ? event.ProductAction.Affiliation
+                : null;
 
     // GA4 has a view_cart event which MP does not support via a ProductActionType
     // In order to log a view_cart event, pass ProductActionType.Unknown along with
@@ -49,12 +54,12 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
             event.CustomFlags[GA4_COMMERCE_EVENT_TYPE] === VIEW_CART
         ) {
             isViewCartEvent = true;
-            return logViewCart(event);
+            return logViewCart(event, affiliation);
         }
     }
     // Handle Impressions
     if (event.EventCategory === ProductActionTypes.Impression) {
-        return logImpressionEvent(event);
+        return logImpressionEvent(event, affiliation);
         // Handle Promotions
     } else if (
         event.EventCategory === PromotionActionTypes.PromotionClick ||
@@ -63,7 +68,7 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
         return logPromotionEvent(event);
     }
 
-    ga4CommerceEventParameters = buildParameters(event);
+    ga4CommerceEventParameters = buildParameters(event, affiliation);
 
     if (event.EventAttributes) {
         ga4CommerceEventParameters = this.common.mergeObjects(
@@ -75,32 +80,35 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
     switch (event.EventCategory) {
         case ProductActionTypes.AddToCart:
         case ProductActionTypes.RemoveFromCart:
-            ga4CommerceEventParameters = buildAddOrRemoveCartItem(event);
+            ga4CommerceEventParameters = buildAddOrRemoveCartItem(
+                event,
+                affiliation
+            );
             break;
         case ProductActionTypes.Checkout:
-            ga4CommerceEventParameters = buildCheckout(event);
+            ga4CommerceEventParameters = buildCheckout(event, affiliation);
             break;
         case ProductActionTypes.Click:
-            ga4CommerceEventParameters = buildSelectItem(event);
+            ga4CommerceEventParameters = buildSelectItem(event, affiliation);
 
             needsCurrency = false;
             needsValue = false;
             break;
         case ProductActionTypes.Purchase:
-            ga4CommerceEventParameters = buildPurchase(event);
+            ga4CommerceEventParameters = buildPurchase(event, affiliation);
             break;
         case ProductActionTypes.Refund:
-            ga4CommerceEventParameters = buildRefund(event);
+            ga4CommerceEventParameters = buildRefund(event, affiliation);
             break;
         case ProductActionTypes.ViewDetail:
-            ga4CommerceEventParameters = buildViewItem(event);
+            ga4CommerceEventParameters = buildViewItem(event, affiliation);
             break;
         case ProductActionTypes.AddToWishlist:
-            ga4CommerceEventParameters = buildAddToWishlist(event);
+            ga4CommerceEventParameters = buildAddToWishlist(event, affiliation);
             break;
 
         case ProductActionTypes.CheckoutOption:
-            return logCheckoutOptionEvent(event);
+            return logCheckoutOptionEvent(event, affiliation);
 
         default:
             // a view cart event is handled at the beginning of this function
@@ -141,29 +149,32 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
     return true;
 };
 
-function buildParameters(event) {
+function buildParameters(event, affiliation) {
     return {
-        items: buildProductsList(event.ProductAction.ProductList),
+        items: buildProductsList(event.ProductAction.ProductList, affiliation),
         coupon: event.ProductAction ? event.ProductAction.CouponCode : null,
     };
 }
 
-function buildAddOrRemoveCartItem(event) {
+function buildAddOrRemoveCartItem(event, affiliation) {
     return {
-        items: buildProductsList(event.ProductAction.ProductList),
+        items: buildProductsList(event.ProductAction.ProductList, affiliation),
     };
 }
 
-function buildCheckout(event) {
+function buildCheckout(event, affiliation) {
     return {
-        items: buildProductsList(event.ProductAction.ProductList),
+        items: buildProductsList(event.ProductAction.ProductList, affiliation),
         coupon: event.ProductAction ? event.ProductAction.CouponCode : null,
     };
 }
 
-function buildCheckoutOptions(event) {
+function buildCheckoutOptions(event, affiliation) {
     var parameters = event.EventAttributes;
-    parameters.items = buildProductsList(event.ProductAction.ProductList);
+    parameters.items = buildProductsList(
+        event.ProductAction.ProductList,
+        affiliation
+    );
     parameters.coupon = event.ProductAction
         ? event.ProductAction.CouponCode
         : null;
@@ -171,23 +182,23 @@ function buildCheckoutOptions(event) {
     return parameters;
 }
 
-function parseImpression(impression) {
+function parseImpression(impression, affiliation) {
     return {
         item_list_id: impression.ProductImpressionList,
         item_list_name: impression.ProductImpressionList,
-        items: buildProductsList(impression.ProductList),
+        items: buildProductsList(impression.ProductList, affiliation),
     };
 }
 
-function buildSelectItem(event) {
+function buildSelectItem(event, affiliation) {
     return {
-        items: buildProductsList(event.ProductAction.ProductList),
+        items: buildProductsList(event.ProductAction.ProductList, affiliation),
     };
 }
 
-function buildViewItem(event) {
+function buildViewItem(event, affiliation) {
     return {
-        items: buildProductsList(event.ProductAction.ProductList),
+        items: buildProductsList(event.ProductAction.ProductList, affiliation),
     };
 }
 
@@ -195,36 +206,34 @@ function buildPromotion(promotion) {
     return parsePromotion(promotion);
 }
 
-function buildPurchase(event) {
+function buildPurchase(event, affiliation) {
     return {
         transaction_id: event.ProductAction.TransactionId,
         value: event.ProductAction.TotalAmount,
-        affiliation: event.ProductAction.Affiliation,
         coupon: event.ProductAction.CouponCode,
         shipping: event.ProductAction.ShippingAmount,
         tax: event.ProductAction.TaxAmount,
-        items: buildProductsList(event.ProductAction.ProductList),
+        items: buildProductsList(event.ProductAction.ProductList, affiliation),
     };
 }
-function buildRefund(event) {
+function buildRefund(event, affiliation) {
     return {
         transaction_id: event.ProductAction.TransactionId,
         value: event.ProductAction.TotalAmount,
-        affiliation: event.ProductAction.Affiliation,
         coupon: event.ProductAction.CouponCode,
         shipping: event.ProductAction.ShippingAmount,
         tax: event.ProductAction.TaxAmount,
-        items: buildProductsList(event.ProductAction.ProductList),
+        items: buildProductsList(event.ProductAction.ProductList, affiliation),
     };
 }
-function buildAddToWishlist(event) {
+function buildAddToWishlist(event, affiliation) {
     return {
         value: event.ProductAction.TotalAmount,
-        items: buildProductsList(event.ProductAction.ProductList),
+        items: buildProductsList(event.ProductAction.ProductList, affiliation),
     };
 }
 
-function buildAddShippingInfo(event) {
+function buildAddShippingInfo(event, affiliation) {
     return {
         coupon:
             event.ProductAction && event.ProductAction.CouponCode
@@ -234,11 +243,11 @@ function buildAddShippingInfo(event) {
             event.CustomFlags && event.CustomFlags[GA4_SHIPPING_TIER]
                 ? event.CustomFlags[GA4_SHIPPING_TIER]
                 : null,
-        items: buildProductsList(event.ProductAction.ProductList),
+        items: buildProductsList(event.ProductAction.ProductList, affiliation),
     };
 }
 
-function buildAddPaymentInfo(event) {
+function buildAddPaymentInfo(event, affiliation) {
     return {
         coupon:
             event.ProductAction && event.ProductAction.CouponCode
@@ -248,7 +257,7 @@ function buildAddPaymentInfo(event) {
             event.CustomFlags && event.CustomFlags[GA4_PAYMENT_TYPE]
                 ? event.CustomFlags[GA4_PAYMENT_TYPE]
                 : null,
-        items: buildProductsList(event.ProductAction.ProductList),
+        items: buildProductsList(event.ProductAction.ProductList, affiliation),
     };
 }
 
@@ -260,11 +269,19 @@ function toUnderscore(string) {
         .toLowerCase();
 }
 
-function parseProduct(product) {
+function parseProduct(product, affiliation) {
     // 1. Move key/value pairs from product.Attributes to be at the same level
     // as all keys in product, limiting them to 10 in the process.
-    var productWithAllAttributes = self.common.limitProductAttributes(
-        product.Attributes
+
+    var productWithAllAttributes = {};
+
+    if (affiliation) {
+        productWithAllAttributes.affiliation = affiliation;
+    }
+
+    productWithAllAttributes = self.common.mergeObjects(
+        productWithAllAttributes,
+        self.common.limitProductAttributes(product.Attributes)
     );
 
     // 2. Copy key/value pairs in product
@@ -332,11 +349,11 @@ function parsePromotion(_promotion) {
     }
 }
 
-function buildProductsList(products) {
+function buildProductsList(products, affiliation) {
     var productsList = [];
 
     products.forEach(function (product) {
-        productsList.push(parseProduct(product));
+        productsList.push(parseProduct(product, affiliation));
     });
 
     return productsList;
@@ -396,7 +413,7 @@ function getCheckoutOptionEventName(customFlags) {
 // Google previously had a CheckoutOption event, and now this has been split into 2 GA4 events - add_shipping_info and add_payment_info
 // Since MP still uses CheckoutOption, we must map this to the 2 events using custom flags.  To prevent any data loss from customers
 // migrating from UA to GA4, we will set a default `set_checkout_option` which matches Firebase's data model.
-function logCheckoutOptionEvent(event) {
+function logCheckoutOptionEvent(event, affiliation) {
     try {
         var customFlags = event.CustomFlags,
             GA4CommerceEventType = customFlags[GA4_COMMERCE_EVENT_TYPE],
@@ -411,13 +428,22 @@ function logCheckoutOptionEvent(event) {
 
         switch (GA4CommerceEventType) {
             case ADD_SHIPPING_INFO:
-                ga4CommerceEventParameters = buildAddShippingInfo(event);
+                ga4CommerceEventParameters = buildAddShippingInfo(
+                    event,
+                    affiliation
+                );
                 break;
             case ADD_PAYMENT_INFO:
-                ga4CommerceEventParameters = buildAddPaymentInfo(event);
+                ga4CommerceEventParameters = buildAddPaymentInfo(
+                    event,
+                    affiliation
+                );
                 break;
             default:
-                ga4CommerceEventParameters = buildCheckoutOptions(event);
+                ga4CommerceEventParameters = buildCheckoutOptions(
+                    event,
+                    affiliation
+                );
                 break;
         }
     } catch (error) {
@@ -454,11 +480,14 @@ function logPromotionEvent(event) {
     return false;
 }
 
-function logImpressionEvent(event) {
+function logImpressionEvent(event, affiliation) {
     try {
         var ga4CommerceEventParameters;
         event.ProductImpressions.forEach(function (impression) {
-            ga4CommerceEventParameters = parseImpression(impression);
+            ga4CommerceEventParameters = parseImpression(
+                impression,
+                affiliation
+            );
 
             gtag(
                 'event',
@@ -476,8 +505,8 @@ function logImpressionEvent(event) {
     return true;
 }
 
-function logViewCart(event) {
-    var ga4CommerceEventParameters = buildViewCart(event);
+function logViewCart(event, affiliation) {
+    var ga4CommerceEventParameters = buildViewCart(event, affiliation);
     ga4CommerceEventParameters = self.common.mergeObjects(
         ga4CommerceEventParameters,
         self.common.limitEventAttributes(event.EventAttributes)
@@ -492,9 +521,9 @@ function logViewCart(event) {
     return true;
 }
 
-function buildViewCart(event) {
+function buildViewCart(event, affiliation) {
     return {
-        items: buildProductsList(event.ProductAction.ProductList),
+        items: buildProductsList(event.ProductAction.ProductList, affiliation),
     };
 }
 
