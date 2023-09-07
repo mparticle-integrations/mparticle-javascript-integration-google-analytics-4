@@ -140,13 +140,6 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
     return true;
 };
 
-function buildParameters(event, affiliation) {
-    return {
-        items: buildProductsList(event.ProductAction.ProductList, affiliation),
-        coupon: event.ProductAction ? event.ProductAction.CouponCode : null,
-    };
-}
-
 function buildAddOrRemoveCartItem(event, affiliation) {
     return {
         items: buildProductsList(event.ProductAction.ProductList, affiliation),
