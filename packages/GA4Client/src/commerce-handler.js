@@ -34,7 +34,7 @@ var ADD_SHIPPING_INFO = 'add_shipping_info',
 CommerceHandler.prototype.logCommerceEvent = function (event) {
     var needsCurrency = true,
         needsValue = true,
-        ga4CommerceEventParameters,
+        ga4CommerceEventParameters = {},
         isViewCartEvent = false,
         customEventAttributes = event.EventAttributes || {},
         // affiliation potentially lives on any commerce event with items
@@ -66,15 +66,6 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
         event.EventCategory === PromotionActionTypes.PromotionView
     ) {
         return logPromotionEvent(event);
-    }
-
-    ga4CommerceEventParameters = buildParameters(event, affiliation);
-
-    if (event.EventAttributes) {
-        ga4CommerceEventParameters = this.common.mergeObjects(
-            ga4CommerceEventParameters,
-            event.EventAttributes
-        );
     }
 
     switch (event.EventCategory) {
