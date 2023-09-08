@@ -535,7 +535,8 @@ describe('Google Analytics 4 Event', function () {
                 result[1] = 'purchase';
                 result[2].coupon = 'couponCode';
                 result[2].transaction_id = 'foo-transaction-id';
-                result[2].affiliation = 'foo-affiliation-id';
+                result[2].items[0].affiliation = 'foo-affiliation-id';
+                result[2].items[1].affiliation = 'foo-affiliation-id';
                 result[2].shipping = 10;
                 result[2].tax = 40;
                 result[2].value = 450;
@@ -598,7 +599,8 @@ describe('Google Analytics 4 Event', function () {
                 result[1] = 'refund';
                 result[2].coupon = 'couponCode';
                 result[2].transaction_id = 'foo-transaction-id';
-                result[2].affiliation = 'foo-affiliation-id';
+                result[2].items[0].affiliation = 'foo-affiliation-id';
+                result[2].items[1].affiliation = 'foo-affiliation-id';
                 result[2].shipping = 10;
                 result[2].tax = 40;
                 result[2].value = 450;
@@ -1361,6 +1363,65 @@ describe('Google Analytics 4 Event', function () {
                 });
 
                 window.dataLayer.length.should.eql(0);
+
+                done();
+            });
+
+            it('should prioritize affiliation for an item over event level affiliation', function (done) {
+                mParticle.forwarder.process({
+                    CurrencyCode: 'USD',
+                    EventName: 'Test Purchase Event',
+                    EventDataType: MessageType.Commerce,
+                    EventCategory: CommerceEventType.ProductAddToCart,
+                    CustomFlags: { 'GA4.Value': 100 },
+                    ProductAction: {
+                        ProductActionType: ProductActionType.AddToCart,
+                        ProductList: [
+                            {
+                                Attributes: {
+                                    eventMetric1: 'metric2',
+                                    journeyType: 'testjourneytype1',
+                                    affiliation: 'product-level-affiliation',
+                                },
+                                Brand: 'brand',
+                                Category: 'category',
+                                CouponCode: 'coupon',
+                                Name: 'iphone',
+                                Position: 1,
+                                Price: 999,
+                                Quantity: 1,
+                                Sku: 'iphoneSKU',
+                                TotalAmount: 999,
+                                Variant: 'variant',
+                            },
+                            {
+                                Attributes: {
+                                    eventMetric1: 'metric1',
+                                    journeyType: 'testjourneytype2',
+                                },
+                                Brand: 'brand',
+                                Category: 'category',
+                                CouponCode: 'coupon',
+                                Name: 'iphone',
+                                Position: 1,
+                                Price: 999,
+                                Quantity: 1,
+                                Sku: 'iphoneSKU',
+                                TotalAmount: 999,
+                                Variant: 'variant',
+                            },
+                        ],
+                        Affiliation: 'event-level-affiliation',
+                        TaxAmount: 40,
+                        ShippingAmount: 10,
+                        CouponCode: 'coupon',
+                    },
+                });
+
+                result[1] = 'add_to_cart';
+                result[2].items[0].affiliation = 'product-level-affiliation';
+                result[2].items[1].affiliation = 'event-level-affiliation';
+                window.dataLayer[0].should.eql(result);
 
                 done();
             });
