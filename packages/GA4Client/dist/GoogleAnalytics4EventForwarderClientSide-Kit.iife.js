@@ -3,13 +3,28 @@ var GoogleAnalytics4Kit = (function (exports) {
 
     // Google requires event and user attribute strings to have specific limits
     // in place when sending to data layer.
-    // https://support.google.com/analytics/answer/9267744?hl=en
+    // https://support.google.com/analytics/answer/11202874?sjid=7958830619827381593-NA
 
     var EVENT_NAME_MAX_LENGTH = 40;
     var EVENT_ATTRIBUTE_KEY_MAX_LENGTH = 40;
     var EVENT_ATTRIBUTE_VAL_MAX_LENGTH = 100;
+    var EVENT_ATTRIBUTE_MAX_NUMBER = 100;
+
     var USER_ATTRIBUTE_KEY_MAX_LENGTH = 24;
     var USER_ATTRIBUTE_VALUE_MAX_LENGTH = 36;
+
+    var PRODUCT_ATTRIBUTE_MAX_NUMBER = 10;
+
+    var RESERVED_PRODUCT_KEYS = [
+        'item_category',
+        'item_category2',
+        'item_category3',
+        'item_category4',
+        'item_category5',
+    ];
+
+    var FORBIDDEN_PREFIXES = ['google_', 'firebase_', 'ga_'];
+    var FORBIDDEN_CHARACTERS_REGEX = /[^a-zA-Z0-9_]/g;
 
     function truncateString(string, limit) {
         return !!string && string.length > limit
@@ -55,6 +70,49 @@ var GoogleAnalytics4Kit = (function (exports) {
         return truncatedAttributes;
     };
 
+    Common.prototype.limitAttributes = function (attributes, limitNumber) {
+        if (isEmpty(attributes)) {
+            return {};
+        }
+
+        var attributeKeys = Object.keys(attributes);
+
+        attributeKeys.sort();
+
+        var limitedAttributes = attributeKeys
+            .slice(0, limitNumber)
+            .reduce(function (obj, key) {
+                obj[key] = attributes[key];
+                return obj;
+            }, {});
+
+        return limitedAttributes;
+    };
+
+    Common.prototype.limitEventAttributes = function (attributes) {
+        return this.limitAttributes(attributes, EVENT_ATTRIBUTE_MAX_NUMBER);
+    };
+
+    Common.prototype.limitProductAttributes = function (attributes) {
+        var productAttributes = {};
+        var reservedAttributes = {};
+
+        for (var key in attributes) {
+            if (RESERVED_PRODUCT_KEYS.indexOf(key) >= 0) {
+                reservedAttributes[key] = attributes[key];
+            } else {
+                productAttributes[key] = attributes[key];
+            }
+        }
+
+        var limitedProductAttributes = this.limitAttributes(
+            productAttributes,
+            PRODUCT_ATTRIBUTE_MAX_NUMBER
+        );
+
+        return this.mergeObjects(limitedProductAttributes, reservedAttributes);
+    };
+
     Common.prototype.truncateEventName = function (eventName) {
         return truncateString(eventName, EVENT_NAME_MAX_LENGTH);
     };
@@ -65,6 +123,83 @@ var GoogleAnalytics4Kit = (function (exports) {
             EVENT_ATTRIBUTE_KEY_MAX_LENGTH,
             EVENT_ATTRIBUTE_VAL_MAX_LENGTH
         );
+    };
+
+    Common.prototype.standardizeParameters = function (parameters) {
+        var standardizedParameters = {};
+        for (var key in parameters) {
+            var standardizedKey = this.standardizeName(key);
+            standardizedParameters[standardizedKey] = parameters[key];
+        }
+        return standardizedParameters;
+    };
+
+    Common.prototype.standardizeName = function (name) {
+        // names of events and parameters have the following requirements:
+        // 1. They must only contain letters, numbers, and underscores
+        function removeForbiddenCharacters(name) {
+            return name.replace(FORBIDDEN_CHARACTERS_REGEX, '_');
+        }
+
+        // 2. They must start with a letter
+        function doesNameStartsWithLetter(name) {
+            return !isEmpty(name) && /^[a-zA-Z]/.test(name.charAt(0));
+        }
+
+        // 3. They must not start with certain prefixes
+        function doesNameStartWithForbiddenPrefix(name) {
+            var hasPrefix = false;
+            if (!isEmpty(name)) {
+                for (var i = 0; i < FORBIDDEN_PREFIXES.length; i++) {
+                    var prefix = FORBIDDEN_PREFIXES[i];
+                    if (name.indexOf(prefix) === 0) {
+                        hasPrefix = true;
+                        break;
+                    }
+                }
+            }
+
+            return hasPrefix;
+        }
+
+        function removeNonAlphabetCharacterFromStart(name) {
+            var str = name.slice();
+            while (!isEmpty(str) && str.charAt(0).match(/[^a-zA-Z]/i)) {
+                str = str.substring(1);
+            }
+            return str;
+        }
+
+        function removeForbiddenPrefix(name) {
+            var str = name.slice();
+
+            FORBIDDEN_PREFIXES.forEach(function (prefix) {
+                if (str.indexOf(prefix) === 0) {
+                    str = str.replace(prefix, '');
+                }
+            });
+
+            return str;
+        }
+
+        var standardizedName = removeForbiddenCharacters(name);
+
+        // While loops is required because there is a chance that once certain sanitization
+        // occurs, that the resulting string will end up violating a different criteria.
+        // An example is 123___google_$$google_test_event.  If letters, are removed and
+        // prefix is removed once, the remaining string will be __google_test_event which violates
+        // a string starting with a letter.  We have to repeat the sanitizations repeatedly
+        // until all criteria checks pass.
+        while (
+            !doesNameStartsWithLetter(standardizedName) ||
+            doesNameStartWithForbiddenPrefix(standardizedName)
+        ) {
+            standardizedName =
+                removeNonAlphabetCharacterFromStart(standardizedName);
+            standardizedName = removeForbiddenPrefix(standardizedName);
+        }
+
+        return standardizedName;
     };
 
     Common.prototype.truncateUserAttributes = function (userAttributes) {
@@ -164,8 +299,11 @@ var GoogleAnalytics4Kit = (function (exports) {
 
     var common = Common;
 
+    var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+    var self$1 = commonjsGlobal;
     function CommerceHandler(common) {
-        this.common = common || {};
+        self$1.common = this.common = common || {};
     }
 
     var ProductActionTypes = {
@@ -199,8 +337,14 @@ var GoogleAnalytics4Kit = (function (exports) {
     CommerceHandler.prototype.logCommerceEvent = function (event) {
         var needsCurrency = true,
             needsValue = true,
-            ga4CommerceEventParameters,
-            isViewCartEvent = false;
+            ga4CommerceEventParameters = {},
+            isViewCartEvent = false,
+            customEventAttributes = event.EventAttributes || {},
+            // affiliation potentially lives on any commerce event with items
+            affiliation =
+                event && event.ProductAction
+                    ? event.ProductAction.Affiliation
+                    : null;
 
         // GA4 has a view_cart event which MP does not support via a ProductActionType
         // In order to log a view_cart event, pass ProductActionType.Unknown along with
@@ -213,12 +357,12 @@ var GoogleAnalytics4Kit = (function (exports) {
                 event.CustomFlags[GA4_COMMERCE_EVENT_TYPE] === VIEW_CART
             ) {
                 isViewCartEvent = true;
-                return logViewCart(event);
+                return logViewCart(event, affiliation);
             }
         }
         // Handle Impressions
         if (event.EventCategory === ProductActionTypes.Impression) {
-            return logImpressionEvent(event);
+            return logImpressionEvent(event, affiliation);
             // Handle Promotions
         } else if (
             event.EventCategory === PromotionActionTypes.PromotionClick ||
@@ -227,43 +371,38 @@ var GoogleAnalytics4Kit = (function (exports) {
             return logPromotionEvent(event);
         }
 
-        ga4CommerceEventParameters = buildParameters(event);
-        if (event.EventAttributes) {
-            ga4CommerceEventParameters = this.common.mergeObjects(
-                ga4CommerceEventParameters,
-                event.EventAttributes
-            );
-        }
-
         switch (event.EventCategory) {
             case ProductActionTypes.AddToCart:
             case ProductActionTypes.RemoveFromCart:
-                ga4CommerceEventParameters = buildAddOrRemoveCartItem(event);
+                ga4CommerceEventParameters = buildAddOrRemoveCartItem(
+                    event,
+                    affiliation
+                );
                 break;
             case ProductActionTypes.Checkout:
-                ga4CommerceEventParameters = buildCheckout(event);
+                ga4CommerceEventParameters = buildCheckout(event, affiliation);
                 break;
             case ProductActionTypes.Click:
-                ga4CommerceEventParameters = buildSelectItem(event);
+                ga4CommerceEventParameters = buildSelectItem(event, affiliation);
 
                 needsCurrency = false;
                 needsValue = false;
                 break;
             case ProductActionTypes.Purchase:
-                ga4CommerceEventParameters = buildPurchase(event);
+                ga4CommerceEventParameters = buildPurchase(event, affiliation);
                 break;
             case ProductActionTypes.Refund:
-                ga4CommerceEventParameters = buildRefund(event);
+                ga4CommerceEventParameters = buildRefund(event, affiliation);
                 break;
             case ProductActionTypes.ViewDetail:
-                ga4CommerceEventParameters = buildViewItem(event);
+                ga4CommerceEventParameters = buildViewItem(event, affiliation);
                 break;
             case ProductActionTypes.AddToWishlist:
-                ga4CommerceEventParameters = buildAddToWishlist(event);
+                ga4CommerceEventParameters = buildAddToWishlist(event, affiliation);
                 break;
 
             case ProductActionTypes.CheckoutOption:
-                return logCheckoutOptionEvent(event);
+                return logCheckoutOptionEvent(event, affiliation);
 
             default:
                 // a view cart event is handled at the beginning of this function
@@ -275,6 +414,18 @@ var GoogleAnalytics4Kit = (function (exports) {
                     return false;
                 }
         }
+
+        // TODO: https://mparticle-eng.atlassian.net/browse/SQDSDKS-5714
+        if (this.common.forwarderSettings.enableDataCleansing) {
+            customEventAttributes = this.common.standardizeParameters(
+                customEventAttributes
+            );
+        }
+
+        ga4CommerceEventParameters = this.common.mergeObjects(
+            ga4CommerceEventParameters,
+            this.common.limitEventAttributes(customEventAttributes)
+        );
 
         // CheckoutOption, Promotions, and Impressions will not make it to this code
         if (needsCurrency) {
@@ -292,29 +443,25 @@ var GoogleAnalytics4Kit = (function (exports) {
         return true;
     };
 
-    function buildParameters(event) {
+    function buildAddOrRemoveCartItem(event, affiliation) {
         return {
-            items: buildProductsList(event.ProductAction.ProductList),
+            items: buildProductsList(event.ProductAction.ProductList, affiliation),
+        };
+    }
+
+    function buildCheckout(event, affiliation) {
+        return {
+            items: buildProductsList(event.ProductAction.ProductList, affiliation),
             coupon: event.ProductAction ? event.ProductAction.CouponCode : null,
         };
     }
 
-    function buildAddOrRemoveCartItem(event) {
-        return {
-            items: buildProductsList(event.ProductAction.ProductList),
-        };
-    }
-
-    function buildCheckout(event) {
-        return {
-            items: buildProductsList(event.ProductAction.ProductList),
-            coupon: event.ProductAction ? event.ProductAction.CouponCode : null,
-        };
-    }
-
-    function buildCheckoutOptions(event) {
+    function buildCheckoutOptions(event, affiliation) {
         var parameters = event.EventAttributes;
-        parameters.items = buildProductsList(event.ProductAction.ProductList);
+        parameters.items = buildProductsList(
+            event.ProductAction.ProductList,
+            affiliation
+        );
         parameters.coupon = event.ProductAction
             ? event.ProductAction.CouponCode
             : null;
@@ -322,23 +469,23 @@ var GoogleAnalytics4Kit = (function (exports) {
         return parameters;
     }
 
-    function parseImpression(impression) {
+    function parseImpression(impression, affiliation) {
         return {
             item_list_id: impression.ProductImpressionList,
             item_list_name: impression.ProductImpressionList,
-            items: buildProductsList(impression.ProductList),
+            items: buildProductsList(impression.ProductList, affiliation),
         };
     }
 
-    function buildSelectItem(event) {
+    function buildSelectItem(event, affiliation) {
         return {
-            items: buildProductsList(event.ProductAction.ProductList),
+            items: buildProductsList(event.ProductAction.ProductList, affiliation),
         };
     }
 
-    function buildViewItem(event) {
+    function buildViewItem(event, affiliation) {
         return {
-            items: buildProductsList(event.ProductAction.ProductList),
+            items: buildProductsList(event.ProductAction.ProductList, affiliation),
         };
     }
 
@@ -346,36 +493,34 @@ var GoogleAnalytics4Kit = (function (exports) {
         return parsePromotion(promotion);
     }
 
-    function buildPurchase(event) {
+    function buildPurchase(event, affiliation) {
         return {
             transaction_id: event.ProductAction.TransactionId,
             value: event.ProductAction.TotalAmount,
-            affiliation: event.ProductAction.Affiliation,
             coupon: event.ProductAction.CouponCode,
             shipping: event.ProductAction.ShippingAmount,
             tax: event.ProductAction.TaxAmount,
-            items: buildProductsList(event.ProductAction.ProductList),
+            items: buildProductsList(event.ProductAction.ProductList, affiliation),
         };
     }
-    function buildRefund(event) {
+    function buildRefund(event, affiliation) {
         return {
             transaction_id: event.ProductAction.TransactionId,
             value: event.ProductAction.TotalAmount,
-            affiliation: event.ProductAction.Affiliation,
             coupon: event.ProductAction.CouponCode,
             shipping: event.ProductAction.ShippingAmount,
             tax: event.ProductAction.TaxAmount,
-            items: buildProductsList(event.ProductAction.ProductList),
+            items: buildProductsList(event.ProductAction.ProductList, affiliation),
         };
     }
-    function buildAddToWishlist(event) {
+    function buildAddToWishlist(event, affiliation) {
         return {
             value: event.ProductAction.TotalAmount,
-            items: buildProductsList(event.ProductAction.ProductList),
+            items: buildProductsList(event.ProductAction.ProductList, affiliation),
         };
     }
 
-    function buildAddShippingInfo(event) {
+    function buildAddShippingInfo(event, affiliation) {
         return {
             coupon:
                 event.ProductAction && event.ProductAction.CouponCode
@@ -385,11 +530,11 @@ var GoogleAnalytics4Kit = (function (exports) {
                 event.CustomFlags && event.CustomFlags[GA4_SHIPPING_TIER]
                     ? event.CustomFlags[GA4_SHIPPING_TIER]
                     : null,
-            items: buildProductsList(event.ProductAction.ProductList),
+            items: buildProductsList(event.ProductAction.ProductList, affiliation),
         };
     }
 
-    function buildAddPaymentInfo(event) {
+    function buildAddPaymentInfo(event, affiliation) {
         return {
             coupon:
                 event.ProductAction && event.ProductAction.CouponCode
@@ -399,7 +544,7 @@ var GoogleAnalytics4Kit = (function (exports) {
                 event.CustomFlags && event.CustomFlags[GA4_PAYMENT_TYPE]
                     ? event.CustomFlags[GA4_PAYMENT_TYPE]
                     : null,
-            items: buildProductsList(event.ProductAction.ProductList),
+            items: buildProductsList(event.ProductAction.ProductList, affiliation),
         };
     }
 
@@ -411,32 +556,55 @@ var GoogleAnalytics4Kit = (function (exports) {
             .toLowerCase();
     }
 
-    function parseProduct(_product) {
-        var product = {};
+    function parseProduct(product, affiliation) {
+        // 1. Move key/value pairs from product.Attributes to be at the same level
+        // as all keys in product, limiting them to 10 in the process.
 
-        for (var key in _product) {
+        var productWithAllAttributes = {};
+
+        if (affiliation) {
+            productWithAllAttributes.affiliation = affiliation;
+        }
+
+        productWithAllAttributes = self$1.common.mergeObjects(
+            productWithAllAttributes,
+            self$1.common.limitProductAttributes(product.Attributes)
+        );
+
+        // 2. Copy key/value pairs in product
+        for (var key in product) {
             switch (key) {
                 case 'Sku':
-                    product.item_id = _product.Sku;
+                    productWithAllAttributes.item_id = product.Sku;
                     break;
                 case 'Name':
-                    product.item_name = _product.Name;
+                    productWithAllAttributes.item_name = product.Name;
                     break;
                 case 'Brand':
-                    product.item_brand = _product.Brand;
+                    productWithAllAttributes.item_brand = product.Brand;
                     break;
                 case 'Category':
-                    product.item_category = _product.Category;
+                    productWithAllAttributes.item_category = product.Category;
+                    break;
+                case 'CouponCode':
+                    productWithAllAttributes.coupon = product.CouponCode;
                     break;
                 case 'Variant':
-                    product.item_variant = _product.Variant;
+                    productWithAllAttributes.item_variant = product.Variant;
+                    break;
+                case 'Attributes':
                     break;
                 default:
-                    product[toUnderscore(key)] = _product[key];
+                    productWithAllAttributes[toUnderscore(key)] = product[key];
             }
         }
 
-        return product;
+        // TODO: https://mparticle-eng.atlassian.net/browse/SQDSDKS-5716
+        if (self$1.common.forwarderSettings.enableDataCleansing) {
+            return self$1.common.standardizeParameters(productWithAllAttributes);
+        } else {
+            return productWithAllAttributes;
+        }
     }
 
     function parsePromotion(_promotion) {
@@ -461,14 +629,18 @@ var GoogleAnalytics4Kit = (function (exports) {
             }
         }
 
-        return promotion;
+        if (self$1.common.forwarderSettings.enableDataCleansing) {
+            return self$1.common.standardizeParameters(promotion);
+        } else {
+            return promotion;
+        }
     }
 
-    function buildProductsList(products) {
+    function buildProductsList(products, affiliation) {
         var productsList = [];
 
         products.forEach(function (product) {
-            productsList.push(parseProduct(product));
+            productsList.push(parseProduct(product, affiliation));
         });
 
         return productsList;
@@ -528,7 +700,7 @@ var GoogleAnalytics4Kit = (function (exports) {
     // Google previously had a CheckoutOption event, and now this has been split into 2 GA4 events - add_shipping_info and add_payment_info
     // Since MP still uses CheckoutOption, we must map this to the 2 events using custom flags.  To prevent any data loss from customers
     // migrating from UA to GA4, we will set a default `set_checkout_option` which matches Firebase's data model.
-    function logCheckoutOptionEvent(event) {
+    function logCheckoutOptionEvent(event, affiliation) {
         try {
             var customFlags = event.CustomFlags,
                 GA4CommerceEventType = customFlags[GA4_COMMERCE_EVENT_TYPE],
@@ -543,13 +715,22 @@ var GoogleAnalytics4Kit = (function (exports) {
 
             switch (GA4CommerceEventType) {
                 case ADD_SHIPPING_INFO:
-                    ga4CommerceEventParameters = buildAddShippingInfo(event);
+                    ga4CommerceEventParameters = buildAddShippingInfo(
+                        event,
+                        affiliation
+                    );
                     break;
                 case ADD_PAYMENT_INFO:
-                    ga4CommerceEventParameters = buildAddPaymentInfo(event);
+                    ga4CommerceEventParameters = buildAddPaymentInfo(
+                        event,
+                        affiliation
+                    );
                     break;
                 default:
-                    ga4CommerceEventParameters = buildCheckoutOptions(event);
+                    ga4CommerceEventParameters = buildCheckoutOptions(
+                        event,
+                        affiliation
+                    );
                     break;
             }
         } catch (error) {
@@ -586,11 +767,14 @@ var GoogleAnalytics4Kit = (function (exports) {
         return false;
     }
 
-    function logImpressionEvent(event) {
+    function logImpressionEvent(event, affiliation) {
         try {
             var ga4CommerceEventParameters;
             event.ProductImpressions.forEach(function (impression) {
-                ga4CommerceEventParameters = parseImpression(impression);
+                ga4CommerceEventParameters = parseImpression(
+                    impression,
+                    affiliation
+                );
 
                 gtag(
                     'event',
@@ -608,8 +792,12 @@ var GoogleAnalytics4Kit = (function (exports) {
         return true;
     }
 
-    function logViewCart(event) {
-        var ga4CommerceEventParameters = buildViewCart(event);
+    function logViewCart(event, affiliation) {
+        var ga4CommerceEventParameters = buildViewCart(event, affiliation);
+        ga4CommerceEventParameters = self$1.common.mergeObjects(
+            ga4CommerceEventParameters,
+            self$1.common.limitEventAttributes(event.EventAttributes)
+        );
         ga4CommerceEventParameters.currency = event.CurrencyCode;
 
         ga4CommerceEventParameters.value =
@@ -620,9 +808,9 @@ var GoogleAnalytics4Kit = (function (exports) {
         return true;
     }
 
-    function buildViewCart(event) {
+    function buildViewCart(event, affiliation) {
         return {
-            items: buildProductsList(event.ProductAction.ProductList),
+            items: buildProductsList(event.ProductAction.ProductList, affiliation),
         };
     }
 
@@ -632,11 +820,27 @@ var GoogleAnalytics4Kit = (function (exports) {
         this.common = common || {};
     }
 
+    // TODO: https://mparticle-eng.atlassian.net/browse/SQDSDKS-5715
     EventHandler.prototype.sendEventToGA4 = function (eventName, eventAttributes) {
+        var standardizedEventName;
+        var standardizedAttributes;
+        if (this.common.forwarderSettings.enableDataCleansing) {
+            standardizedEventName = this.common.standardizeName(eventName);
+            standardizedAttributes =
+                this.common.standardizeParameters(eventAttributes);
+        } else {
+            standardizedEventName = eventName;
+            standardizedAttributes = eventAttributes;
+        }
+
+        standardizedAttributes = this.common.limitEventAttributes(
+            standardizedAttributes
+        );
+
         gtag(
             'event',
-            this.common.truncateEventName(eventName),
-            this.common.truncateEventAttributes(eventAttributes)
+            this.common.truncateEventName(standardizedEventName),
+            this.common.truncateEventAttributes(standardizedAttributes)
         );
     };
 
@@ -776,11 +980,14 @@ var GoogleAnalytics4Kit = (function (exports) {
             mParticle._setIntegrationDelay(this.moduleId, true);
 
             common.forwarderSettings = forwarderSettings;
+            common.forwarderSettings.enableDataCleansing =
+                common.forwarderSettings.enableDataCleansing === 'True';
             var measurementId = forwarderSettings.measurementId;
             var userIdType = forwarderSettings.externalUserIdentityType;
             var hashUserId = forwarderSettings.hashUserId;
+
             var configSettings = {
-                send_page_view: forwarderSettings.enablePageView === 'True',
+                send_page_view: forwarderSettings.enablePageView === 'True'
             };
             window.dataLayer = window.dataLayer || [];
 
