@@ -1571,6 +1571,29 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
+            it('should not standardize event names and event attributes if data cleansing is not enabled', function (done) {
+                mParticle.forwarder.process({
+                    EventDataType: MessageType.PageEvent,
+                    EventCategory: EventType.Navigation,
+                    EventName: '2?Test Event ?Standardization',
+                    EventAttributes: {
+                        foo: 'bar',
+                        '1?test4ever!!!': 'tester',
+                    },
+                });
+
+                var expectedEventName = '2?Test Event ?Standardization';
+
+                var expectedEventAttributes = {
+                    foo: 'bar',
+                    '1?test4ever!!!': 'tester',
+                };
+
+                window.dataLayer[0][1].should.eql(expectedEventName);
+                window.dataLayer[0][2].should.eql(expectedEventAttributes);
+                done();
+            });
+
             // This test exist for backwards compatibility of custom flags carried
             // over from legacy Google Analytics - Google.Title and Google.Location
             it('should log page view with legacy GA custom flags', function (done) {
