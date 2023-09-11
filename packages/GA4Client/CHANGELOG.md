@@ -1,3 +1,23 @@
+# [1.2.0](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.1.0...v1.2.0) (2023-09-11)
+
+
+### Bug Fixes
+
+* Add suffix of v3 to forwarder, add test infrastructure ([#38](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/38)) ([4420648](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/4420648f3e86ebb97305ebb921355a08b40c2da5))
+* Flatten product.Attributes to be on the product level ([#41](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/41)) ([ee03770](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/ee037705f1d49aaa1322317dca7deb06066a8bda))
+* Map CouponCode to reserved attributes `coupon` ([#50](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/50)) ([f7380d4](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/f7380d423df6c8663655dc7c15b28291b92964da))
+* Prevent attribute cleansing when data cleansing is disabled ([#52](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/52)) ([9847bf8](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/9847bf858c8eb9e749b5c146a0ef1082c46c9422))
+* Re-map affiliation from event level to item level ([#51](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/51)) ([b7dfef8](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/b7dfef84aa4292ed023f731d851b748f5ce04fa9))
+* Update package.json ([#39](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/39)) ([d4ea321](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/d4ea32128a540b5fed5587eecfc7a246b3caa00f))
+
+
+### Features
+
+* Limit commerce event attributes to 100 keys ([#47](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/47)) ([1813a98](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/1813a986816f838fb14db3275e7bdc17b00f178f))
+* Limit event attributes to 100 keys ([#40](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/40)) ([057543b](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/057543be5c4294758a8a276e7b5d71866516b69b))
+* Limit item params to 10 non-reserved keys ([#49](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/49)) ([7670d99](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/7670d99c5a0f9593c027022a5d4d0544986c65df))
+* Standardize Names Keys and Values ([#36](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/36)) ([f3e5aa1](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/f3e5aa109b584de6c15b558bdb0070092a2c26bd))
+
 # [1.1.0](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.0.6...v1.1.0) (2023-05-30)
 
 
