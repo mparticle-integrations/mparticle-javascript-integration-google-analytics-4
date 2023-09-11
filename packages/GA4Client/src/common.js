@@ -58,11 +58,7 @@ Common.prototype.truncateAttributes = function (
 
     if (!isEmpty(attributes)) {
         Object.keys(attributes).forEach(function (attribute) {
-            var standardizedKey = attribute.replace(
-                FORBIDDEN_CHARACTERS_REGEX,
-                '_'
-            );
-            var key = truncateString(standardizedKey, keyLimit);
+            var key = truncateString(attribute, keyLimit);
             var val = truncateString(attributes[attribute], valueLimit);
             truncatedAttributes[key] = val;
         });
