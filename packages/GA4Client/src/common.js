@@ -132,6 +132,15 @@ Common.prototype.standardizeParameters = function (parameters) {
 };
 
 Common.prototype.standardizeName = function (name) {
+    try {
+        name = window.GoogleAnalytics4Kit.setCustomNameStandardization(name);
+    } catch (e) {
+        console.warn(
+            'Error calling setCustomNameStandardization callback. Check your callback.  Data will still be sent without user-defined standardization',
+            e
+        );
+    }
+
     // names of events and parameters have the following requirements:
     // 1. They must only contain letters, numbers, and underscores
     function removeForbiddenCharacters(name) {

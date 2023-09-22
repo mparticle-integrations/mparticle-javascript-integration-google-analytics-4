@@ -1,4 +1,6 @@
 var initialization = {
+    // This name matches the mParticle database. This should not be changed unless the database name is being changed
+    // Changing this will also break the API for the cleansing data callback that a customer uses.
     name: 'GoogleAnalytics4',
     moduleId: 160,
     /*  ****** Fill out initForwarder to load your SDK ******
@@ -21,6 +23,13 @@ var initialization = {
     ) {
         mParticle._setIntegrationDelay(this.moduleId, true);
 
+        // Due to current limitations, the API for allowing a customer to cleanse
+        // their data before our cleansing occurs must be placed on the
+        // window.GoogleAnalytics4Kit object.  This exists when initializing MP
+        // SDK via snippet, but not via npm. If a customer uses npm, using the API
+        // requires window.GoogleAnalytics4Kit to exist on the page.
+        window.GoogleAnalytics4Kit = window.GoogleAnalytics4Kit || {};
+
         common.forwarderSettings = forwarderSettings;
         common.forwarderSettings.enableDataCleansing =
             common.forwarderSettings.enableDataCleansing === 'True';
@@ -29,7 +38,7 @@ var initialization = {
         var hashUserId = forwarderSettings.hashUserId;
 
         var configSettings = {
-            send_page_view: forwarderSettings.enablePageView === 'True'
+            send_page_view: forwarderSettings.enablePageView === 'True',
         };
         window.dataLayer = window.dataLayer || [];
 

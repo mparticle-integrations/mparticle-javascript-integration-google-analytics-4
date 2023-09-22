@@ -2021,6 +2021,38 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
+            it('should standardize event names and attributes keys using user provided cleansing callback first, and then our standardization', function (done) {
+                window.GoogleAnalytics4Kit.setCustomNameStandardization =
+                    function (str) {
+                        return str.slice(0, str.length - 1);
+                    };
+
+                mParticle.forwarder.process({
+                    EventDataType: MessageType.PageEvent,
+                    EventCategory: EventType.Navigation,
+                    EventName: '2?Test Event ?Standardization',
+                    EventAttributes: {
+                        foo: 'bar',
+                        '1?test4ever!!!': 'tester',
+                    },
+                });
+
+                var expectedEventName = 'Test_Event__Standardizatio';
+
+                var expectedEventAttributes = {
+                    fo: 'bar',
+                    test4ever__: 'tester',
+                };
+
+                window.dataLayer[0][1].should.eql(expectedEventName);
+                window.dataLayer[0][2].should.eql(expectedEventAttributes);
+
+                // remove this function so that it doesn't affect other tests
+                delete window.GoogleAnalytics4Kit.setCustomNameStandardization;
+
+                done();
+            });
+
             it('should remove forbidden prefixes', function (done) {
                 mParticle.forwarder.process({
                     EventDataType: MessageType.PageEvent,
