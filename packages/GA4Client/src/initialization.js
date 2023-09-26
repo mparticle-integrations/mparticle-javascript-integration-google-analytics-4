@@ -23,11 +23,11 @@ var initialization = {
     ) {
         mParticle._setIntegrationDelay(this.moduleId, true);
 
-        // Due to current limitations, the API for allowing a customer to cleanse
-        // their data before our cleansing occurs must be placed on the
-        // window.GoogleAnalytics4Kit object.  This exists when initializing MP
-        // SDK via snippet, but not via npm. If a customer uses npm, using the API
-        // requires window.GoogleAnalytics4Kit to exist on the page.
+        // The API to allow a customer to provide the cleansing callback
+        // relies on window.GoogleAnalytics4Kit to exist. When MP is initialized
+        // via the snippet, the kit code adds it to the window automatically.
+        // However, when initialized via npm, it does not exist, and so we have 
+        // to set it manually here.
         window.GoogleAnalytics4Kit = window.GoogleAnalytics4Kit || {};
 
         common.forwarderSettings = forwarderSettings;

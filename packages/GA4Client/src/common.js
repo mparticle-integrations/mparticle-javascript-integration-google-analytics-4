@@ -136,7 +136,7 @@ Common.prototype.standardizeName = function (name) {
         name = window.GoogleAnalytics4Kit.setCustomNameStandardization(name);
     } catch (e) {
         console.error(
-            'Error calling setCustomNameStandardization callback. Check your callback.  Data will still be sent without user-defined standardization',
+            'Error calling setCustomNameStandardization callback. Check your callback.  Data will still be sent without user-defined standardization. See our docs for proper use - https://docs.mparticle.com/integrations/google-analytics-4/event/',
             e
         );
     }
