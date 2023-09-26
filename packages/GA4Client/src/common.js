@@ -135,7 +135,7 @@ Common.prototype.standardizeName = function (name) {
     try {
         name = window.GoogleAnalytics4Kit.setCustomNameStandardization(name);
     } catch (e) {
-        console.warn(
+        console.error(
             'Error calling setCustomNameStandardization callback. Check your callback.  Data will still be sent without user-defined standardization',
             e
         );
