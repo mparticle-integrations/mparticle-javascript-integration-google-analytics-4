@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.2.0...v1.3.0) (2023-10-02)
+
+
+### Features
+
+* Add Customer Configurable Standardization ([#53](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/53)) ([c851914](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/c85191485d5ae52cedf6949eb1c94fe05776f16b))
+
 # [1.2.0](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.1.0...v1.2.0) (2023-09-11)
 
 
