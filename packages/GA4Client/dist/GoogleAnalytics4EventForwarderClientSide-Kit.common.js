@@ -136,6 +136,15 @@ Common.prototype.standardizeParameters = function (parameters) {
 };
 
 Common.prototype.standardizeName = function (name) {
+    try {
+        name = window.GoogleAnalytics4Kit.setCustomNameStandardization(name);
+    } catch (e) {
+        console.error(
+            'Error calling setCustomNameStandardization callback. Check your callback.  Data will still be sent without user-defined standardization. See our docs for proper use - https://docs.mparticle.com/integrations/google-analytics-4/event/',
+            e
+        );
+    }
+
     // names of events and parameters have the following requirements:
     // 1. They must only contain letters, numbers, and underscores
     function removeForbiddenCharacters(name) {
@@ -958,6 +967,8 @@ IdentityHandler.prototype.onSetUserIdentity = function (
 var identityHandler = IdentityHandler;
 
 var initialization = {
+    // This name matches the mParticle database. This should not be changed unless the database name is being changed
+    // Changing this will also break the API for the cleansing data callback that a customer uses.
     name: 'GoogleAnalytics4',
     moduleId: 160,
     /*  ****** Fill out initForwarder to load your SDK ******
@@ -980,6 +991,13 @@ var initialization = {
     ) {
         mParticle._setIntegrationDelay(this.moduleId, true);
 
+        // The API to allow a customer to provide the cleansing callback
+        // relies on window.GoogleAnalytics4Kit to exist. When MP is initialized
+        // via the snippet, the kit code adds it to the window automatically.
+        // However, when initialized via npm, it does not exist, and so we have 
+        // to set it manually here.
+        window.GoogleAnalytics4Kit = window.GoogleAnalytics4Kit || {};
+
         common.forwarderSettings = forwarderSettings;
         common.forwarderSettings.enableDataCleansing =
             common.forwarderSettings.enableDataCleansing === 'True';
@@ -988,7 +1006,7 @@ var initialization = {
         var hashUserId = forwarderSettings.hashUserId;
 
         var configSettings = {
-            send_page_view: forwarderSettings.enablePageView === 'True'
+            send_page_view: forwarderSettings.enablePageView === 'True',
         };
         window.dataLayer = window.dataLayer || [];
 
