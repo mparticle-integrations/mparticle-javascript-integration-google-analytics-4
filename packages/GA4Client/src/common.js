@@ -132,7 +132,7 @@ Common.prototype.standardizeParameters = function (parameters) {
 };
 
 Common.prototype.standardizeName = function (name) {
-    if (window.GoogleAnalytics4Kit.hasOwnProperty(setCustomNameStandardization)) {
+    if (window.GoogleAnalytics4Kit.hasOwnProperty('setCustomNameStandardization')) {
         try {
             name = window.GoogleAnalytics4Kit.setCustomNameStandardization(name);
         } catch (e) {
