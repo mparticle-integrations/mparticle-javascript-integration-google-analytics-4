@@ -132,13 +132,15 @@ Common.prototype.standardizeParameters = function (parameters) {
 };
 
 Common.prototype.standardizeName = function (name) {
-    try {
-        name = window.GoogleAnalytics4Kit.setCustomNameStandardization(name);
-    } catch (e) {
-        console.error(
-            'Error calling setCustomNameStandardization callback. Check your callback.  Data will still be sent without user-defined standardization. See our docs for proper use - https://docs.mparticle.com/integrations/google-analytics-4/event/',
-            e
-        );
+    if (window.GoogleAnalytics4Kit.setCustomNameStandardization(name)) {
+        try {
+            name = window.GoogleAnalytics4Kit.setCustomNameStandardization(name);
+        } catch (e) {
+            console.warn(
+                'Error calling setCustomNameStandardization callback. Check your callback.  Data will still be sent without user-defined standardization. See our docs for proper use - https://docs.mparticle.com/integrations/google-analytics-4/event/',
+                e
+            );
+        }
     }
 
     // names of events and parameters have the following requirements:
