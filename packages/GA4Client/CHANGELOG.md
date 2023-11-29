@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.3.0...v1.3.1) (2023-11-29)
+
+
+### Bug Fixes
+
+* Add check for cleansing callback; replace error with warn ([7184c2b](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/7184c2b10005db7a1486df62576b1c6ef676eb0b))
+
 # [1.3.0](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.2.0...v1.3.0) (2023-10-02)
 
 
