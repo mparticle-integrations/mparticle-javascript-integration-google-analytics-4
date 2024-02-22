@@ -2,6 +2,8 @@
 // in place when sending to data layer.
 // https://support.google.com/analytics/answer/11202874?sjid=7958830619827381593-NA
 
+var ConsentHandler = require('./consent');
+
 var EVENT_NAME_MAX_LENGTH = 40;
 var EVENT_ATTRIBUTE_KEY_MAX_LENGTH = 40;
 var EVENT_ATTRIBUTE_VAL_MAX_LENGTH = 100;
@@ -33,7 +35,13 @@ function isEmpty(value) {
     return value == null || !(Object.keys(value) || value).length;
 }
 
-function Common() {}
+function Common() {
+    this.consentMappings = {};
+    this.consentPayloadDefaults = {};
+    this.consentPayloadAsString = '';
+
+    this.consentHandler = new ConsentHandler(this);
+}
 
 Common.prototype.forwarderSettings = null;
 
@@ -303,6 +311,10 @@ Common.prototype.getUserId = function (
         }
         return userId;
     }
+};
+
+Common.prototype.cloneObject = function (obj) {
+    return JSON.parse(JSON.stringify(obj));
 };
 
 module.exports = Common;

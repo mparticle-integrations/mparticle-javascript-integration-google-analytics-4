@@ -40,6 +40,13 @@ var initialization = {
         var configSettings = {
             send_page_view: forwarderSettings.enablePageView === 'True',
         };
+
+        if (forwarderSettings.consentMappingWeb) {
+            common.consentMappings = parseSettingsString(
+                forwarderSettings.consentMappingWeb
+            );
+        }
+
         window.dataLayer = window.dataLayer || [];
 
         window.gtag = function () {
@@ -89,6 +96,24 @@ var initialization = {
         } else {
             isInitialized = true;
         }
+
+        common.consentPayloadDefaults =
+            common.consentHandler.getConsentSettings();
+        var initialConsentState = common.consentHandler.getUserConsentState();
+
+        if (common.consentPayloadDefaults && initialConsentState) {
+            var defaultConsentPayload =
+                common.consentHandler.generateConsentStatePayloadFromMappings(
+                    initialConsentState,
+                    common.consentMappings
+                );
+            common.consentPayloadAsString = JSON.stringify(
+                defaultConsentPayload
+            );
+
+            gtag('consent', 'default', defaultConsentPayload);
+        }
+
         return isInitialized;
     },
 };
@@ -102,6 +127,10 @@ function setClientId(clientId, moduleId) {
         ga4IntegrationAttributes
     );
     window.mParticle._setIntegrationDelay(moduleId, false);
+}
+
+function parseSettingsString(settingsString) {
+    return JSON.parse(settingsString.replace(/&quot;/g, '"'));
 }
 
 module.exports = initialization;
