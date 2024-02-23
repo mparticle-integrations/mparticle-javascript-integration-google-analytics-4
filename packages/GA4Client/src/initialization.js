@@ -26,7 +26,7 @@ var initialization = {
         // The API to allow a customer to provide the cleansing callback
         // relies on window.GoogleAnalytics4Kit to exist. When MP is initialized
         // via the snippet, the kit code adds it to the window automatically.
-        // However, when initialized via npm, it does not exist, and so we have 
+        // However, when initialized via npm, it does not exist, and so we have
         // to set it manually here.
         window.GoogleAnalytics4Kit = window.GoogleAnalytics4Kit || {};
 
@@ -41,9 +41,9 @@ var initialization = {
             send_page_view: forwarderSettings.enablePageView === 'True',
         };
 
-        if (forwarderSettings.consentMappingWeb) {
+        if (forwarderSettings.consentMappingSDK) {
             common.consentMappings = parseSettingsString(
-                forwarderSettings.consentMappingWeb
+                forwarderSettings.consentMappingSDK
             );
         }
 

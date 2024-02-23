@@ -55,10 +55,10 @@ ConsentHandler.prototype.getConsentSettings = function () {
     var consentSettings = {};
 
     var googleToMpConsentSettingsMapping = {
-        ad_storage: 'adStorageConsentWeb',
-        ad_user_data: 'adUserDataConsentWeb',
-        ad_personalization: 'adPersonalizationConsentWeb',
-        analytics_storage: 'analyticsStorageConsentWeb',
+        ad_storage: 'adStorageConsentSDK',
+        ad_user_data: 'adUserDataConsentSDK',
+        ad_personalization: 'adPersonalizationConsentSDK',
+        analytics_storage: 'analyticsStorageConsentSDK',
     };
 
     var forwarderSettings = this.common.forwarderSettings;
