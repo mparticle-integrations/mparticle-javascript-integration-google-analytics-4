@@ -41,10 +41,16 @@ var initialization = {
             send_page_view: forwarderSettings.enablePageView === 'True',
         };
 
-        if (forwarderSettings.consentMappingSDK) {
+        if (forwarderSettings.consentMapping) {
             common.consentMappings = parseSettingsString(
-                forwarderSettings.consentMappingSDK
+                forwarderSettings.consentMapping
             );
+        } else {
+            // Ensures consent mappings is an empty array
+            // for future use
+            common.consentMappings = [];
+            common.consentPayloadDefaults = {};
+            common.consentPayloadAsString = '';
         }
 
         window.dataLayer = window.dataLayer || [];
@@ -101,12 +107,13 @@ var initialization = {
             common.consentHandler.getConsentSettings();
         var initialConsentState = common.consentHandler.getUserConsentState();
 
-        if (common.consentPayloadDefaults && initialConsentState) {
-            var defaultConsentPayload =
-                common.consentHandler.generateConsentStatePayloadFromMappings(
-                    initialConsentState,
-                    common.consentMappings
-                );
+        var defaultConsentPayload =
+            common.consentHandler.generateConsentStatePayloadFromMappings(
+                initialConsentState,
+                common.consentMappings
+            );
+
+        if (!common.isEmpty(defaultConsentPayload)) {
             common.consentPayloadAsString = JSON.stringify(
                 defaultConsentPayload
             );

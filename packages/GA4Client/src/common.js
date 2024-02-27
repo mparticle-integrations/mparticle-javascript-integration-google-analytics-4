@@ -36,7 +36,7 @@ function isEmpty(value) {
 }
 
 function Common() {
-    this.consentMappings = {};
+    this.consentMappings = [];
     this.consentPayloadDefaults = {};
     this.consentPayloadAsString = '';
 
@@ -316,5 +316,7 @@ Common.prototype.getUserId = function (
 Common.prototype.cloneObject = function (obj) {
     return JSON.parse(JSON.stringify(obj));
 };
+
+Common.prototype.isEmpty = isEmpty;
 
 module.exports = Common;

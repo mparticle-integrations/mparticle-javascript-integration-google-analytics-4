@@ -13,6 +13,7 @@ var googleConsentValues = {
     Granted: 'granted',
 };
 
+// Declares list of valid Google Consent Properties
 var googleConsentProperties = [
     'ad_storage',
     'ad_user_data',
@@ -25,13 +26,13 @@ function ConsentHandler(common) {
 }
 
 ConsentHandler.prototype.getUserConsentState = function () {
-    var userConsentState = null;
+    var userConsentState = {};
 
     if (mParticle.Identity && mParticle.Identity.getCurrentUser) {
         var currentUser = mParticle.Identity.getCurrentUser();
 
         if (!currentUser) {
-            return null;
+            return {};
         }
 
         var consentState =
@@ -48,16 +49,19 @@ ConsentHandler.prototype.getUserConsentState = function () {
 ConsentHandler.prototype.getEventConsentState = function (eventConsentState) {
     return eventConsentState && eventConsentState.getGDPRConsentState
         ? eventConsentState.getGDPRConsentState()
-        : null;
+        : {};
 };
 
 ConsentHandler.prototype.getConsentSettings = function () {
     var consentSettings = {};
 
     var googleToMpConsentSettingsMapping = {
+        // Inherited from S2S Integration Settings
+        ad_user_data: 'adUserDataConsent',
+        ad_personalization: 'adPersonalizationConsent',
+
+        // Unique to Web Kits
         ad_storage: 'adStorageConsentSDK',
-        ad_user_data: 'adUserDataConsentSDK',
-        ad_personalization: 'adPersonalizationConsentSDK',
         analytics_storage: 'analyticsStorageConsentSDK',
     };
 
@@ -83,6 +87,8 @@ ConsentHandler.prototype.generateConsentStatePayloadFromMappings = function (
     consentState,
     mappings
 ) {
+    if (!mappings) return {};
+
     var payload = this.common.cloneObject(this.common.consentPayloadDefaults);
 
     for (var i = 0; i <= mappings.length - 1; i++) {

@@ -3,22 +3,27 @@ function EventHandler(common) {
 }
 
 EventHandler.prototype.maybeSendConsentUpdateToGa4 = function (event) {
-    var eventConsentState = this.common.consentHandler.getEventConsentState(
-        event.ConsentState
-    );
+    // If consent payload is empty,
+    // we never sent an initial default consent state
+    // so we shouldn't send an update.
+    if (this.common.consentPayloadAsString && this.common.consentMappings) {
+        var eventConsentState = this.common.consentHandler.getEventConsentState(
+            event.ConsentState
+        );
 
-    if (eventConsentState) {
-        var updatedConsentPayload =
-            this.common.consentHandler.generateConsentStatePayloadFromMappings(
-                eventConsentState,
-                this.common.consentMappings
-            );
+        if (!this.common.isEmpty(eventConsentState)) {
+            var updatedConsentPayload =
+                this.common.consentHandler.generateConsentStatePayloadFromMappings(
+                    eventConsentState,
+                    this.common.consentMappings
+                );
 
-        var eventConsentAsString = JSON.stringify(updatedConsentPayload);
+            var eventConsentAsString = JSON.stringify(updatedConsentPayload);
 
-        if (eventConsentAsString !== this.common.consentPayloadAsString) {
-            gtag('consent', 'update', updatedConsentPayload);
-            this.common.consentPayloadAsString = eventConsentAsString;
+            if (eventConsentAsString !== this.common.consentPayloadAsString) {
+                gtag('consent', 'update', updatedConsentPayload);
+                this.common.consentPayloadAsString = eventConsentAsString;
+            }
         }
     }
 };
