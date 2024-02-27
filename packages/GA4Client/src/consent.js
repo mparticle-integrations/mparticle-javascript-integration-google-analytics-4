@@ -60,7 +60,6 @@ ConsentHandler.prototype.getConsentSettings = function () {
         ad_user_data: 'adUserDataConsent',
         ad_personalization: 'adPersonalizationConsent',
 
-        // Unique to Web Kits
         ad_storage: 'adStorageConsentSDK',
         analytics_storage: 'analyticsStorageConsentSDK',
     };
