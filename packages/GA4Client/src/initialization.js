@@ -41,9 +41,9 @@ var initialization = {
             send_page_view: forwarderSettings.enablePageView === 'True',
         };
 
-        if (forwarderSettings.consentMapping) {
+        if (forwarderSettings.consentMappingSDK) {
             common.consentMappings = parseSettingsString(
-                forwarderSettings.consentMapping
+                forwarderSettings.consentMappingSDK
             );
         } else {
             // Ensures consent mappings is an empty array

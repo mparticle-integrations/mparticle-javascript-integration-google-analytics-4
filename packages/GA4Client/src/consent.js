@@ -56,10 +56,8 @@ ConsentHandler.prototype.getConsentSettings = function () {
     var consentSettings = {};
 
     var googleToMpConsentSettingsMapping = {
-        // Inherited from S2S Integration Settings
-        ad_user_data: 'adUserDataConsent',
-        ad_personalization: 'adPersonalizationConsent',
-
+        ad_user_data: 'adUserDataConsentSDK',
+        ad_personalization: 'adPersonalizationConsentSDK',
         ad_storage: 'adStorageConsentSDK',
         analytics_storage: 'analyticsStorageConsentSDK',
     };

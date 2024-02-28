@@ -2340,7 +2340,7 @@ describe('Google Analytics 4 Event', function () {
             mParticle.forwarder.init(
                 {
                     conversionId: 'AW-123123123',
-                    consentMapping:
+                    consentMappingSDK:
                         '[{&quot;jsmap&quot;:null,&quot;map&quot;:&quot;some_consent&quot;,&quot;maptype&quot;:&quot;ConsentPurposes&quot;,&quot;value&quot;:&quot;ad_user_data&quot;},{&quot;jsmap&quot;:null,&quot;map&quot;:&quot;storage_consent&quot;,&quot;maptype&quot;:&quot;ConsentPurposes&quot;,&quot;value&quot;:&quot;analytics_storage&quot;},{&quot;jsmap&quot;:null,&quot;map&quot;:&quot;other_test_consent&quot;,&quot;maptype&quot;:&quot;ConsentPurposes&quot;,&quot;value&quot;:&quot;ad_storage&quot;},{&quot;jsmap&quot;:null,&quot;map&quot;:&quot;test_consent&quot;,&quot;maptype&quot;:&quot;ConsentPurposes&quot;,&quot;value&quot;:&quot;ad_personalization&quot;}]',
                 },
                 reportService.cb,
@@ -2370,9 +2370,9 @@ describe('Google Analytics 4 Event', function () {
                 {
                     conversionId: 'AW-123123123',
                     enableGtag: 'True',
-                    consentMapping: JSON.stringify(consentMap),
-                    adPersonalizationConsent: 'Granted', // Will be overriden by User Consent State
-                    adUserDataConsent: 'Granted', // Will be overriden by User Consent State
+                    consentMappingSDK: JSON.stringify(consentMap),
+                    adPersonalizationConsentSDK: 'Granted', // Will be overriden by User Consent State
+                    adUserDataConsentSDK: 'Granted', // Will be overriden by User Consent State
                     adStorageConsentSDK: 'Granted',
                     analyticsStorageConsentSDK: 'Granted',
                 },
@@ -2406,9 +2406,9 @@ describe('Google Analytics 4 Event', function () {
                 {
                     conversionId: 'AW-123123123',
                     enableGtag: 'True',
-                    consentMapping: JSON.stringify(consentMap),
-                    adPersonalizationConsent: 'Unspecified',
-                    adUserDataConsent: 'Unspecified', // Will be overriden by User Consent State
+                    consentMappingSDK: JSON.stringify(consentMap),
+                    adPersonalizationConsentSDK: 'Unspecified',
+                    adUserDataConsentSDK: 'Unspecified', // Will be overriden by User Consent State
                     adStorageConsentSDK: 'Unspecified', // Will be overriden by User Consent State
                     analyticsStorageConsentSDK: 'Unspecified',
                 },
@@ -2440,7 +2440,7 @@ describe('Google Analytics 4 Event', function () {
                 {
                     conversionId: 'AW-123123123',
                     enableGtag: 'True',
-                    consentMapping: JSON.stringify(consentMap),
+                    consentMappingSDK: JSON.stringify(consentMap),
                 },
                 reportService.cb,
                 true
@@ -2604,9 +2604,9 @@ describe('Google Analytics 4 Event', function () {
                 {
                     conversionId: 'AW-123123123',
                     enableGtag: 'True',
-                    consentMapping: JSON.stringify(consentMap),
-                    adPersonalizationConsent: 'Granted', // Will be overriden by User Consent State
-                    adUserDataConsent: 'Granted', // Will be overriden by User Consent State
+                    consentMappingSDK: JSON.stringify(consentMap),
+                    adPersonalizationConsentSDK: 'Granted', // Will be overriden by User Consent State
+                    adUserDataConsentSDK: 'Granted', // Will be overriden by User Consent State
                     adStorageConsentSDK: 'Granted',
                     analyticsStorageConsentSDK: 'Granted',
                 },
@@ -2775,7 +2775,7 @@ describe('Google Analytics 4 Event', function () {
                 {
                     conversionId: 'AW-123123123',
                     enableGtag: 'True',
-                    consentMapping: JSON.stringify(consentMap),
+                    consentMappingSDK: JSON.stringify(consentMap),
                 },
                 reportService.cb,
                 true
@@ -2912,8 +2912,8 @@ describe('Google Analytics 4 Event', function () {
                 {
                     conversionId: 'AW-123123123',
                     enableGtag: 'True',
-                    adUserDataConsent: 'Granted',
-                    adPersonalizationConsent: 'Denied',
+                    adUserDataConsentSDK: 'Granted',
+                    adPersonalizationConsentSDK: 'Denied',
                     adStorageConsentSDK: 'Granted',
                     analyticsStorageConsentSDK: 'Denied',
                 },
