@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.3.1...v1.4.0) (2024-03-01)
+
+
+### Features
+
+* Add support for Consent State ([#56](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/56)) ([388c346](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/388c346c5074917b32f8db8062c7d815b05cd66a))
+
 ## [1.3.1](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.3.0...v1.3.1) (2023-11-29)
 
 
