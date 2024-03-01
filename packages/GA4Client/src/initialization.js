@@ -26,7 +26,7 @@ var initialization = {
         // The API to allow a customer to provide the cleansing callback
         // relies on window.GoogleAnalytics4Kit to exist. When MP is initialized
         // via the snippet, the kit code adds it to the window automatically.
-        // However, when initialized via npm, it does not exist, and so we have 
+        // However, when initialized via npm, it does not exist, and so we have
         // to set it manually here.
         window.GoogleAnalytics4Kit = window.GoogleAnalytics4Kit || {};
 
@@ -40,6 +40,19 @@ var initialization = {
         var configSettings = {
             send_page_view: forwarderSettings.enablePageView === 'True',
         };
+
+        if (forwarderSettings.consentMappingSDK) {
+            common.consentMappings = parseSettingsString(
+                forwarderSettings.consentMappingSDK
+            );
+        } else {
+            // Ensures consent mappings is an empty array
+            // for future use
+            common.consentMappings = [];
+            common.consentPayloadDefaults = {};
+            common.consentPayloadAsString = '';
+        }
+
         window.dataLayer = window.dataLayer || [];
 
         window.gtag = function () {
@@ -89,6 +102,25 @@ var initialization = {
         } else {
             isInitialized = true;
         }
+
+        common.consentPayloadDefaults =
+            common.consentHandler.getConsentSettings();
+        var initialConsentState = common.consentHandler.getUserConsentState();
+
+        var defaultConsentPayload =
+            common.consentHandler.generateConsentStatePayloadFromMappings(
+                initialConsentState,
+                common.consentMappings
+            );
+
+        if (!common.isEmpty(defaultConsentPayload)) {
+            common.consentPayloadAsString = JSON.stringify(
+                defaultConsentPayload
+            );
+
+            gtag('consent', 'default', defaultConsentPayload);
+        }
+
         return isInitialized;
     },
 };
@@ -102,6 +134,10 @@ function setClientId(clientId, moduleId) {
         ga4IntegrationAttributes
     );
     window.mParticle._setIntegrationDelay(moduleId, false);
+}
+
+function parseSettingsString(settingsString) {
+    return JSON.parse(settingsString.replace(/&quot;/g, '"'));
 }
 
 module.exports = initialization;
