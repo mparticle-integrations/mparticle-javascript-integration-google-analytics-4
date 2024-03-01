@@ -1,9 +1,122 @@
 var GoogleAnalytics4Kit = (function (exports) {
     'use strict';
 
+    var googleConsentValues = {
+        // Server Integration uses 'Unspecified' as a value when the setting is 'not set'.
+        // However, this is not used by Google's Web SDK. We are referencing it here as a comment
+        // as a record of this distinction and for posterity.
+        // If Google ever adds this for web, the line can just be uncommented to support this.
+        //
+        // Docs:
+        // Web: https://developers.google.com/tag-platform/gtagjs/reference#consent
+        // S2S: https://developers.google.com/google-ads/api/reference/rpc/v15/ConsentStatusEnum.ConsentStatus
+        //
+        // Unspecified: 'unspecified',
+        Denied: 'denied',
+        Granted: 'granted',
+    };
+
+    // Declares list of valid Google Consent Properties
+    var googleConsentProperties = [
+        'ad_storage',
+        'ad_user_data',
+        'ad_personalization',
+        'analytics_storage',
+    ];
+
+    function ConsentHandler(common) {
+        this.common = common || {};
+    }
+
+    ConsentHandler.prototype.getUserConsentState = function () {
+        var userConsentState = {};
+
+        if (mParticle.Identity && mParticle.Identity.getCurrentUser) {
+            var currentUser = mParticle.Identity.getCurrentUser();
+
+            if (!currentUser) {
+                return {};
+            }
+
+            var consentState =
+                mParticle.Identity.getCurrentUser().getConsentState();
+
+            if (consentState && consentState.getGDPRConsentState) {
+                userConsentState = consentState.getGDPRConsentState();
+            }
+        }
+
+        return userConsentState;
+    };
+
+    ConsentHandler.prototype.getEventConsentState = function (eventConsentState) {
+        return eventConsentState && eventConsentState.getGDPRConsentState
+            ? eventConsentState.getGDPRConsentState()
+            : {};
+    };
+
+    ConsentHandler.prototype.getConsentSettings = function () {
+        var consentSettings = {};
+
+        var googleToMpConsentSettingsMapping = {
+            ad_user_data: 'defaultAdUserDataConsentSDK',
+            ad_personalization: 'defaultAdPersonalizationConsentSDK',
+            ad_storage: 'defaultAdStorageConsentSDK',
+            analytics_storage: 'defaultAnalyticsStorageConsentSDK',
+        };
+
+        var forwarderSettings = this.common.forwarderSettings;
+
+        Object.keys(googleToMpConsentSettingsMapping).forEach(function (
+            googleConsentKey
+        ) {
+            var mpConsentSettingKey =
+                googleToMpConsentSettingsMapping[googleConsentKey];
+            var googleConsentValuesKey = forwarderSettings[mpConsentSettingKey];
+
+            if (googleConsentValuesKey && mpConsentSettingKey) {
+                consentSettings[googleConsentKey] =
+                    googleConsentValues[googleConsentValuesKey];
+            }
+        });
+
+        return consentSettings;
+    };
+
+    ConsentHandler.prototype.generateConsentStatePayloadFromMappings = function (
+        consentState,
+        mappings
+    ) {
+        if (!mappings) return {};
+
+        var payload = this.common.cloneObject(this.common.consentPayloadDefaults);
+
+        for (var i = 0; i <= mappings.length - 1; i++) {
+            var mappingEntry = mappings[i];
+            var mpMappedConsentName = mappingEntry.map;
+            var googleMappedConsentName = mappingEntry.value;
+
+            if (
+                consentState[mpMappedConsentName] &&
+                googleConsentProperties.indexOf(googleMappedConsentName) !== -1
+            ) {
+                payload[googleMappedConsentName] = consentState[mpMappedConsentName]
+                    .Consented
+                    ? googleConsentValues.Granted
+                    : googleConsentValues.Denied;
+            }
+        }
+
+        return payload;
+    };
+
+    var consent = ConsentHandler;
+
     // Google requires event and user attribute strings to have specific limits
     // in place when sending to data layer.
     // https://support.google.com/analytics/answer/11202874?sjid=7958830619827381593-NA
+
+
 
     var EVENT_NAME_MAX_LENGTH = 40;
     var EVENT_ATTRIBUTE_KEY_MAX_LENGTH = 40;
@@ -36,7 +149,13 @@ var GoogleAnalytics4Kit = (function (exports) {
         return value == null || !(Object.keys(value) || value).length;
     }
 
-    function Common() {}
+    function Common() {
+        this.consentMappings = [];
+        this.consentPayloadDefaults = {};
+        this.consentPayloadAsString = '';
+
+        this.consentHandler = new consent(this);
+    }
 
     Common.prototype.forwarderSettings = null;
 
@@ -307,6 +426,12 @@ var GoogleAnalytics4Kit = (function (exports) {
             return userId;
         }
     };
+
+    Common.prototype.cloneObject = function (obj) {
+        return JSON.parse(JSON.stringify(obj));
+    };
+
+    Common.prototype.isEmpty = isEmpty;
 
     var common = Common;
 
@@ -831,6 +956,32 @@ var GoogleAnalytics4Kit = (function (exports) {
         this.common = common || {};
     }
 
+    EventHandler.prototype.maybeSendConsentUpdateToGa4 = function (event) {
+        // If consent payload is empty,
+        // we never sent an initial default consent state
+        // so we shouldn't send an update.
+        if (this.common.consentPayloadAsString && this.common.consentMappings) {
+            var eventConsentState = this.common.consentHandler.getEventConsentState(
+                event.ConsentState
+            );
+
+            if (!this.common.isEmpty(eventConsentState)) {
+                var updatedConsentPayload =
+                    this.common.consentHandler.generateConsentStatePayloadFromMappings(
+                        eventConsentState,
+                        this.common.consentMappings
+                    );
+
+                var eventConsentAsString = JSON.stringify(updatedConsentPayload);
+
+                if (eventConsentAsString !== this.common.consentPayloadAsString) {
+                    gtag('consent', 'update', updatedConsentPayload);
+                    this.common.consentPayloadAsString = eventConsentAsString;
+                }
+            }
+        }
+    };
+
     // TODO: https://mparticle-eng.atlassian.net/browse/SQDSDKS-5715
     EventHandler.prototype.sendEventToGA4 = function (eventName, eventAttributes) {
         var standardizedEventName;
@@ -856,6 +1007,7 @@ var GoogleAnalytics4Kit = (function (exports) {
     };
 
     EventHandler.prototype.logEvent = function (event) {
+        this.maybeSendConsentUpdateToGa4(event);
         this.sendEventToGA4(event.EventName, event.EventAttributes);
     };
 
@@ -896,6 +1048,7 @@ var GoogleAnalytics4Kit = (function (exports) {
             event.EventAttributes
         );
 
+        this.maybeSendConsentUpdateToGa4(event);
         this.sendEventToGA4('page_view', eventAttributes);
 
         return true;
@@ -995,7 +1148,7 @@ var GoogleAnalytics4Kit = (function (exports) {
             // The API to allow a customer to provide the cleansing callback
             // relies on window.GoogleAnalytics4Kit to exist. When MP is initialized
             // via the snippet, the kit code adds it to the window automatically.
-            // However, when initialized via npm, it does not exist, and so we have 
+            // However, when initialized via npm, it does not exist, and so we have
             // to set it manually here.
             window.GoogleAnalytics4Kit = window.GoogleAnalytics4Kit || {};
 
@@ -1009,6 +1162,19 @@ var GoogleAnalytics4Kit = (function (exports) {
             var configSettings = {
                 send_page_view: forwarderSettings.enablePageView === 'True',
             };
+
+            if (forwarderSettings.consentMappingSDK) {
+                common.consentMappings = parseSettingsString(
+                    forwarderSettings.consentMappingSDK
+                );
+            } else {
+                // Ensures consent mappings is an empty array
+                // for future use
+                common.consentMappings = [];
+                common.consentPayloadDefaults = {};
+                common.consentPayloadAsString = '';
+            }
+
             window.dataLayer = window.dataLayer || [];
 
             window.gtag = function () {
@@ -1058,6 +1224,25 @@ var GoogleAnalytics4Kit = (function (exports) {
             } else {
                 isInitialized = true;
             }
+
+            common.consentPayloadDefaults =
+                common.consentHandler.getConsentSettings();
+            var initialConsentState = common.consentHandler.getUserConsentState();
+
+            var defaultConsentPayload =
+                common.consentHandler.generateConsentStatePayloadFromMappings(
+                    initialConsentState,
+                    common.consentMappings
+                );
+
+            if (!common.isEmpty(defaultConsentPayload)) {
+                common.consentPayloadAsString = JSON.stringify(
+                    defaultConsentPayload
+                );
+
+                gtag('consent', 'default', defaultConsentPayload);
+            }
+
             return isInitialized;
         },
     };
@@ -1071,6 +1256,10 @@ var GoogleAnalytics4Kit = (function (exports) {
             ga4IntegrationAttributes
         );
         window.mParticle._setIntegrationDelay(moduleId, false);
+    }
+
+    function parseSettingsString(settingsString) {
+        return JSON.parse(settingsString.replace(/&quot;/g, '"'));
     }
 
     var initialization_1 = initialization;
