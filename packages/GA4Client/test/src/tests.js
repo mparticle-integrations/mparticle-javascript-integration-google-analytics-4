@@ -325,6 +325,7 @@ describe('Google Analytics 4 Event', function () {
                                 total_amount: 999,
                             },
                         ],
+                        send_to: 'testMeasurementId',
                     },
                 ];
 
@@ -825,6 +826,7 @@ describe('Google Analytics 4 Event', function () {
                                 total_amount: 999,
                             },
                         ],
+                        send_to: 'testMeasurementId',
                     },
                 ];
 
@@ -924,6 +926,7 @@ describe('Google Analytics 4 Event', function () {
                         promotion_name: 'Summer Sale Banner',
                         creative_name: 'Summer Sale',
                         creative_slot: 'featured_app_1',
+                        send_to: 'testMeasurementId',
                     },
                 ];
 
@@ -935,9 +938,10 @@ describe('Google Analytics 4 Event', function () {
                         promotion_name: 'Winter Sale Banner',
                         creative_name: 'Winter Sale',
                         creative_slot: 'featured_app_2',
+                        send_to: 'testMeasurementId',
                     },
                 ];
-
+                
                 window.dataLayer[0].should.eql(promotionResult1);
                 window.dataLayer[1].should.eql(promotionResult2);
 
@@ -977,6 +981,7 @@ describe('Google Analytics 4 Event', function () {
                         promotion_name: 'Summer Sale Banner',
                         creative_name: 'Summer Sale',
                         creative_slot: 'featured_app_1',
+                        send_to: 'testMeasurementId',
                     },
                 ];
 
@@ -988,6 +993,7 @@ describe('Google Analytics 4 Event', function () {
                         promotion_name: 'Winter Sale Banner',
                         creative_name: 'Winter Sale',
                         creative_slot: 'featured_app_2',
+                        send_to: 'testMeasurementId',
                     },
                 ];
 
@@ -1086,6 +1092,7 @@ describe('Google Analytics 4 Event', function () {
                                 total_amount: 999,
                             },
                         ],
+                        send_to: 'testMeasurementId',
                     },
                 ];
 
@@ -1183,6 +1190,7 @@ describe('Google Analytics 4 Event', function () {
                                 total_amount: 999,
                             },
                         ],
+                        send_to: 'testMeasurementId',
                     },
                 ];
 
@@ -1242,6 +1250,7 @@ describe('Google Analytics 4 Event', function () {
                         shipping_tier: null,
                         coupon: null,
                         items: [],
+                        send_to: 'testMeasurementId',
                     },
                 ];
                 window.dataLayer[0].should.eql(result);
@@ -1271,6 +1280,7 @@ describe('Google Analytics 4 Event', function () {
                         payment_type: null,
                         coupon: null,
                         items: [],
+                        send_to: 'testMeasurementId',
                     },
                 ];
                 window.dataLayer[0].should.eql(result);
@@ -1363,6 +1373,7 @@ describe('Google Analytics 4 Event', function () {
                                 total_amount: 999,
                             },
                         ],
+                        send_to: 'testMeasurementId',
                     },
                 ];
 
@@ -1458,7 +1469,7 @@ describe('Google Analytics 4 Event', function () {
                     EventAttributes: {},
                 });
 
-                var result = ['event', 'Unmapped Event Name', {}];
+                var result = ['event', 'Unmapped Event Name', { send_to: 'testMeasurementId', }];
                 window.dataLayer[0].should.eql(result);
 
                 done();
@@ -1472,7 +1483,7 @@ describe('Google Analytics 4 Event', function () {
                     EventAttributes: null,
                 });
 
-                var result = ['event', 'Unmapped Event Name', {}];
+                var result = ['event', 'Unmapped Event Name', { send_to: 'testMeasurementId', }];
                 window.dataLayer[0].should.eql(result);
 
                 done();
@@ -1488,7 +1499,7 @@ describe('Google Analytics 4 Event', function () {
                     },
                 });
 
-                var result = ['event', 'Unmapped Event Name', { foo: 'bar' }];
+                var result = ['event', 'Unmapped Event Name', { foo: 'bar', send_to: 'testMeasurementId', }];
                 window.dataLayer[0].should.eql(result);
 
                 done();
@@ -1512,6 +1523,7 @@ describe('Google Analytics 4 Event', function () {
                     {
                         page_title: 'Mocha Tests',
                         page_location: location.href,
+                        send_to: 'testMeasurementId',
                     },
                 ];
                 window.dataLayer[0].should.eql(result);
@@ -1541,6 +1553,7 @@ describe('Google Analytics 4 Event', function () {
                         page_location: '/foo',
                         eventKey1: 'test1',
                         eventKey2: 'test2',
+                        send_to: 'testMeasurementId',
                     },
                 ];
                 window.dataLayer[0].should.eql(result);
@@ -1568,6 +1581,7 @@ describe('Google Analytics 4 Event', function () {
                     foo: 'bar',
                     superLongEventAttributeNameThatShouldBeT:
                         'Super Long Event Attribute value that should be truncated because we do not want super long attribut',
+                    send_to: 'testMeasurementId',
                 };
 
                 window.dataLayer[0][1].should.eql(expectedEventName);
@@ -1605,6 +1619,7 @@ describe('Google Analytics 4 Event', function () {
                 var expectedEventAttributes = {
                     foo: 'bar',
                     '1?test4ever!!!': 'tester',
+                    send_to: 'testMeasurementId',
                 };
 
                 window.dataLayer[0][1].should.eql(expectedEventName);
@@ -1630,6 +1645,7 @@ describe('Google Analytics 4 Event', function () {
                     {
                         page_title: 'Foo Page Title',
                         page_location: '/foo',
+                        send_to: 'testMeasurementId',
                     },
                 ];
 
@@ -1654,6 +1670,7 @@ describe('Google Analytics 4 Event', function () {
                     {
                         page_title: 'Foo Page Title',
                         page_location: '/foo',
+                        send_to: 'testMeasurementId',
                     },
                 ];
                 window.dataLayer[0].should.eql(result);
@@ -1663,7 +1680,7 @@ describe('Google Analytics 4 Event', function () {
 
             describe('limit event attributes', function () {
                 // 101 event attribute keys because the limit is 100
-                var eventAttributeKeys101 = [
+                var eventAttributeKeys100 = [
                     'aa',
                     'ab',
                     'ac',
@@ -1764,7 +1781,6 @@ describe('Google Analytics 4 Event', function () {
                     'dt',
                     'du',
                     'dv',
-                    'dw',
                 ];
 
                 it('should limit the number of event attribute keys', function (done) {
@@ -1776,7 +1792,7 @@ describe('Google Analytics 4 Event', function () {
                         EventAttributes: {},
                     };
                     // add on 101 event attributes
-                    eventAttributeKeys101.forEach(function (key) {
+                    eventAttributeKeys100.forEach(function (key) {
                         event.EventAttributes[key] = key;
                     });
                     mParticle.forwarder.process(event);
@@ -1784,7 +1800,9 @@ describe('Google Analytics 4 Event', function () {
                     var resultEventAttributeKeys = Object.keys(dataLayer[0][2]);
                     resultEventAttributeKeys.length.should.eql(100);
                     // dw is the 101st item.  The limit is 100, so
-                    resultEventAttributeKeys.should.not.have.property('dw');
+                    resultEventAttributeKeys.should.not.have.property('dv');
+                    // confirm measurmentId as part of GA4 parameters
+                    resultEventAttributeKeys.should.not.have.property('send_to');
 
                     done();
                 });
@@ -1807,15 +1825,17 @@ describe('Google Analytics 4 Event', function () {
                     };
 
                     // add on 101 event attributes
-                    eventAttributeKeys101.forEach(function (key) {
+                    eventAttributeKeys100.forEach(function (key) {
                         event.EventAttributes[key] = key;
                     });
                     mParticle.forwarder.process(event);
                     var resultEventAttributeKeys = Object.keys(dataLayer[0][2]);
                     // confirm event attribuets have been successfully set
                     resultEventAttributeKeys.includes('aa').should.equal(true);
+                    // confirm measurmentId as part of GA4 parameters
+                    resultEventAttributeKeys.includes('send_to').should.equal(true);
                     // dw is the 101st item.  The limit is 100, so
-                    resultEventAttributeKeys.includes('dw').should.equal(false);
+                    resultEventAttributeKeys.includes('dv').should.equal(false);
 
                     done();
                 });
@@ -1834,7 +1854,7 @@ describe('Google Analytics 4 Event', function () {
                     };
 
                     // add on 101 event attributes
-                    eventAttributeKeys101.forEach(function (key) {
+                    eventAttributeKeys100.forEach(function (key) {
                         event.EventAttributes[key] = key;
                     });
 
@@ -1843,8 +1863,10 @@ describe('Google Analytics 4 Event', function () {
                     var resultEventAttributeKeys = Object.keys(dataLayer[0][2]);
                     // confirm event attribuets have been successfully set
                     resultEventAttributeKeys.includes('aa').should.equal(true);
+                    // confirm measurmentId as part of GA4 parameters
+                    resultEventAttributeKeys.includes('send_to').should.equal(true);
                     // dw is the 101st item.  The limit is 100, so
-                    resultEventAttributeKeys.includes('dw').should.equal(false);
+                    resultEventAttributeKeys.includes('dv').should.equal(false);
 
                     done();
                 });
@@ -2032,6 +2054,7 @@ describe('Google Analytics 4 Event', function () {
                 var expectedEventAttributes = {
                     foo: 'bar',
                     test4ever___: 'tester',
+                    send_to: 'testMeasurementId',
                 };
 
                 window.dataLayer[0][1].should.eql(expectedEventName);
@@ -2060,6 +2083,7 @@ describe('Google Analytics 4 Event', function () {
                 var expectedEventAttributes = {
                     fo: 'bar',
                     test4ever__: 'tester',
+                    send_to: 'testMeasurementId',
                 };
 
                 window.dataLayer[0][1].should.eql(expectedEventName);
@@ -2193,6 +2217,7 @@ describe('Google Analytics 4 Event', function () {
                             },
                         ],
                         currency: 'USD',
+                        send_to: 'testMeasurementId',
                     },
                 ];
 
@@ -2294,6 +2319,7 @@ describe('Google Analytics 4 Event', function () {
                                 total_amount: 999,
                             },
                         ],
+                        send_to: 'testMeasurementId'
                     },
                 ];
 
