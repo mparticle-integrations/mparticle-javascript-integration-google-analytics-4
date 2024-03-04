@@ -210,10 +210,17 @@ CommerceHandler.prototype.logCheckoutOptionEvent = function (
 };
 
 CommerceHandler.prototype.logPromotionEvent = function (event) {
-    var ga4CommerceEventParameters;
+    var self = this;
     try {
+        var ga4CommerceEventParameters;
         event.PromotionAction.PromotionList.forEach(function (promotion) {
             ga4CommerceEventParameters = buildPromotion(promotion);
+
+            self.sendCommerceEventToGA4(
+                mapGA4EcommerceEventName(event),
+                ga4CommerceEventParameters
+            );
+            return true;
         });
     } catch (error) {
         console.error(
@@ -222,22 +229,25 @@ CommerceHandler.prototype.logPromotionEvent = function (event) {
         );
         return false;
     }
-
-    this.sendCommerceEventToGA4(
-        mapGA4EcommerceEventName(event),
-        ga4CommerceEventParameters
-    );
-    return true;
 };
 
 CommerceHandler.prototype.logImpressionEvent = function (event, affiliation) {
-    var ga4CommerceEventParameters;
+    var self = this;
     try {
+        var ga4CommerceEventParameters;
         event.ProductImpressions.forEach(function (impression) {
             ga4CommerceEventParameters = parseImpression(
                 impression,
                 affiliation
             );
+
+
+            self.sendCommerceEventToGA4(
+                mapGA4EcommerceEventName(event),
+                ga4CommerceEventParameters
+            );
+
+            return true;
         });
     } catch (error) {
         console.log(
@@ -246,13 +256,6 @@ CommerceHandler.prototype.logImpressionEvent = function (event, affiliation) {
         );
         return false;
     }
-
-    this.sendCommerceEventToGA4(
-        mapGA4EcommerceEventName(event),
-        ga4CommerceEventParameters
-    );
-
-    return true;
 };
 
 CommerceHandler.prototype.logViewCart = function (event, affiliation) {
