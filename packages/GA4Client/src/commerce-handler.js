@@ -136,11 +136,10 @@ CommerceHandler.prototype.logCommerceEvent = function (event) {
             null;
     }
 
-    this.sendCommerceEventToGA4(
+    return this.sendCommerceEventToGA4(
         mapGA4EcommerceEventName(event),
         ga4CommerceEventParameters
     );
-    return true;
 };
 
 CommerceHandler.prototype.sendCommerceEventToGA4 = function (
@@ -152,6 +151,8 @@ CommerceHandler.prototype.sendCommerceEventToGA4 = function (
     }
 
     gtag('event', eventName, eventAttributes);
+
+    return true;
 };
 
 // Google previously had a CheckoutOption event, and now this has been split into 2 GA4 events - add_shipping_info and add_payment_info
@@ -201,12 +202,10 @@ CommerceHandler.prototype.logCheckoutOptionEvent = function (
         return false;
     }
 
-    this.sendCommerceEventToGA4(
+    return this.sendCommerceEventToGA4(
         mapGA4EcommerceEventName(event),
         ga4CommerceEventParameters
     );
-
-    return true;
 };
 
 CommerceHandler.prototype.logPromotionEvent = function (event) {
@@ -220,8 +219,9 @@ CommerceHandler.prototype.logPromotionEvent = function (event) {
                 mapGA4EcommerceEventName(event),
                 ga4CommerceEventParameters
             );
-            return true;
         });
+
+        return true;
     } catch (error) {
         console.error(
             'Error logging Promotions to GA4. Promotions not logged.',
@@ -241,14 +241,13 @@ CommerceHandler.prototype.logImpressionEvent = function (event, affiliation) {
                 affiliation
             );
 
-
             self.sendCommerceEventToGA4(
                 mapGA4EcommerceEventName(event),
                 ga4CommerceEventParameters
             );
-
-            return true;
         });
+
+        return true;
     } catch (error) {
         console.log(
             'Error logging Impressions to GA4. Impressions not logged',
@@ -271,7 +270,7 @@ CommerceHandler.prototype.logViewCart = function (event, affiliation) {
         event.ProductAction.TotalAmount ||
         null;
 
-    this.sendCommerceEventToGA4(
+    return this.sendCommerceEventToGA4(
         mapGA4EcommerceEventName(event),
         ga4CommerceEventParameters
     );

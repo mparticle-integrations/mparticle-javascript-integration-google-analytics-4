@@ -1680,7 +1680,7 @@ describe('Google Analytics 4 Event', function () {
 
             describe('limit event attributes', function () {
                 // 101 event attribute keys because the limit is 100
-                var eventAttributeKeys100 = [
+                var eventAttributeKeys101 = [
                     'aa',
                     'ab',
                     'ac',
@@ -1781,6 +1781,7 @@ describe('Google Analytics 4 Event', function () {
                     'dt',
                     'du',
                     'dv',
+                    'dw'
                 ];
 
                 it('should limit the number of event attribute keys', function (done) {
@@ -1792,17 +1793,22 @@ describe('Google Analytics 4 Event', function () {
                         EventAttributes: {},
                     };
                     // add on 101 event attributes
-                    eventAttributeKeys100.forEach(function (key) {
+                    eventAttributeKeys101.forEach(function (key) {
                         event.EventAttributes[key] = key;
                     });
                     mParticle.forwarder.process(event);
 
                     var resultEventAttributeKeys = Object.keys(dataLayer[0][2]);
+                    // confirm measurmentId as part of GA4 parameters
+                    resultEventAttributeKeys.includes('send_to').should.equal(true);
+                    // remove send_to to test the 100 event attribute limit since send_to is a reserved GA4 param
+                    delete (dataLayer[0][2]).send_to
+
+                    // re-assign resultEventAttributeKeys after removing send_to from batch to only count for non-reserved params
+                    resultEventAttributeKeys = Object.keys(dataLayer[0][2]);
                     resultEventAttributeKeys.length.should.eql(100);
                     // dw is the 101st item.  The limit is 100, so
-                    resultEventAttributeKeys.should.not.have.property('dv');
-                    // confirm measurmentId as part of GA4 parameters
-                    resultEventAttributeKeys.should.not.have.property('send_to');
+                    resultEventAttributeKeys.should.not.have.property('dw');
 
                     done();
                 });
@@ -1825,17 +1831,22 @@ describe('Google Analytics 4 Event', function () {
                     };
 
                     // add on 101 event attributes
-                    eventAttributeKeys100.forEach(function (key) {
+                    eventAttributeKeys101.forEach(function (key) {
                         event.EventAttributes[key] = key;
                     });
                     mParticle.forwarder.process(event);
                     var resultEventAttributeKeys = Object.keys(dataLayer[0][2]);
-                    // confirm event attribuets have been successfully set
-                    resultEventAttributeKeys.includes('aa').should.equal(true);
                     // confirm measurmentId as part of GA4 parameters
                     resultEventAttributeKeys.includes('send_to').should.equal(true);
+                    // remove send_to to test the 100 event attribute limit since send_to is a reserved GA4 param
+                    delete (dataLayer[0][2]).send_to
+
+                    // re-assign resultEventAttributeKeys after removing send_to from batch to only count for non-reserved params
+                    resultEventAttributeKeys = Object.keys(dataLayer[0][2]);
+                    // confirm event attribuets have been successfully set
+                    resultEventAttributeKeys.includes('aa').should.equal(true);
                     // dw is the 101st item.  The limit is 100, so
-                    resultEventAttributeKeys.includes('dv').should.equal(false);
+                    resultEventAttributeKeys.includes('dw').should.equal(false);
 
                     done();
                 });
@@ -1854,19 +1865,24 @@ describe('Google Analytics 4 Event', function () {
                     };
 
                     // add on 101 event attributes
-                    eventAttributeKeys100.forEach(function (key) {
+                    eventAttributeKeys101.forEach(function (key) {
                         event.EventAttributes[key] = key;
                     });
 
                     mParticle.forwarder.process(event);
 
                     var resultEventAttributeKeys = Object.keys(dataLayer[0][2]);
-                    // confirm event attribuets have been successfully set
-                    resultEventAttributeKeys.includes('aa').should.equal(true);
                     // confirm measurmentId as part of GA4 parameters
                     resultEventAttributeKeys.includes('send_to').should.equal(true);
+                    // remove send_to to test the 100 event attribute limit since send_to is a reserved GA4 param
+                    delete (dataLayer[0][2]).send_to
+
+                    // re-assign resultEventAttributeKeys after removing send_to from batch to only count for non-reserved params
+                    resultEventAttributeKeys = Object.keys(dataLayer[0][2]);
+                    // confirm event attribuets have been successfully set
+                    resultEventAttributeKeys.includes('aa').should.equal(true);
                     // dw is the 101st item.  The limit is 100, so
-                    resultEventAttributeKeys.includes('dv').should.equal(false);
+                    resultEventAttributeKeys.includes('dw').should.equal(false);
 
                     done();
                 });

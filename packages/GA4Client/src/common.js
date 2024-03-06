@@ -7,8 +7,7 @@ var ConsentHandler = require('./consent');
 var EVENT_NAME_MAX_LENGTH = 40;
 var EVENT_ATTRIBUTE_KEY_MAX_LENGTH = 40;
 var EVENT_ATTRIBUTE_VAL_MAX_LENGTH = 100;
-// maximum event attributes reduced to 99 instead of 100 since now we include send_to as GA4 event parameter
-var EVENT_ATTRIBUTE_MAX_NUMBER = 99;
+var EVENT_ATTRIBUTE_MAX_NUMBER = 100;
 
 var USER_ATTRIBUTE_KEY_MAX_LENGTH = 24;
 var USER_ATTRIBUTE_VALUE_MAX_LENGTH = 36;
