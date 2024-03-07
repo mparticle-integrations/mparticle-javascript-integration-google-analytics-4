@@ -45,6 +45,11 @@ EventHandler.prototype.sendEventToGA4 = function (eventName, eventAttributes) {
         standardizedAttributes
     );
 
+    if (this.common.forwarderSettings.measurementId) {
+        standardizedAttributes.send_to =
+            this.common.forwarderSettings.measurementId;
+    }
+
     gtag(
         'event',
         this.common.truncateEventName(standardizedEventName),
