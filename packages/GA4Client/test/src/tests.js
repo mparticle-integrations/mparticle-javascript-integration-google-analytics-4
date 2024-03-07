@@ -941,7 +941,6 @@ describe('Google Analytics 4 Event', function () {
                         send_to: 'testMeasurementId',
                     },
                 ];
-                
                 window.dataLayer[0].should.eql(promotionResult1);
                 window.dataLayer[1].should.eql(promotionResult2);
 
