@@ -493,18 +493,18 @@ var GoogleAnalytics4Kit = (function (exports) {
                 event.CustomFlags[GA4_COMMERCE_EVENT_TYPE] === VIEW_CART
             ) {
                 isViewCartEvent = true;
-                return logViewCart(event, affiliation);
+                return this.logViewCart(event, affiliation);
             }
         }
         // Handle Impressions
         if (event.EventCategory === ProductActionTypes.Impression) {
-            return logImpressionEvent(event, affiliation);
+            return this.logImpressionEvent(event, affiliation);
             // Handle Promotions
         } else if (
             event.EventCategory === PromotionActionTypes.PromotionClick ||
             event.EventCategory === PromotionActionTypes.PromotionView
         ) {
-            return logPromotionEvent(event);
+            return this.logPromotionEvent(event);
         }
 
         switch (event.EventCategory) {
@@ -538,7 +538,7 @@ var GoogleAnalytics4Kit = (function (exports) {
                 break;
 
             case ProductActionTypes.CheckoutOption:
-                return logCheckoutOptionEvent(event, affiliation);
+                return this.logCheckoutOptionEvent(event, affiliation);
 
             default:
                 // a view cart event is handled at the beginning of this function
@@ -575,8 +575,144 @@ var GoogleAnalytics4Kit = (function (exports) {
                 null;
         }
 
-        gtag('event', mapGA4EcommerceEventName(event), ga4CommerceEventParameters);
+        return this.sendCommerceEventToGA4(
+            mapGA4EcommerceEventName(event),
+            ga4CommerceEventParameters
+        );
+    };
+
+    CommerceHandler.prototype.sendCommerceEventToGA4 = function (
+        eventName,
+        eventAttributes
+    ) {
+        if (this.common.forwarderSettings.measurementId) {
+            eventAttributes.send_to = this.common.forwarderSettings.measurementId;
+        }
+
+        gtag('event', eventName, eventAttributes);
+
         return true;
+    };
+
+    // Google previously had a CheckoutOption event, and now this has been split into 2 GA4 events - add_shipping_info and add_payment_info
+    // Since MP still uses CheckoutOption, we must map this to the 2 events using custom flags.  To prevent any data loss from customers
+    // migrating from UA to GA4, we will set a default `set_checkout_option` which matches Firebase's data model.
+    CommerceHandler.prototype.logCheckoutOptionEvent = function (
+        event,
+        affiliation
+    ) {
+        try {
+            var customFlags = event.CustomFlags,
+                GA4CommerceEventType = customFlags[GA4_COMMERCE_EVENT_TYPE],
+                ga4CommerceEventParameters;
+
+            // if no custom flags exist or there is no GA4CommerceEventType, the user has not updated their code from using legacy GA which still supports checkout_option
+            if (!customFlags || !GA4CommerceEventType) {
+                console.error(
+                    'Your checkout option event for the Google Analytics 4 integration is missing a custom flag for "GA4.CommerceEventType". The event was sent using the deprecated set_checkout_option event.  Review mParticle docs for GA4 for the custom flags to add.'
+                );
+            }
+
+            switch (GA4CommerceEventType) {
+                case ADD_SHIPPING_INFO:
+                    ga4CommerceEventParameters = buildAddShippingInfo(
+                        event,
+                        affiliation
+                    );
+                    break;
+                case ADD_PAYMENT_INFO:
+                    ga4CommerceEventParameters = buildAddPaymentInfo(
+                        event,
+                        affiliation
+                    );
+                    break;
+                default:
+                    ga4CommerceEventParameters = buildCheckoutOptions(
+                        event,
+                        affiliation
+                    );
+                    break;
+            }
+        } catch (error) {
+            console.error(
+                'There is an issue with the custom flags in your CheckoutOption event. The event was not sent.  Plrease review the docs and fix.',
+                error
+            );
+            return false;
+        }
+
+        return this.sendCommerceEventToGA4(
+            mapGA4EcommerceEventName(event),
+            ga4CommerceEventParameters
+        );
+    };
+
+    CommerceHandler.prototype.logPromotionEvent = function (event) {
+        var self = this;
+        try {
+            var ga4CommerceEventParameters;
+            event.PromotionAction.PromotionList.forEach(function (promotion) {
+                ga4CommerceEventParameters = buildPromotion(promotion);
+
+                self.sendCommerceEventToGA4(
+                    mapGA4EcommerceEventName(event),
+                    ga4CommerceEventParameters
+                );
+            });
+
+            return true;
+        } catch (error) {
+            console.error(
+                'Error logging Promotions to GA4. Promotions not logged.',
+                error
+            );
+            return false;
+        }
+    };
+
+    CommerceHandler.prototype.logImpressionEvent = function (event, affiliation) {
+        var self = this;
+        try {
+            var ga4CommerceEventParameters;
+            event.ProductImpressions.forEach(function (impression) {
+                ga4CommerceEventParameters = parseImpression(
+                    impression,
+                    affiliation
+                );
+
+                self.sendCommerceEventToGA4(
+                    mapGA4EcommerceEventName(event),
+                    ga4CommerceEventParameters
+                );
+            });
+
+            return true;
+        } catch (error) {
+            console.log(
+                'Error logging Impressions to GA4. Impressions not logged',
+                error
+            );
+            return false;
+        }
+    };
+
+    CommerceHandler.prototype.logViewCart = function (event, affiliation) {
+        var ga4CommerceEventParameters = buildViewCart(event, affiliation);
+        ga4CommerceEventParameters = this.common.mergeObjects(
+            ga4CommerceEventParameters,
+            this.common.limitEventAttributes(event.EventAttributes)
+        );
+        ga4CommerceEventParameters.currency = event.CurrencyCode;
+
+        ga4CommerceEventParameters.value =
+            (event.CustomFlags && event.CustomFlags['GA4.Value']) ||
+            event.ProductAction.TotalAmount ||
+            null;
+
+        return this.sendCommerceEventToGA4(
+            mapGA4EcommerceEventName(event),
+            ga4CommerceEventParameters
+        );
     };
 
     function buildAddOrRemoveCartItem(event, affiliation) {
@@ -833,117 +969,6 @@ var GoogleAnalytics4Kit = (function (exports) {
         }
     }
 
-    // Google previously had a CheckoutOption event, and now this has been split into 2 GA4 events - add_shipping_info and add_payment_info
-    // Since MP still uses CheckoutOption, we must map this to the 2 events using custom flags.  To prevent any data loss from customers
-    // migrating from UA to GA4, we will set a default `set_checkout_option` which matches Firebase's data model.
-    function logCheckoutOptionEvent(event, affiliation) {
-        try {
-            var customFlags = event.CustomFlags,
-                GA4CommerceEventType = customFlags[GA4_COMMERCE_EVENT_TYPE],
-                ga4CommerceEventParameters;
-
-            // if no custom flags exist or there is no GA4CommerceEventType, the user has not updated their code from using legacy GA which still supports checkout_option
-            if (!customFlags || !GA4CommerceEventType) {
-                console.error(
-                    'Your checkout option event for the Google Analytics 4 integration is missing a custom flag for "GA4.CommerceEventType". The event was sent using the deprecated set_checkout_option event.  Review mParticle docs for GA4 for the custom flags to add.'
-                );
-            }
-
-            switch (GA4CommerceEventType) {
-                case ADD_SHIPPING_INFO:
-                    ga4CommerceEventParameters = buildAddShippingInfo(
-                        event,
-                        affiliation
-                    );
-                    break;
-                case ADD_PAYMENT_INFO:
-                    ga4CommerceEventParameters = buildAddPaymentInfo(
-                        event,
-                        affiliation
-                    );
-                    break;
-                default:
-                    ga4CommerceEventParameters = buildCheckoutOptions(
-                        event,
-                        affiliation
-                    );
-                    break;
-            }
-        } catch (error) {
-            console.error(
-                'There is an issue with the custom flags in your CheckoutOption event. The event was not sent.  Plrease review the docs and fix.',
-                error
-            );
-            return false;
-        }
-
-        gtag('event', mapGA4EcommerceEventName(event), ga4CommerceEventParameters);
-
-        return true;
-    }
-
-    function logPromotionEvent(event) {
-        try {
-            var ga4CommerceEventParameters;
-            event.PromotionAction.PromotionList.forEach(function (promotion) {
-                ga4CommerceEventParameters = buildPromotion(promotion);
-                gtag(
-                    'event',
-                    mapGA4EcommerceEventName(event),
-                    ga4CommerceEventParameters
-                );
-            });
-            return true;
-        } catch (error) {
-            console.error(
-                'Error logging Promotions to GA4. Promotions not logged.',
-                error
-            );
-        }
-        return false;
-    }
-
-    function logImpressionEvent(event, affiliation) {
-        try {
-            var ga4CommerceEventParameters;
-            event.ProductImpressions.forEach(function (impression) {
-                ga4CommerceEventParameters = parseImpression(
-                    impression,
-                    affiliation
-                );
-
-                gtag(
-                    'event',
-                    mapGA4EcommerceEventName(event),
-                    ga4CommerceEventParameters
-                );
-            });
-        } catch (error) {
-            console.log(
-                'Error logging Impressions to GA4. Impressions not logged',
-                error
-            );
-            return false;
-        }
-        return true;
-    }
-
-    function logViewCart(event, affiliation) {
-        var ga4CommerceEventParameters = buildViewCart(event, affiliation);
-        ga4CommerceEventParameters = self$1.common.mergeObjects(
-            ga4CommerceEventParameters,
-            self$1.common.limitEventAttributes(event.EventAttributes)
-        );
-        ga4CommerceEventParameters.currency = event.CurrencyCode;
-
-        ga4CommerceEventParameters.value =
-            (event.CustomFlags && event.CustomFlags['GA4.Value']) ||
-            event.ProductAction.TotalAmount ||
-            null;
-        gtag('event', mapGA4EcommerceEventName(event), ga4CommerceEventParameters);
-        return true;
-    }
-
     function buildViewCart(event, affiliation) {
         return {
             items: buildProductsList(event.ProductAction.ProductList, affiliation),
@@ -998,6 +1023,11 @@ var GoogleAnalytics4Kit = (function (exports) {
         standardizedAttributes = this.common.limitEventAttributes(
             standardizedAttributes
         );
+
+        if (this.common.forwarderSettings.measurementId) {
+            standardizedAttributes.send_to =
+                this.common.forwarderSettings.measurementId;
+        }
 
         gtag(
             'event',
