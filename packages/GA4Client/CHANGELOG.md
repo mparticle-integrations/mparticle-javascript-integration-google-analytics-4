@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.4.0...v1.4.1) (2024-03-11)
+
+
+### Bug Fixes
+
+* Include send_to as event param to support multiple measurement ids ([#57](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/57)) ([7d8696d](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/7d8696d720b4672c605a7bde9b92bb44b394b70d))
+
 # [1.4.0](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.3.1...v1.4.0) (2024-03-01)
 
 
