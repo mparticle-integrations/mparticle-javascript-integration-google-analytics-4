@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.4.1...v1.4.2) (2024-04-16)
+
+
+### Bug Fixes
+
+* Set mapped consent name from server to lowercase ([#58](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/58)) ([287a8a3](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/287a8a3b69c58a0389edebcd5fc64d5ae5821ff8))
+
 ## [1.4.1](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.4.0...v1.4.1) (2024-03-11)
 
 
