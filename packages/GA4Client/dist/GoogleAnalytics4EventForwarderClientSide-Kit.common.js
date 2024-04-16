@@ -94,7 +94,11 @@ ConsentHandler.prototype.generateConsentStatePayloadFromMappings = function (
 
     for (var i = 0; i <= mappings.length - 1; i++) {
         var mappingEntry = mappings[i];
-        var mpMappedConsentName = mappingEntry.map;
+
+        // Although consent purposes can be inputted into the UI in any casing
+        // the SDK will automatically lowercase them to prevent pseudo-duplicate
+        // consent purposes, so we call `toLowerCase` on the consentMapping purposes here
+        var mpMappedConsentName = mappingEntry.map.toLowerCase();
         var googleMappedConsentName = mappingEntry.value;
 
         if (
