@@ -8,6 +8,9 @@ var EVENT_NAME_MAX_LENGTH = 40;
 var EVENT_ATTRIBUTE_KEY_MAX_LENGTH = 40;
 var EVENT_ATTRIBUTE_VAL_MAX_LENGTH = 100;
 var EVENT_ATTRIBUTE_MAX_NUMBER = 100;
+var PAGE_TITLE_MAX_LENGTH = 300;
+var PAGE_REFERRER_MAX_LENGTH = 420;
+var PAGE_LOCATION_MAX_LENGTH = 1000;
 
 var USER_ATTRIBUTE_KEY_MAX_LENGTH = 24;
 var USER_ATTRIBUTE_VALUE_MAX_LENGTH = 36;
@@ -67,7 +70,29 @@ Common.prototype.truncateAttributes = function (
     if (!isEmpty(attributes)) {
         Object.keys(attributes).forEach(function (attribute) {
             var key = truncateString(attribute, keyLimit);
-            var val = truncateString(attributes[attribute], valueLimit);
+            var val;
+            switch (key) {
+                case 'page_title':
+                    val = truncateString(
+                        attributes[attribute],
+                        PAGE_TITLE_MAX_LENGTH
+                    );
+                    break;
+                case 'page_referrer':
+                    val = truncateString(
+                        attributes[attribute],
+                        PAGE_REFERRER_MAX_LENGTH
+                    );
+                    break;
+                case 'page_location':
+                    val = truncateString(
+                        attributes[attribute],
+                        PAGE_LOCATION_MAX_LENGTH
+                    );
+                    break;
+                default:
+                    val = truncateString(attributes[attribute], valueLimit);
+            }
             truncatedAttributes[key] = val;
         });
     }
