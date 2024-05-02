@@ -17,6 +17,10 @@ var USER_ATTRIBUTE_VALUE_MAX_LENGTH = 36;
 
 var PRODUCT_ATTRIBUTE_MAX_NUMBER = 10;
 
+var PAGE_TITLE_KEY = 'page_title';
+var PAGE_LOCATION_KEY = 'page_location';
+var PAGE_REFERRER_KEY = 'page_referrer';
+
 var RESERVED_PRODUCT_KEYS = [
     'item_category',
     'item_category2',
@@ -70,29 +74,21 @@ Common.prototype.truncateAttributes = function (
     if (!isEmpty(attributes)) {
         Object.keys(attributes).forEach(function (attribute) {
             var key = truncateString(attribute, keyLimit);
-            var val;
+            var valueLimitOverride;
             switch (key) {
-                case 'page_title':
-                    val = truncateString(
-                        attributes[attribute],
-                        PAGE_TITLE_MAX_LENGTH
-                    );
+                case PAGE_TITLE_KEY:
+                    valueLimitOverride = PAGE_TITLE_MAX_LENGTH;
                     break;
-                case 'page_referrer':
-                    val = truncateString(
-                        attributes[attribute],
-                        PAGE_REFERRER_MAX_LENGTH
-                    );
+                case PAGE_REFERRER_KEY:
+                    valueLimitOverride = PAGE_REFERRER_MAX_LENGTH;
                     break;
-                case 'page_location':
-                    val = truncateString(
-                        attributes[attribute],
-                        PAGE_LOCATION_MAX_LENGTH
-                    );
+                case PAGE_LOCATION_KEY:
+                    valueLimitOverride = PAGE_LOCATION_MAX_LENGTH;
                     break;
                 default:
-                    val = truncateString(attributes[attribute], valueLimit);
+                    valueLimitOverride = valueLimit;
             }
+            var val = truncateString(attributes[attribute], valueLimitOverride);
             truncatedAttributes[key] = val;
         });
     }

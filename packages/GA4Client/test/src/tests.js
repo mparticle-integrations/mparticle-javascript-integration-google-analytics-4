@@ -1639,6 +1639,7 @@ describe('Google Analytics 4 Event', function () {
                     CustomFlags: {
                         'Google.Title': 'Foo Page Title',
                         'Google.Location': '/foo',
+                        'Google.DocumentReferrer': 'Foo Page Referrer'
                     },
                 });
                 var result = [
@@ -1647,7 +1648,7 @@ describe('Google Analytics 4 Event', function () {
                     {
                         page_title: 'Foo Page Title',
                         page_location: '/foo',
-                        page_referrer: document.referrer,
+                        page_referrer: 'Foo Page Referrer',
                         send_to: 'testMeasurementId',
                     },
                 ];

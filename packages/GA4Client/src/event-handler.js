@@ -74,10 +74,11 @@ EventHandler.prototype.logPageView = function (event) {
     // These are being included for backwards compatibility from the legacy Google Analytics custom flags
     var LEGACY_GA_TITLE = 'Google.Title';
     var LEGACY_GA_LOCATION = 'Google.Location';
+    var LEGACY_GA_REFERRER = 'Google.DocumentReferrer';
 
-    var pageLocation = location.href,
-        pageTitle = document.title,
-        pageReferrer = document.referrer;
+    var pageLocation = location.href;
+    var pageTitle = document.title;
+    var pageReferrer = document.referrer;
 
     if (event.CustomFlags) {
         if (event.CustomFlags.hasOwnProperty(TITLE)) {
@@ -94,6 +95,8 @@ EventHandler.prototype.logPageView = function (event) {
 
         if (event.CustomFlags.hasOwnProperty(REFERRER)) {
             pageReferrer = event.CustomFlags[REFERRER];
+        } else if (event.CustomFlags.hasOwnProperty(LEGACY_GA_REFERRER)) {
+            pageReferrer = event.CustomFlags[LEGACY_GA_REFERRER];
         }
     }
 
