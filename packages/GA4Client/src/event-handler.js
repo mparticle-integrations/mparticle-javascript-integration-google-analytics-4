@@ -69,13 +69,16 @@ EventHandler.prototype.logError = function () {
 EventHandler.prototype.logPageView = function (event) {
     var TITLE = 'GA4.Title';
     var LOCATION = 'GA4.Location';
+    var REFERRER = 'GA4.Referrer';
 
     // These are being included for backwards compatibility from the legacy Google Analytics custom flags
     var LEGACY_GA_TITLE = 'Google.Title';
     var LEGACY_GA_LOCATION = 'Google.Location';
+    var LEGACY_GA_REFERRER = 'Google.DocumentReferrer';
 
-    var pageLocation = location.href,
-        pageTitle = document.title;
+    var pageLocation = location.href;
+    var pageTitle = document.title;
+    var pageReferrer = document.referrer;
 
     if (event.CustomFlags) {
         if (event.CustomFlags.hasOwnProperty(TITLE)) {
@@ -89,12 +92,19 @@ EventHandler.prototype.logPageView = function (event) {
         } else if (event.CustomFlags.hasOwnProperty(LEGACY_GA_LOCATION)) {
             pageLocation = event.CustomFlags[LEGACY_GA_LOCATION];
         }
+
+        if (event.CustomFlags.hasOwnProperty(REFERRER)) {
+            pageReferrer = event.CustomFlags[REFERRER];
+        } else if (event.CustomFlags.hasOwnProperty(LEGACY_GA_REFERRER)) {
+            pageReferrer = event.CustomFlags[LEGACY_GA_REFERRER];
+        }
     }
 
     var eventAttributes = this.common.mergeObjects(
         {
             page_title: pageTitle,
             page_location: pageLocation,
+            page_referrer: pageReferrer,
         },
         event.EventAttributes
     );

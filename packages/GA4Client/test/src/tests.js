@@ -1522,6 +1522,7 @@ describe('Google Analytics 4 Event', function () {
                     {
                         page_title: 'Mocha Tests',
                         page_location: location.href,
+                        page_referrer: document.referrer,
                         send_to: 'testMeasurementId',
                     },
                 ];
@@ -1541,6 +1542,7 @@ describe('Google Analytics 4 Event', function () {
                     CustomFlags: {
                         'GA4.Title': 'Foo Page Title',
                         'GA4.Location': '/foo',
+                        'GA4.Referrer': 'Foo Page Referrer'
                     },
                 });
 
@@ -1550,6 +1552,7 @@ describe('Google Analytics 4 Event', function () {
                     {
                         page_title: 'Foo Page Title',
                         page_location: '/foo',
+                        page_referrer: 'Foo Page Referrer',
                         eventKey1: 'test1',
                         eventKey2: 'test2',
                         send_to: 'testMeasurementId',
@@ -1636,6 +1639,7 @@ describe('Google Analytics 4 Event', function () {
                     CustomFlags: {
                         'Google.Title': 'Foo Page Title',
                         'Google.Location': '/foo',
+                        'Google.DocumentReferrer': 'Foo Page Referrer'
                     },
                 });
                 var result = [
@@ -1644,6 +1648,7 @@ describe('Google Analytics 4 Event', function () {
                     {
                         page_title: 'Foo Page Title',
                         page_location: '/foo',
+                        page_referrer: 'Foo Page Referrer',
                         send_to: 'testMeasurementId',
                     },
                 ];
@@ -1660,6 +1665,7 @@ describe('Google Analytics 4 Event', function () {
                     CustomFlags: {
                         'GA4.Title': 'Foo Page Title',
                         'GA4.Location': '/foo',
+                        'GA4.Referrer': 'Foo Page Referrer'
                     },
                 });
 
@@ -1669,6 +1675,7 @@ describe('Google Analytics 4 Event', function () {
                     {
                         page_title: 'Foo Page Title',
                         page_location: '/foo',
+                        page_referrer: 'Foo Page Referrer',
                         send_to: 'testMeasurementId',
                     },
                 ];
@@ -1676,6 +1683,42 @@ describe('Google Analytics 4 Event', function () {
 
                 done();
             });
+
+            it('should log page view with truncated GA custom flags', function (done) {
+                function generateValue(length) {
+                    var value = ''
+                    for (let i = 0; i < length; i++) {
+                        value += 'a'
+                    }
+                    return value
+                }
+
+                mParticle.forwarder.process({
+                    EventDataType: MessageType.PageView,
+                    EventName: 'test name',
+                    EventAttributes: {},
+                    CustomFlags: {
+                        'GA4.Title': generateValue(305), // Max page_title length is 300 for GA4
+                        'GA4.Location': generateValue(1005), // Max page_location length is 1000 for GA4
+                        'GA4.Referrer': generateValue(425) // Max page_referrer length is 420 for GA4
+                    },
+                });
+
+                var result = [
+                    'event',
+                    'page_view',
+                    {
+                        page_title: generateValue(300),
+                        page_location: generateValue(1000),
+                        page_referrer: generateValue(420),
+                        send_to: 'testMeasurementId',
+                    },
+                ];
+
+                window.dataLayer[0].should.eql(result);
+
+                done();
+            }) 
 
             describe('limit event attributes', function () {
                 // 101 event attribute keys because the limit is 100

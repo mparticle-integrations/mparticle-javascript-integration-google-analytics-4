@@ -8,11 +8,18 @@ var EVENT_NAME_MAX_LENGTH = 40;
 var EVENT_ATTRIBUTE_KEY_MAX_LENGTH = 40;
 var EVENT_ATTRIBUTE_VAL_MAX_LENGTH = 100;
 var EVENT_ATTRIBUTE_MAX_NUMBER = 100;
+var PAGE_TITLE_MAX_LENGTH = 300;
+var PAGE_REFERRER_MAX_LENGTH = 420;
+var PAGE_LOCATION_MAX_LENGTH = 1000;
 
 var USER_ATTRIBUTE_KEY_MAX_LENGTH = 24;
 var USER_ATTRIBUTE_VALUE_MAX_LENGTH = 36;
 
 var PRODUCT_ATTRIBUTE_MAX_NUMBER = 10;
+
+var PAGE_TITLE_KEY = 'page_title';
+var PAGE_LOCATION_KEY = 'page_location';
+var PAGE_REFERRER_KEY = 'page_referrer';
 
 var RESERVED_PRODUCT_KEYS = [
     'item_category',
@@ -67,7 +74,21 @@ Common.prototype.truncateAttributes = function (
     if (!isEmpty(attributes)) {
         Object.keys(attributes).forEach(function (attribute) {
             var key = truncateString(attribute, keyLimit);
-            var val = truncateString(attributes[attribute], valueLimit);
+            var valueLimitOverride;
+            switch (key) {
+                case PAGE_TITLE_KEY:
+                    valueLimitOverride = PAGE_TITLE_MAX_LENGTH;
+                    break;
+                case PAGE_REFERRER_KEY:
+                    valueLimitOverride = PAGE_REFERRER_MAX_LENGTH;
+                    break;
+                case PAGE_LOCATION_KEY:
+                    valueLimitOverride = PAGE_LOCATION_MAX_LENGTH;
+                    break;
+                default:
+                    valueLimitOverride = valueLimit;
+            }
+            var val = truncateString(attributes[attribute], valueLimitOverride);
             truncatedAttributes[key] = val;
         });
     }
