@@ -1,3 +1,10 @@
+## [1.4.3](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.4.2...v1.4.3) (2024-05-07)
+
+
+### Bug Fixes
+
+* exceptional max attribute length and page_referrer flag addition ([#59](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/59)) ([d81fff3](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/d81fff3cc045c594289dbd9981fde57eaeeecf7f))
+
 ## [1.4.2](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.4.1...v1.4.2) (2024-04-16)
 
 
