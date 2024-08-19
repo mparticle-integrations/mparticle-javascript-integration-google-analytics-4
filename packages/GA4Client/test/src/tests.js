@@ -2395,7 +2395,6 @@ describe('Google Analytics 4 Event', function () {
                     EventAttributes: {"foo": "bar"},
                     ProductImpressions: [
                         {
-                            // TODO: Does this map to the name or id of the impression?
                             ProductImpressionList: 'Related Products',
                             ProductList: [
                                 {
