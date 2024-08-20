@@ -215,6 +215,11 @@ CommerceHandler.prototype.logPromotionEvent = function (event) {
         event.PromotionAction.PromotionList.forEach(function (promotion) {
             ga4CommerceEventParameters = buildPromotion(promotion);
 
+            ga4CommerceEventParameters = self.common.mergeObjects(
+                ga4CommerceEventParameters,
+                self.common.limitEventAttributes(event.EventAttributes)
+            );
+
             self.sendCommerceEventToGA4(
                 mapGA4EcommerceEventName(event),
                 ga4CommerceEventParameters
@@ -239,6 +244,11 @@ CommerceHandler.prototype.logImpressionEvent = function (event, affiliation) {
             ga4CommerceEventParameters = parseImpression(
                 impression,
                 affiliation
+            );
+
+            ga4CommerceEventParameters = self.common.mergeObjects(
+                ga4CommerceEventParameters,
+                self.common.limitEventAttributes(event.EventAttributes)
             );
 
             self.sendCommerceEventToGA4(

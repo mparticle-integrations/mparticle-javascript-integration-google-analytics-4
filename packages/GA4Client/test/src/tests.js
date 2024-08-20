@@ -2385,6 +2385,185 @@ describe('Google Analytics 4 Event', function () {
 
                 done();
             });
+
+            it('should include impression event custom attributes on GA4 view_item_list event', function(done) {
+                mParticle.forwarder.process({
+                    CurrencyCode: 'USD',
+                    EventName: 'Test Purchase Event',
+                    EventDataType: MessageType.Commerce,
+                    EventCategory: CommerceEventType.ProductImpression,
+                    EventAttributes: {"foo": "bar"},
+                    ProductImpressions: [
+                        {
+                            ProductImpressionList: 'Related Products',
+                            ProductList: [
+                                {
+                                    Attributes: {
+                                        eventMetric1: 'metric2',
+                                        journeyType: 'testjourneytype1',
+                                    },
+                                    Brand: 'brand',
+                                    Category: 'category',
+                                    CouponCode: 'coupon',
+                                    Name: 'iphone',
+                                    Position: 1,
+                                    Price: 999,
+                                    Quantity: 1,
+                                    Sku: 'iphoneSKU',
+                                    TotalAmount: 999,
+                                    Variant: 'variant',
+                                    'test 1': 'test1',
+                                    'test??2': 'test2',
+                                    '3!test 3': 'test3',
+                                },
+                                {
+                                    Attributes: {
+                                        eventMetric1: 'metric1',
+                                        journeyType: 'testjourneytype2',
+                                    },
+                                    Brand: 'brand',
+                                    Category: 'category',
+                                    CouponCode: 'coupon',
+                                    Name: 'iphone',
+                                    Position: 1,
+                                    Price: 999,
+                                    Quantity: 1,
+                                    Sku: 'iphoneSKU',
+                                    TotalAmount: 999,
+                                    Variant: 'variant',
+                                },
+                            ],
+                            TaxAmount: 40,
+                            ShippingAmount: 10,
+                            CouponCode: 'couponCode',
+                        },
+                    ],
+                });
+
+                var result = [
+                    'event',
+                    'view_item_list',
+                    {
+                        item_list_id: 'Related Products',
+                        item_list_name: 'Related Products',
+                        items: [
+                            {
+                                eventMetric1: 'metric2',
+                                journeyType: 'testjourneytype1',
+                                coupon: 'coupon',
+                                item_brand: 'brand',
+                                item_category: 'category',
+                                item_id: 'iphoneSKU',
+                                item_name: 'iphone',
+                                item_variant: 'variant',
+                                position: 1,
+                                price: 999,
+                                quantity: 1,
+                                total_amount: 999,
+                                test_1: 'test1',
+                                test__2: 'test2',
+                                test_3: 'test3',
+                            },
+                            {
+                                eventMetric1: 'metric1',
+                                journeyType: 'testjourneytype2',
+                                coupon: 'coupon',
+                                item_brand: 'brand',
+                                item_category: 'category',
+                                item_id: 'iphoneSKU',
+                                item_name: 'iphone',
+                                item_variant: 'variant',
+                                position: 1,
+                                price: 999,
+                                quantity: 1,
+                                total_amount: 999,
+                            },
+                        ],
+                        foo: "bar",
+                        send_to: 'testMeasurementId'
+                    },
+                ];
+
+                window.dataLayer[0].should.eql(result);
+
+                done();
+            })
+
+            it('should include promotion click event custom attributes on GA4 select_promotion event', function (done) {
+                mParticle.forwarder.process({
+                    CurrencyCode: 'USD',
+                    EventName: 'Test Purchase Event',
+                    EventDataType: MessageType.Commerce,
+                    EventCategory: CommerceEventType.PromotionClick,
+                    EventAttributes: {"foo": "bar"},
+                    PromotionAction: {
+                        PromotionActionType: PromotionActionType.PromotionClick,
+                        PromotionList: [
+                            {
+                                Id: 'P_12345',
+                                Name: 'Summer Sale Banner',
+                                Creative: 'Summer Sale',
+                                Position: 'featured_app_1',
+                            }
+                        ],
+                    },
+                });
+
+                var promotionResult = [
+                    'event',
+                    'select_promotion',
+                    {
+                        promotion_id: 'P_12345',
+                        promotion_name: 'Summer Sale Banner',
+                        creative_name: 'Summer Sale',
+                        creative_slot: 'featured_app_1',
+                        foo: 'bar',
+                        send_to: 'testMeasurementId',
+                    },
+                ];
+
+                window.dataLayer[0].should.eql(promotionResult);
+
+                done();
+            });
+
+            it('should include promotion view event custom attributes on GA4 view_promotion event', function (done) {
+                mParticle.forwarder.process({
+                    CurrencyCode: 'USD',
+                    EventName: 'Test Promotion Action Event',
+                    EventDataType: MessageType.Commerce,
+                    EventCategory: CommerceEventType.PromotionView,
+                    EventAttributes: {"foo": "bar"},
+                    PromotionAction: {
+                        PromotionActionType: PromotionActionType.PromotionView,
+                        PromotionList: [
+                            {
+                                Id: 'P_12345',
+                                Name: 'Summer Sale Banner',
+                                Creative: 'Summer Sale',
+                                Position: 'featured_app_1',
+                            }
+                        ],
+                    },
+                });
+
+                var promotionResult = [
+                    'event',
+                    'view_promotion',
+                    {
+                        promotion_id: 'P_12345',
+                        promotion_name: 'Summer Sale Banner',
+                        creative_name: 'Summer Sale',
+                        creative_slot: 'featured_app_1',
+                        foo: 'bar',
+                        send_to: 'testMeasurementId',
+                    },
+                ];
+
+                window.dataLayer[0].should.eql(promotionResult);
+
+                done();
+            });
         });
     });
 
