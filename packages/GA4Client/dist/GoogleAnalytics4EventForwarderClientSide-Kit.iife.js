@@ -679,6 +679,11 @@ var GoogleAnalytics4Kit = (function (exports) {
             event.PromotionAction.PromotionList.forEach(function (promotion) {
                 ga4CommerceEventParameters = buildPromotion(promotion);
 
+                ga4CommerceEventParameters = self.common.mergeObjects(
+                    ga4CommerceEventParameters,
+                    self.common.limitEventAttributes(event.EventAttributes)
+                );
+
                 self.sendCommerceEventToGA4(
                     mapGA4EcommerceEventName(event),
                     ga4CommerceEventParameters
@@ -703,6 +708,11 @@ var GoogleAnalytics4Kit = (function (exports) {
                 ga4CommerceEventParameters = parseImpression(
                     impression,
                     affiliation
+                );
+
+                ga4CommerceEventParameters = self.common.mergeObjects(
+                    ga4CommerceEventParameters,
+                    self.common.limitEventAttributes(event.EventAttributes)
                 );
 
                 self.sendCommerceEventToGA4(
