@@ -1,3 +1,10 @@
+## [1.4.4](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.4.3...v1.4.4) (2024-08-20)
+
+
+### Bug Fixes
+
+* forward Impressions and Promotions custom attributes ([#60](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/60)) ([d13f694](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/d13f6948f9fca0c554501035b3a7c4da91f4b911))
+
 ## [1.4.3](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.4.2...v1.4.3) (2024-05-07)
 
 
