@@ -139,6 +139,42 @@ Common.prototype.limitProductAttributes = function (attributes) {
     return this.mergeObjects(limitedProductAttributes, reservedAttributes);
 };
 
+Common.prototype.getEventConsentState = function (eventConsentState) {
+    return eventConsentState && eventConsentState.getGDPRConsentState
+        ? eventConsentState.getGDPRConsentState()
+        : {};
+};
+
+Common.prototype.maybeSendConsentUpdateToGoogle = function (consentState) {
+    // If consent payload is empty,
+    // we never sent an initial default consent state
+    // so we shouldn't send an update.
+    if (
+        this.consentPayloadAsString &&
+        this.consentMappings &&
+        !this.isEmpty(consentState)
+    ) {
+        var updatedConsentPayload =
+            this.consentHandler.generateConsentStatePayloadFromMappings(
+                consentState,
+                this.consentMappings
+            );
+
+        var eventConsentAsString = JSON.stringify(updatedConsentPayload);
+
+        if (eventConsentAsString !== this.consentPayloadAsString) {
+            gtag('consent', 'update', updatedConsentPayload);
+            this.consentPayloadAsString = eventConsentAsString;
+        }
+    }
+};
+
+Common.prototype.sendDefaultConsentPayloadToGoogle = function (consentPayload) {
+    this.consentPayloadAsString = JSON.stringify(consentPayload);
+
+    gtag('consent', 'default', consentPayload);
+};
+
 Common.prototype.truncateEventName = function (eventName) {
     return truncateString(eventName, EVENT_NAME_MAX_LENGTH);
 };

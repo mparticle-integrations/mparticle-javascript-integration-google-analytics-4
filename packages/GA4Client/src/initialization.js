@@ -105,21 +105,25 @@ var initialization = {
 
         common.consentPayloadDefaults =
             common.consentHandler.getConsentSettings();
-        var initialConsentState = common.consentHandler.getUserConsentState();
-
-        var defaultConsentPayload =
+        var defaultConsentPayload = common.cloneObject(
+            common.consentPayloadDefaults
+        );
+        var updatedConsentState = common.consentHandler.getUserConsentState();
+        var updatedDefaultConsentPayload =
             common.consentHandler.generateConsentStatePayloadFromMappings(
-                initialConsentState,
+                updatedConsentState,
                 common.consentMappings
             );
 
         if (!common.isEmpty(defaultConsentPayload)) {
-            common.consentPayloadAsString = JSON.stringify(
-                defaultConsentPayload
+            common.sendDefaultConsentPayloadToGoogle(defaultConsentPayload);
+        } else if (!common.isEmpty(updatedDefaultConsentPayload)) {
+            common.sendDefaultConsentPayloadToGoogle(
+                updatedDefaultConsentPayload
             );
-
-            gtag('consent', 'default', defaultConsentPayload);
         }
+
+        common.maybeSendConsentUpdateToGoogle(updatedConsentState);
 
         return isInitialized;
     },

@@ -46,12 +46,6 @@ ConsentHandler.prototype.getUserConsentState = function () {
     return userConsentState;
 };
 
-ConsentHandler.prototype.getEventConsentState = function (eventConsentState) {
-    return eventConsentState && eventConsentState.getGDPRConsentState
-        ? eventConsentState.getGDPRConsentState()
-        : {};
-};
-
 ConsentHandler.prototype.getConsentSettings = function () {
     var consentSettings = {};
 
