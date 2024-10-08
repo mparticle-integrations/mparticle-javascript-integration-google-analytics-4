@@ -2914,7 +2914,8 @@ describe('Google Analytics 4 Event', function () {
             ];
 
             // Initial elements of Data Layer are setup for gtag.
-            // Consent state should be on the bottom
+            // Default Consent payload from default settings should be index 3
+            // Update Consent payload from mappings should be on the bottom (index 4)
             window.dataLayer.length.should.eql(5);
             window.dataLayer[3][0].should.equal('consent');
             window.dataLayer[3][1].should.equal('default');
@@ -2978,7 +2979,8 @@ describe('Google Analytics 4 Event', function () {
 
             // Initial elements of Data Layer are setup for gtag.
             // Consent Default is index 3
-            // Consent Update is index 5
+            // Initial Consent Update from mappings is index 4
+            // Consent Update #2 is index 5
             // Event is index 6
             window.dataLayer.length.should.eql(7);
             window.dataLayer[5][0].should.equal('consent');
@@ -3050,9 +3052,10 @@ describe('Google Analytics 4 Event', function () {
 
             // Initial elements of Data Layer are setup for gtag.
             // Consent Default is index 3
-            // Consent Update is index 5
+            // Initial Consent Update from mappings is index 4
+            // Consent Update #2 is index 5
             // Event is index 6
-            // Consent Update #2 is index 7
+            // Consent Update #3 is index 7
             // Event #2 is index 8
             window.dataLayer.length.should.eql(9);
             window.dataLayer[7][0].should.equal('consent');
