@@ -2,32 +2,6 @@ function EventHandler(common) {
     this.common = common || {};
 }
 
-EventHandler.prototype.maybeSendConsentUpdateToGa4 = function (event) {
-    // If consent payload is empty,
-    // we never sent an initial default consent state
-    // so we shouldn't send an update.
-    if (this.common.consentPayloadAsString && this.common.consentMappings) {
-        var eventConsentState = this.common.consentHandler.getEventConsentState(
-            event.ConsentState
-        );
-
-        if (!this.common.isEmpty(eventConsentState)) {
-            var updatedConsentPayload =
-                this.common.consentHandler.generateConsentStatePayloadFromMappings(
-                    eventConsentState,
-                    this.common.consentMappings
-                );
-
-            var eventConsentAsString = JSON.stringify(updatedConsentPayload);
-
-            if (eventConsentAsString !== this.common.consentPayloadAsString) {
-                gtag('consent', 'update', updatedConsentPayload);
-                this.common.consentPayloadAsString = eventConsentAsString;
-            }
-        }
-    }
-};
-
 // TODO: https://mparticle-eng.atlassian.net/browse/SQDSDKS-5715
 EventHandler.prototype.sendEventToGA4 = function (eventName, eventAttributes) {
     var standardizedEventName;
@@ -58,7 +32,10 @@ EventHandler.prototype.sendEventToGA4 = function (eventName, eventAttributes) {
 };
 
 EventHandler.prototype.logEvent = function (event) {
-    this.maybeSendConsentUpdateToGa4(event);
+    var eventConsentState = this.common.getEventConsentState(
+        event.ConsentState
+    );
+    this.common.maybeSendConsentUpdateToGoogle(eventConsentState);
     this.sendEventToGA4(event.EventName, event.EventAttributes);
 };
 
@@ -109,7 +86,10 @@ EventHandler.prototype.logPageView = function (event) {
         event.EventAttributes
     );
 
-    this.maybeSendConsentUpdateToGa4(event);
+    var eventConsentState = this.common.getEventConsentState(
+        event.ConsentState
+    );
+    this.common.maybeSendConsentUpdateToGoogle(eventConsentState);
     this.sendEventToGA4('page_view', eventAttributes);
 
     return true;
