@@ -1,3 +1,10 @@
+## [1.4.5](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.4.4...v1.4.5) (2024-10-09)
+
+
+### Bug Fixes
+
+* send default and update consent payloads on kit init ([#61](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/61)) ([ec0bf79](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/ec0bf7938feed1456f69ed8169fc5795b8dee063))
+
 ## [1.4.4](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.4.3...v1.4.4) (2024-08-20)
 
 
