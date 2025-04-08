@@ -26,12 +26,12 @@ jobs:
         needs: confirm-public-repo-master-branch
         steps:
             - name: Checkout
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: NPM install
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@v4
               with:
-                  node-version: 16.x
+                  node-version: 20.x
 
             - name: Run NPM CI
               run: npm ci
@@ -43,7 +43,7 @@ jobs:
               run: npm run test
 
             - name: Archive npm failure logs
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               if: failure()
               with:
                   name: npm-logs
@@ -57,7 +57,7 @@ jobs:
             - confirm-public-repo-master-branch
         steps:
             - name: Checkout development branch
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
               with:
                   repository: mparticle-integrations/mparticle-javascript-integration-google-analytics-4
                   ref: development
@@ -101,9 +101,9 @@ jobs:
               run: |
                   git pull origin release/${{ github.run_number }}
             - name: Setup Node.js
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@v4
               with:
-                  node-version: 16.x
+                  node-version: 20.x
 
             - name: Install dependencies
               run: npm ci
@@ -118,7 +118,7 @@ jobs:
                   npx semantic-release
 
             - name: Archive npm failure logs
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               if: failure()
               with:
                   name: npm-logs
@@ -135,7 +135,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout master branch
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
               with:
                   fetch-depth: 0
                   repository: ${{ github.repository }}
