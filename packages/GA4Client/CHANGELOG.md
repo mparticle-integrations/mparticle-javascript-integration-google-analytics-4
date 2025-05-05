@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.4.5...v1.5.0) (2025-05-05)
+
+
+### Features
+
+* Map product position to GA4 item index ([#62](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/62)) ([308076c](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/308076cc22b6a7f9e78bfb0c40486654e09a2a98))
+
 ## [1.4.5](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.4.4...v1.4.5) (2024-10-09)
 
 
