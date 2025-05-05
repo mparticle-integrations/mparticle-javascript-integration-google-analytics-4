@@ -929,6 +929,9 @@ var GoogleAnalytics4Kit = (function (exports) {
                 case 'Variant':
                     productWithAllAttributes.item_variant = product.Variant;
                     break;
+                case 'Position':
+                    productWithAllAttributes.index = product.Position;
+                    break;
                 case 'Attributes':
                     break;
                 default:
