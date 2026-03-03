@@ -1287,6 +1287,92 @@ describe('Google Analytics 4 Event', function () {
                 done();
             });
 
+            it('should include EventAttributes on GA4 add_shipping_info event when CheckoutOption has GA4.CommerceEventType add_shipping_info', function (done) {
+                mParticle.forwarder.process({
+                    CurrencyCode: 'USD',
+                    EventName: 'Test add_shipping_info Event',
+                    EventDataType: MessageType.Commerce,
+                    EventCategory: CommerceEventType.ProductCheckoutOption,
+                    EventAttributes: {
+                        page_url: 'https://example.com/checkout',
+                        page_path: '/checkout',
+                        mpID: '123',
+                        SessionID: 'session-abc',
+                        foo: 'bar',
+                    },
+                    CustomFlags: {
+                        'GA4.CommerceEventType': 'add_shipping_info',
+                        'GA4.ShippingTier': 'ground',
+                    },
+                    ProductAction: {
+                        ProductActionType: ProductActionType.Click,
+                        ProductList: [],
+                    },
+                });
+
+                result = [
+                    'event',
+                    'add_shipping_info',
+                    {
+                        shipping_tier: 'ground',
+                        coupon: null,
+                        items: [],
+                        page_url: 'https://example.com/checkout',
+                        page_path: '/checkout',
+                        mpID: '123',
+                        SessionID: 'session-abc',
+                        foo: 'bar',
+                        send_to: 'testMeasurementId',
+                    },
+                ];
+                window.dataLayer[0].should.eql(result);
+
+                done();
+            });
+
+            it('should include EventAttributes on GA4 add_payment_info event when CheckoutOption has GA4.CommerceEventType add_payment_info', function (done) {
+                mParticle.forwarder.process({
+                    CurrencyCode: 'USD',
+                    EventName: 'Test add_payment_info Event',
+                    EventDataType: MessageType.Commerce,
+                    EventCategory: CommerceEventType.ProductCheckoutOption,
+                    EventAttributes: {
+                        page_url: 'https://example.com/checkout',
+                        page_path: '/checkout',
+                        mpID: '123',
+                        SessionID: 'session-abc',
+                        foo: 'bar',
+                    },
+                    CustomFlags: {
+                        'GA4.CommerceEventType': 'add_payment_info',
+                        'GA4.PaymentType': 'credit-card',
+                    },
+                    ProductAction: {
+                        ProductActionType: ProductActionType.Click,
+                        ProductList: [],
+                    },
+                });
+
+                result = [
+                    'event',
+                    'add_payment_info',
+                    {
+                        payment_type: 'credit-card',
+                        coupon: null,
+                        items: [],
+                        page_url: 'https://example.com/checkout',
+                        page_path: '/checkout',
+                        mpID: '123',
+                        SessionID: 'session-abc',
+                        foo: 'bar',
+                        send_to: 'testMeasurementId',
+                    },
+                ];
+                window.dataLayer[0].should.eql(result);
+
+                done();
+            });
+
             it('should log a view_cart event using ProductActionType.Unknown and a custom flag', function (done) {
                 mParticle.forwarder.process({
                     CurrencyCode: 'USD',
