@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.5.0...v1.5.1) (2026-03-04)
+
+
+### Bug Fixes
+
+* added attribute merging to logCheckoutOptionEvent ([#65](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/65)) ([8636f3f](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/8636f3fae03f06d1ab5c69dfe0ff1d4aa44496de))
+
 # [1.5.0](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.4.5...v1.5.0) (2025-05-05)
 
 
