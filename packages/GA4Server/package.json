@@ -28,6 +28,6 @@
     "sinon": "^15.1.0"
   },
   "dependencies": {
-    "@mparticle/web-sdk": "^2.23.0"
+    "@mparticle/web-sdk": "^2.58.0"
   }
 }
