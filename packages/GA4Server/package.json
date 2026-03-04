@@ -20,6 +20,11 @@
   },
   "repository": "https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/tree/master/packages/GA4Server",
   "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/exec": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/npm": "^13.1.2",
+    "semantic-release": "^24.2.0",
     "mocha": "^5.2.0",
     "rollup": "^1.15.6",
     "rollup-plugin-commonjs": "^10.0.0",
