@@ -696,6 +696,11 @@ var GoogleAnalytics4Kit = (function (exports) {
             return false;
         }
 
+        ga4CommerceEventParameters = this.common.mergeObjects(
+            ga4CommerceEventParameters,
+            this.common.limitEventAttributes(event.EventAttributes)
+        );
+
         return this.sendCommerceEventToGA4(
             mapGA4EcommerceEventName(event),
             ga4CommerceEventParameters
