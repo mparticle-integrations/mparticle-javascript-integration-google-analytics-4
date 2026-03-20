@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.5.1...v1.6.0) (2026-03-20)
+
+
+### Features
+
+* add new consent settings ([#67](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/issues/67)) ([593d284](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/commit/593d284790d13050a99fa4674164c30f8fe8a618))
+
 ## [1.5.1](https://github.com/mparticle-integrations/mparticle-javascript-integration-google-analytics-4/compare/v1.5.0...v1.5.1) (2026-03-04)
 
 
